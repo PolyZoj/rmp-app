@@ -1,5 +1,7 @@
 # rmp-app
 
-Android (реальное устройство или симулятор)
+Android (реальное устройство или симулятор) 
+
 Kotlin
-Jetpack compose
+
+Jetpack compose 
