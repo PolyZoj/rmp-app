@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
 fun CustomTextField(
@@ -24,6 +25,7 @@ fun CustomTextField(
     Column(modifier = Modifier.padding(horizontal = 12.dp)) {
         Text(
             text = label,
+            fontFamily = LatoFont,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -40,6 +42,7 @@ fun CustomTextField(
             placeholder = {
                 Text(
                     text = placeholder,
+                    fontFamily = LatoFont,
                     fontSize = 14.sp,
                     color = Color(0xFF6B6A6A)
                 )

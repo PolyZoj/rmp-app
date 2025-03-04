@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import com.ifmo.rmp.R
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import com.ifmo.rmp.ui.theme.LatoFont
 
 
 // дописать, когда появится рабочий роутинг
@@ -44,6 +45,7 @@ fun NavigationBar() {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = route,
+                            fontFamily = LatoFont,
                             style = TextStyle(
                                 fontSize = 12.sp
                             )

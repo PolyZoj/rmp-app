@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
 fun InfoBlock(
@@ -30,14 +31,15 @@ fun InfoBlock(
             .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = title, fontSize = 14.sp, color = Color.Gray)
+            Text(text = title, fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(6.dp))
-            Text(text = value, fontSize = 20.sp, color = Color.Black)
+            Text(text = value, fontSize = 20.sp, color = Color.Black, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "$percentage%",
                 fontSize = 16.sp,
-                color = percentageColor
+                color = percentageColor,
+                fontFamily = LatoFont
             )
         }
     }

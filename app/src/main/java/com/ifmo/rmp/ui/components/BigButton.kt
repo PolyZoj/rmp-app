@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
 fun BigButton(
@@ -34,7 +36,7 @@ fun BigButton(
         ),
         interactionSource = interactionSource
     ) {
-        Text(text = text)
+        Text(fontFamily = LatoFont, text = text, fontSize = 16.sp)
     }
 }
 
