@@ -9,33 +9,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.ifmo.rmp.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
-)
-
 val LatoFont = FontFamily(
     Font(R.font.lato_regular, FontWeight.Normal),
     Font(R.font.lato_italic, FontWeight.Normal, FontStyle.Italic),
@@ -43,4 +16,27 @@ val LatoFont = FontFamily(
     Font(R.font.lato_bold, FontWeight.Bold),
     Font(R.font.lato_light, FontWeight.Light),
     Font(R.font.lato_thin, FontWeight.Thin),
+)
+
+val AppTypography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = LatoFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = LatoFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = LatoFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = LatoFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp
+    )
 )
