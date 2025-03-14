@@ -26,19 +26,22 @@ fun CustomTextField(
         Text(
             text = label,
             fontFamily = LatoFont,
-            fontSize = 20.sp,
+            fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
-            modifier = Modifier
-                .padding(bottom = 2.dp,),
+            modifier = Modifier.padding(bottom = 5.dp),
         )
         TextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = {
+                if (!it.contains("\n")) {
+                    onValueChange(it)
+                }
+            },
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color(0xFF6B6A6A), RoundedCornerShape(8.dp))
-                .padding(horizontal = 0.dp),
+                .border(1.dp, Color(0xFF6B6A6A), RoundedCornerShape(8.dp)),
             placeholder = {
                 Text(
                     text = placeholder,
