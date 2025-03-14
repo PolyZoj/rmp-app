@@ -1,27 +1,32 @@
 package com.ifmo.rmp.ui.components
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
-fun CustomTextField(
+fun CustomPasswordField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String = "",
 ) {
+    var passwordVisible by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.padding(horizontal = 12.dp)) {
         Text(
             text = label,
@@ -51,6 +56,15 @@ fun CustomTextField(
                 )
             },
             shape = RoundedCornerShape(8.dp),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                    )
+                }
+            },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
@@ -63,13 +77,13 @@ fun CustomTextField(
 
 @Preview(showBackground = true)
 @Composable
-fun CustomTextFieldPreview() {
+fun CustomPasswordTextFieldPreview() {
     var text by remember { mutableStateOf("") }
 
-    CustomTextField(
-        label = "Email",
+    CustomPasswordField(
+        label = "Password",
         value = text,
         onValueChange = { text = it },
-        placeholder = "Enter your email address"
+        placeholder = "Enter your password"
     )
 }
