@@ -18,12 +18,13 @@ fun InfoBlock(
     title: String,
     value: String,
     percentage: Int,
+    modifier: Modifier = Modifier
 ) {
     val percentageColor = if (percentage >= 0) Color.Green else Color.Red
     val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 12.dp)
             .width(113.dp)
             .height(88.dp)
@@ -44,6 +45,7 @@ fun InfoBlock(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
