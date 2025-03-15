@@ -19,10 +19,8 @@ import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.NavigationBar
 
 
-// немного поправить расположение NavigationBar
 // Также разобраться как работать с друзьями, пока что немного не понимаю в чем тут их смысл
 // Также скорее всего тут надо будет редиркеты делать
-// Сделать страницу edit profile
 // Написать логику
 
 
