@@ -19,7 +19,7 @@ import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.NavigationBar
 
 
-// Нужно поправить эмодзи и добавить их, немного поправить расположение NavigationBar
+// немного поправить расположение NavigationBar
 // Также разобраться как работать с друзьями, пока что немного не понимаю в чем тут их смысл
 // Также скорее всего тут надо будет редиркеты делать
 // Сделать страницу edit profile
@@ -84,7 +84,7 @@ fun ProfileScreen() {
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                EmojiIcon(iconResId = R.drawable.e_rewards)
+                EmojiIcon(iconResId = R.drawable.e_trophy)
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(text = "Daily Challenge", fontSize = 14.sp, fontFamily = LatoFont)
@@ -102,20 +102,26 @@ fun ProfileScreen() {
                         .weight(1f)
                         .padding(end = 4.dp)
                         .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                        .padding(12.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(12.dp)
                 ) {
-                    Text(text = "Daily Step Goal", fontSize = 14.sp, fontFamily = LatoFont)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        EmojiIcon(iconResId = R.drawable.e_step)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Daily Step Goal", fontSize = 14.sp, fontFamily = LatoFont)
+                    }
                 }
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)
                         .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                        .padding(12.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(12.dp)
                 ) {
-                    Text(text = "Water Intake", fontSize = 14.sp, fontFamily = LatoFont)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        EmojiIcon(iconResId = R.drawable.e_water)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Water Intake", fontSize = 14.sp, fontFamily = LatoFont)
+                    }
                 }
             }
 
