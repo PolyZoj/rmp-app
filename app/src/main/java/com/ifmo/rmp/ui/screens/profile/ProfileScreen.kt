@@ -10,14 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.theme.LatoFont
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.EmojiIcon
-import com.ifmo.rmp.ui.components.NavigationBar
 
 
 // Также разобраться как работать с друзьями, пока что немного не понимаю в чем тут их смысл
@@ -160,17 +158,5 @@ fun ProfileScreen(
                 Text(text = "Toxa", fontSize = 14.sp, fontFamily = LatoFont)
             }
         }
-
-        NavigationBar(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-        )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(onNavigateToEditProfile = {})
 }

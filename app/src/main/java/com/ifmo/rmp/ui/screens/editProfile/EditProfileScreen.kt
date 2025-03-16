@@ -10,12 +10,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.CustomTextField
-import com.ifmo.rmp.ui.components.NavigationBar
 import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
@@ -86,13 +84,5 @@ fun EditProfileScreen(
         CustomTextField(label = "Calorie Goal", value = calorieGoal, onValueChange = { calorieGoal = it })
 
         Spacer(modifier = Modifier.weight(1f))
-
-        NavigationBar()
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EditProfileScreenPreview() {
-    EditProfileScreen(onNavigateBack = {})
 }
