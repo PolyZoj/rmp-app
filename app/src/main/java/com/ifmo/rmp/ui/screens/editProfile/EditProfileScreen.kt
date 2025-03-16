@@ -19,7 +19,9 @@ import com.ifmo.rmp.ui.components.NavigationBar
 import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
-fun EditProfileScreen() {
+fun EditProfileScreen(
+    onNavigateBack: () -> Unit
+) {
     var weight by remember { mutableStateOf("52 kg") }
     var dailyStepGoal by remember { mutableStateOf("20000 steps") }
     var waterIntakeGoal by remember { mutableStateOf("2500 ml") }
@@ -37,7 +39,7 @@ fun EditProfileScreen() {
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable {}
+                    .clickable { onNavigateBack() }
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
@@ -92,5 +94,5 @@ fun EditProfileScreen() {
 @Preview(showBackground = true)
 @Composable
 fun EditProfileScreenPreview() {
-    EditProfileScreen()
+    EditProfileScreen(onNavigateBack = {})
 }

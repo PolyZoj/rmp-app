@@ -2,6 +2,7 @@ package com.ifmo.rmp.ui.screens.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -25,7 +26,9 @@ import com.ifmo.rmp.ui.components.NavigationBar
 
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onNavigateToEditProfile: () -> Unit
+) {
     val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
 
     Box(
@@ -44,13 +47,20 @@ fun ProfileScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                EmojiIcon(iconResId = R.drawable.e_profile)
+                EmojiIcon(
+                    iconResId = R.drawable.e_profile,
+                )
                 Spacer(modifier = Modifier.width(12.dp))
-                Column {
+
+                Column(
+                    modifier = Modifier.clickable { onNavigateToEditProfile() }
+                ) {
                     Text(text = "John Doe", fontSize = 20.sp, fontFamily = LatoFont)
                     Text(text = "Level 5 | 5233 XP", fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
                 }
+
                 Spacer(modifier = Modifier.weight(1f))
+
                 Column(horizontalAlignment = Alignment.End) {
                     Text(text = "Currently a member of:", fontSize = 12.sp, color = Color.Gray, fontFamily = LatoFont)
                     Text(text = "Mexico52club", fontSize = 14.sp, fontFamily = LatoFont)
@@ -162,5 +172,5 @@ fun ProfileScreen() {
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    ProfileScreen(onNavigateToEditProfile = {})
 }
