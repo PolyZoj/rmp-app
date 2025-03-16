@@ -17,12 +17,13 @@ import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
 fun CustomTextField(
+    modifier: Modifier = Modifier,
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String = "",
 ) {
-    Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+    Column(modifier = modifier.padding(horizontal = 12.dp)) {
         Text(
             text = label,
             fontFamily = LatoFont,
