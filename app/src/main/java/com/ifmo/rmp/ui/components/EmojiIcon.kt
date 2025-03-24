@@ -8,10 +8,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun EmojiIcon(iconResId: Int) {
+fun EmojiIcon(iconResId: Int, size: Int = 24) {
     Image(
         painter = painterResource(id = iconResId),
         contentDescription = null,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(size.dp)
     )
 }
