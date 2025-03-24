@@ -26,7 +26,7 @@ fun BigInfoBlock(
     Card(
         modifier = modifier
             .height(68.dp)
-            .width(170.dp),
+            .width(180.dp),
         border = BorderStroke(1.dp, Color(0xFF6B6A6A).copy(alpha = 0.5f)),
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent

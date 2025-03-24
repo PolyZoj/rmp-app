@@ -24,7 +24,7 @@ fun EmojiAndTextWithDescriptionLine(
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             EmojiIcon(iconResId, size = 36)
             Spacer(modifier = Modifier.width(12.dp))
