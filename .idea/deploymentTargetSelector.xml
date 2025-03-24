@@ -17,6 +17,9 @@
       <SelectionState runConfigName="BigInfoBlockPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="EmojiAndTextWithDescriptionLinePreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
