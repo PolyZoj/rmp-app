@@ -28,7 +28,7 @@ fun CustomPasswordField(
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.padding(horizontal = 12.dp)) {
+    Column {
         Text(
             text = label,
             fontFamily = LatoFont,

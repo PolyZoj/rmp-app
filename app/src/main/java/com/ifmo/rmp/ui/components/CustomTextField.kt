@@ -23,7 +23,7 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     placeholder: String = "",
 ) {
-    Column(modifier = modifier.padding(horizontal = 12.dp)) {
+    Column {
         Text(
             text = label,
             fontFamily = LatoFont,
