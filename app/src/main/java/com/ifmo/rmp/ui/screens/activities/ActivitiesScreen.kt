@@ -1,0 +1,81 @@
+package com.ifmo.rmp.ui.screens.activities
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.ifmo.rmp.R
+import com.ifmo.rmp.ui.components.BigInfoBlock
+import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
+
+@Composable
+fun ActivitiesScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(text = "Activity Summary", fontSize = 24.sp)
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                BigInfoBlock(title = "Steps taken", value = "10000 / 20000")
+                BigInfoBlock(title = "Water intake", value = "8 cups / 12 cups")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                BigInfoBlock(title = "Workouts completed", value = "2")
+                BigInfoBlock(title = "Calories burned", value = "500")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(text = "Friends' Activity", fontSize = 20.sp)
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Start)
+        ) {
+            EmojiAndTextWithDescriptionLine(
+                iconResId = R.drawable.e_step,
+                title = "John Doe",
+                subtitle = "Steps: 8000, Calories: 1200"
+            )
+            EmojiAndTextWithDescriptionLine(
+                iconResId = R.drawable.e_step,
+                title = "Jane Doe",
+                subtitle = "Steps: 12000, Calories: 790"
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ActivitiesScreenPreview() {
+    ActivitiesScreen()
+}
