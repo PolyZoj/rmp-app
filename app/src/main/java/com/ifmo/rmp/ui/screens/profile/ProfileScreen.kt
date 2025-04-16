@@ -20,6 +20,7 @@ import com.ifmo.rmp.ui.theme.LatoFont
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
+import com.ifmo.rmp.ui.components.GoalBox
 
 @Composable
 fun ProfileScreen(
@@ -32,6 +33,7 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(Color.White)
             .padding(horizontal = 12.dp)
+            .padding(top = 24.dp)
     ) {
         Column(
             modifier = Modifier
@@ -58,8 +60,8 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(text = "Currently a member of:", fontSize = 12.sp, color = Color.Gray, fontFamily = LatoFont)
-                    Text(text = "Mexico52club", fontSize = 14.sp, fontFamily = LatoFont)
+                    Text(text = "Currently a member of:", fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
+                    Text(text = "Mexico52club", fontSize = 16.sp, fontFamily = LatoFont)
                 }
             }
 
@@ -113,36 +115,29 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Quick Goals", fontSize = 16.sp, fontFamily = LatoFont)
+            Text(text = "Quick Goals", fontSize = 18.sp, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Box(
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                GoalBox(
+                    iconResId = R.drawable.e_step,
+                    text = "Daily Step Goal",
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 4.dp)
-                        .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                        .padding(12.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        EmojiIcon(iconResId = R.drawable.e_step)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Daily Step Goal", fontSize = 14.sp, fontFamily = LatoFont)
-                    }
-                }
-                Box(
+                )
+
+                GoalBox(
+                    iconResId = R.drawable.e_water,
+                    text = "Water Intake",
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)
-                        .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                        .padding(12.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        EmojiIcon(iconResId = R.drawable.e_water)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Water Intake", fontSize = 14.sp, fontFamily = LatoFont)
-                    }
-                }
+                )
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
