@@ -1,13 +1,10 @@
 package com.ifmo.rmp.ui.screens.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +18,8 @@ import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
 import com.ifmo.rmp.ui.components.GoalBox
+import com.ifmo.rmp.ui.components.PersonField
+import com.ifmo.rmp.ui.components.SearchBar
 
 @Composable
 fun ProfileScreen(
@@ -66,6 +65,8 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Weak statistics", fontSize = 18.sp, fontFamily = LatoFont)
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -141,30 +142,34 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Find Friends", fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
+            Text(text = "Find Friends", fontSize = 18.sp, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(4.dp))
+            SearchBar()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val friends: List<Pair<String, Int>> = listOf(
+                "Toxa" to R.drawable.e_profile,
+                "Roma" to R.drawable.e_profile,
+                "9mice" to R.drawable.e_profile,
+                "Roman52" to R.drawable.e_profile,
+                "RomanPPPiroman" to R.drawable.e_profile
+            )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
-                    .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                    .padding(start = 8.dp),
-                contentAlignment = Alignment.CenterStart
             ) {
-                Text(text = "Search for friends", fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = 42.dp)
+                ) {
+                    items(friends) { friend ->
+                        PersonField(name = friend.first, iconResId = friend.second)
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                EmojiIcon(iconResId = R.drawable.e_clubs)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Toxa", fontSize = 14.sp, fontFamily = LatoFont)
-            }
+
         }
     }
 }
