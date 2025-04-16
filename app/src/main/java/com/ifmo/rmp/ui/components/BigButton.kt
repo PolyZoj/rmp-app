@@ -27,8 +27,7 @@ fun BigButton(
     Button(
         onClick = onClick,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isPressed) Color(0xFF505050) else Color(0xFF000000),
