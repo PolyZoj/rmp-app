@@ -25,11 +25,16 @@ fun EditProfileScreen(
     var waterIntakeGoal by remember { mutableStateOf("2500 ml") }
     var calorieGoal by remember { mutableStateOf("12000 calories") }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp)
+            .padding(top = 32.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -54,7 +59,7 @@ fun EditProfileScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
