@@ -46,12 +46,6 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        if (password.length < 6) {
-            _uiState.value =
-                _uiState.value.copy(errorMessage = "Password must be at least 6 characters")
-            return
-        }
-
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
