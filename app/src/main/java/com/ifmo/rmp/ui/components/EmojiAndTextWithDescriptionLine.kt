@@ -26,17 +26,17 @@ fun EmojiAndTextWithDescriptionLine(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(12.dp)
         ) {
-            EmojiIcon(iconResId, size = 36)
+            EmojiIcon(iconResId, size = 28)
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
                     text = title,
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     color = Color.Gray
                 )
             }

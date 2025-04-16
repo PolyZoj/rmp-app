@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,12 +19,7 @@ import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.theme.LatoFont
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.EmojiIcon
-
-
-// Также разобраться как работать с друзьями, пока что немного не понимаю в чем тут их смысл
-// Также скорее всего тут надо будет редиркеты делать
-// Написать логику
-
+import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
 
 @Composable
 fun ProfileScreen(
@@ -80,21 +78,36 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Completed Challenges", fontSize = 16.sp, fontFamily = LatoFont)
+            Text(text = "Completed Challenges", fontSize = 18.sp, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(8.dp))
-            Row(
+
+            val challenges = listOf(
+                Triple("Daily Challenge", "30-day streak", R.drawable.e_trophy),
+                Triple("Weekly Push", "5 completed", R.drawable.e_trophy),
+                Triple("Monthly Beast", "100% tasks", R.drawable.e_trophy),
+                Triple("Steps Hero", "50k steps", R.drawable.e_step),
+                Triple("Hydration King", "7-day streak", R.drawable.e_water)
+            )
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(0.dp)
-                    .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .height(180.dp)
             ) {
-                EmojiIcon(iconResId = R.drawable.e_trophy)
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(text = "Daily Challenge", fontSize = 14.sp, fontFamily = LatoFont)
-                    Text(text = "30-day streak", fontSize = 12.sp, color = Color.Gray, fontFamily = LatoFont)
+                LazyColumn(
+                    contentPadding = PaddingValues(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(challenges.take(5)) { challenge ->
+                        EmojiAndTextWithDescriptionLine(
+                            iconResId = challenge.third,
+                            title = challenge.first,
+                            subtitle = challenge.second,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp)
+                        )
+                    }
                 }
             }
 
