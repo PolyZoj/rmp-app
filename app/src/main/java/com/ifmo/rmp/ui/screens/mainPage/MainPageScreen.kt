@@ -19,6 +19,7 @@ import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.BigEmojiButton
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
 import com.ifmo.rmp.ui.components.InfoBlock
+import com.ifmo.rmp.ui.theme.LatoFont
 
 // доделать скролл + если есть запросы непрочитанные, то пометить(Например красной точкой или обводкой???)
 // подключить в навигацию
@@ -31,6 +32,7 @@ fun MainPageScreen() {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(top = 16.dp)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -42,8 +44,9 @@ fun MainPageScreen() {
                 ) {
                     Text(
                         text = "Welcome, Vasya Pupkin!",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = LatoFont
                     )
                     IconButton(
                         onClick = { showNotifications.value = true }
@@ -89,7 +92,7 @@ fun MainPageScreen() {
                 Text(
                     text = "Daily Goal Progress",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = LatoFont
                 )
             }
 
@@ -110,7 +113,7 @@ fun MainPageScreen() {
                 Text(
                     text = "Available Challenges",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontFamily = LatoFont
                 )
             }
 
