@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.sp
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.BigInfoBlock
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
+import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
 fun ActivitiesScreen() {
@@ -18,9 +19,10 @@ fun ActivitiesScreen() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
+            .padding(top = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = "Activity Summary", fontSize = 24.sp)
+        Text(text = "Activity Summary", fontSize = 22.sp, fontFamily = LatoFont)
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -51,7 +53,7 @@ fun ActivitiesScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(text = "Friends' Activity", fontSize = 20.sp)
+        Text(text = "Friends' Activity", fontSize = 18.sp, fontFamily = LatoFont)
 
         Spacer(modifier = Modifier.height(4.dp))
 

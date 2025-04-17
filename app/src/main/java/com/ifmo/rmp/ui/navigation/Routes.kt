@@ -11,6 +11,8 @@ import androidx.navigation.compose.rememberNavController
 import com.ifmo.rmp.ui.screens.editProfile.EditProfileScreen
 import com.ifmo.rmp.ui.screens.profile.ProfileScreen
 import com.ifmo.rmp.ui.components.BottomNavigationBar
+import com.ifmo.rmp.ui.screens.mainPage.MainPageScreen
+import com.ifmo.rmp.ui.screens.activities.ActivitiesScreen
 
 @Composable
 fun AppNavGraph() {
@@ -20,10 +22,14 @@ fun AppNavGraph() {
         navController = navController,
         startDestination = Routes.PROFILE
     ) {
-        composable(Routes.HOME) {  }
-        composable(Routes.ACTIVITIES) {  }
-        composable(Routes.CLUBS) {  }
-        composable(Routes.REWARDS) {  }
+        composable(Routes.HOME) {
+            MainPageScreen()
+        }
+        composable(Routes.ACTIVITIES) {
+            ActivitiesScreen()
+        }
+        composable(Routes.CLUBS) { /* TODO: Add screen */ }
+        composable(Routes.REWARDS) { /* TODO: Add screen */ }
         composable(Routes.PROFILE) {
             ProfileScreen(
                 onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }

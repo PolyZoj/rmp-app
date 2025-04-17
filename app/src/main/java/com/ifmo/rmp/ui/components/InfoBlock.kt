@@ -38,7 +38,7 @@ fun InfoBlock(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "$percentage%",
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = percentageColor,
                 fontFamily = LatoFont
             )
