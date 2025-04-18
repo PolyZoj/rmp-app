@@ -48,7 +48,7 @@ fun RewardsLine(
 
             Text(
                 text = status,
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 color = if (status == "Completed") Color(0xFF228D00) else Color(0xFF8B0000),
                 fontWeight = FontWeight.Medium
             )

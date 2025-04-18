@@ -13,6 +13,7 @@ import com.ifmo.rmp.ui.screens.profile.ProfileScreen
 import com.ifmo.rmp.ui.components.BottomNavigationBar
 import com.ifmo.rmp.ui.screens.mainPage.MainPageScreen
 import com.ifmo.rmp.ui.screens.activities.ActivitiesScreen
+import com.ifmo.rmp.ui.screens.rewards.RewardsScreen
 
 @Composable
 fun AppNavGraph() {
@@ -29,7 +30,9 @@ fun AppNavGraph() {
             ActivitiesScreen()
         }
         composable(Routes.CLUBS) { /* TODO: Add screen */ }
-        composable(Routes.REWARDS) { /* TODO: Add screen */ }
+        composable(Routes.REWARDS) {
+            RewardsScreen()
+        }
         composable(Routes.PROFILE) {
             ProfileScreen(
                 onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
