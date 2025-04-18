@@ -20,7 +20,7 @@ fun InfoBlock(
     percentage: Int,
     modifier: Modifier = Modifier
 ) {
-    val percentageColor = if (percentage >= 0) Color.Green else Color.Red
+    val percentageColor = if (percentage >= 0) Color(0xFF228D00) else Color(0xFF8B0000)
     val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
 
     Box(
