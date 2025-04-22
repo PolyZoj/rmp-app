@@ -19,6 +19,7 @@ import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.BigEmojiButton
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
 import com.ifmo.rmp.ui.components.InfoBlock
+import com.ifmo.rmp.ui.components.FriendNotification
 import com.ifmo.rmp.ui.theme.LatoFont
 
 // доделать скролл + если есть запросы непрочитанные, то пометить(Например красной точкой или обводкой???)
@@ -66,22 +67,22 @@ fun MainPageScreen() {
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
                         BigEmojiButton(
-                            emojiResId = R.drawable.e_trophy,
+                            emojiResId = R.drawable.e_mainprofile,
                             text = "Profile",
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {
                         BigEmojiButton(
-                            emojiResId = R.drawable.e_trophy,
-                            text = "Social",
+                            emojiResId = R.drawable.e_mainclubs,
+                            text = "Clubs",
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {
                         BigEmojiButton(
-                            emojiResId = R.drawable.e_trophy,
-                            text = "Add friend",
+                            emojiResId = R.drawable.e_workout,
+                            text = "Add Workout",
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
@@ -152,7 +153,48 @@ fun MainPageScreen() {
                     )
                 },
                 text = {
-                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                    ) {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            item {
+                                FriendNotification(
+                                    userId = "101",
+                                    userName = "ZZZ",
+                                    onAccept = { println("Accepted 101") },
+                                    onDecline = { println("Declined 101") }
+                                )
+                            }
+                            item {
+                                FriendNotification(
+                                    userId = "102",
+                                    userName = "9mice",
+                                    onAccept = { println("Accepted 102") },
+                                    onDecline = { println("Declined 102") }
+                                )
+                            }
+                            item {
+                                FriendNotification(
+                                    userId = "103",
+                                    userName = "mrKent228",
+                                    onAccept = { println("Accepted 103") },
+                                    onDecline = { println("Declined 103") }
+                                )
+                            }
+                            item {
+                                FriendNotification(
+                                    userId = "104",
+                                    userName = "SamsaUZB",
+                                    onAccept = { println("Accepted 104") },
+                                    onDecline = { println("Declined 104") }
+                                )
+                            }
+                        }
                     }
                 },
                 confirmButton = {
@@ -167,6 +209,7 @@ fun MainPageScreen() {
                 shape = MaterialTheme.shapes.medium
             )
         }
+
     }
 }
 
