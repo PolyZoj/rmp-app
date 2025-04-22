@@ -47,7 +47,7 @@ fun ActivitiesScreen() {
                 modifier = Modifier.wrapContentWidth()
             ) {
                 BigInfoBlock(title = "Workouts completed", value = "2")
-                BigInfoBlock(title = "Calories burned", value = "500")
+                BigInfoBlock(title = "Calories burned", value = "500 / 5000")
             }
         }
 
