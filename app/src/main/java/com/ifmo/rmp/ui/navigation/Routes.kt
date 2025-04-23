@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.ifmo.rmp.ui.screens.editProfile.EditProfileScreen
 import com.ifmo.rmp.ui.screens.profile.ProfileScreen
 import com.ifmo.rmp.ui.components.BottomNavigationBar
@@ -45,7 +47,8 @@ fun AppNavGraph() {
             }
             composable(Routes.PROFILE) {
                 ProfileScreen(
-                    onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
+                    onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
+                    navController = navController
                 )
             }
             composable(Routes.EDIT_PROFILE) {
@@ -56,6 +59,18 @@ fun AppNavGraph() {
             composable(Routes.ANOTHER_PERSON) {
                 AnotherPersonScreen(
                     friendState = FriendButtonState.AddFriend, // потом динамически
+                    onFriendActionClick = {},
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Routes.ANOTHER_PERSON_WITH_ID,
+                arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
+
+                AnotherPersonScreen(
+                    friendState = FriendButtonState.AddFriend,
                     onFriendActionClick = {},
                     onNavigateBack = { navController.popBackStack() }
                 )

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.theme.LatoFont
 import com.ifmo.rmp.R
@@ -23,7 +24,8 @@ import com.ifmo.rmp.ui.components.SearchBar
 
 @Composable
 fun ProfileScreen(
-    onNavigateToEditProfile: () -> Unit
+    onNavigateToEditProfile: () -> Unit,
+    navController: NavController
 ) {
     val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
 
@@ -165,7 +167,13 @@ fun ProfileScreen(
                     contentPadding = PaddingValues(bottom = 42.dp)
                 ) {
                     items(friends) { friend ->
-                        PersonField(name = friend.first, iconResId = friend.second)
+                        PersonField(
+                            name = friend.first,
+                            iconResId = friend.second,
+                            onClick = {
+                                navController.navigate("another_person/123")
+                            }
+                        )
                     }
                 }
             }
