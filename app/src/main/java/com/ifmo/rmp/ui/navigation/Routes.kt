@@ -3,6 +3,8 @@ package com.ifmo.rmp.ui.navigation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -11,42 +13,54 @@ import androidx.navigation.compose.rememberNavController
 import com.ifmo.rmp.ui.screens.editProfile.EditProfileScreen
 import com.ifmo.rmp.ui.screens.profile.ProfileScreen
 import com.ifmo.rmp.ui.components.BottomNavigationBar
+import com.ifmo.rmp.ui.components.FriendButtonState
 import com.ifmo.rmp.ui.screens.mainPage.MainPageScreen
 import com.ifmo.rmp.ui.screens.activities.ActivitiesScreen
+import com.ifmo.rmp.ui.screens.anotherPerson.AnotherPersonScreen
 import com.ifmo.rmp.ui.screens.rewards.RewardsScreen
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
 
-    NavHost(
-        navController = navController,
-        startDestination = Routes.PROFILE
-    ) {
-        composable(Routes.HOME) {
-            MainPageScreen()
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(navController)
         }
-        composable(Routes.ACTIVITIES) {
-            ActivitiesScreen()
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Routes.PROFILE,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Routes.HOME) {
+                MainPageScreen()
+            }
+            composable(Routes.ACTIVITIES) {
+                ActivitiesScreen()
+            }
+            composable(Routes.CLUBS) { /* TODO: Add screen */ }
+            composable(Routes.REWARDS) {
+                RewardsScreen()
+            }
+            composable(Routes.PROFILE) {
+                ProfileScreen(
+                    onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
+                )
+            }
+            composable(Routes.EDIT_PROFILE) {
+                EditProfileScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(Routes.ANOTHER_PERSON) {
+                AnotherPersonScreen(
+                    friendState = FriendButtonState.AddFriend, // потом динамически
+                    onFriendActionClick = {},
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
-        composable(Routes.CLUBS) { /* TODO: Add screen */ }
-        composable(Routes.REWARDS) {
-            RewardsScreen()
-        }
-        composable(Routes.PROFILE) {
-            ProfileScreen(
-                onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) }
-            )
-        }
-        composable(Routes.EDIT_PROFILE) {
-            EditProfileScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Spacer(modifier = Modifier.weight(1f))
-        BottomNavigationBar(navController)
     }
 }
+

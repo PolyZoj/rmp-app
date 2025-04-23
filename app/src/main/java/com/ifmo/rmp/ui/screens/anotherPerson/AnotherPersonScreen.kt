@@ -1,12 +1,16 @@
 package com.ifmo.rmp.ui.screens.anotherPerson
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,8 +21,7 @@ import com.ifmo.rmp.ui.components.FriendButtonState
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.theme.LatoFont
 
-// Добавить возращение в профиль как у EditProfile
-// Подключить к navigation
+// Добавить передачу id юзера как будет бек, для полноценной работы
 
 @Composable
 fun AnotherPersonScreen(
@@ -38,6 +41,29 @@ fun AnotherPersonScreen(
                 .fillMaxSize()
                 .padding(bottom = 56.dp)
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.e_arrow_left),
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onNavigateBack() }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "User Profile",
+                    fontFamily = LatoFont,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
@@ -97,7 +123,9 @@ fun AnotherPersonScreen(
                     modifier = Modifier.weight(1f)
                 )
             }
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -111,6 +139,7 @@ fun AnotherPersonScreen(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

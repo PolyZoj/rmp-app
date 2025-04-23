@@ -7,4 +7,5 @@ object Routes {
     const val REWARDS = "rewards"
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "edit_profile"
+    const val ANOTHER_PERSON = "another_person"
 }
