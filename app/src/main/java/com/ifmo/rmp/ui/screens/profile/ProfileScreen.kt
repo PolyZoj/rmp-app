@@ -39,7 +39,6 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 56.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Row(

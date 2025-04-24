@@ -48,7 +48,7 @@ fun AppNavGraph() {
             composable(Routes.PROFILE) {
                 ProfileScreen(
                     onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
-                    navController = navController
+                    navController = navController,
                 )
             }
             composable(Routes.EDIT_PROFILE) {
