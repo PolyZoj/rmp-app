@@ -141,7 +141,6 @@ fun ProfileScreen(
                 )
             }
 
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(text = "Find Friends", fontSize = 18.sp, fontFamily = LatoFont)

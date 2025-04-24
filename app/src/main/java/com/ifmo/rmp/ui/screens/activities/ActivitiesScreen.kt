@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.sp
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.BigInfoBlock
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
+import com.ifmo.rmp.ui.components.GoalBox
 import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
@@ -49,6 +50,30 @@ fun ActivitiesScreen() {
                 BigInfoBlock(title = "Workouts completed", value = "2")
                 BigInfoBlock(title = "Calories burned", value = "500 / 5000")
             }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            GoalBox(
+                iconResId = R.drawable.e_workout,
+                text = "Add workout",
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp)
+                    .padding(start = 8.dp)
+            )
+
+            GoalBox(
+                iconResId = R.drawable.e_water,
+                text = "Add water intake",
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+                    .padding(end = 8.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
