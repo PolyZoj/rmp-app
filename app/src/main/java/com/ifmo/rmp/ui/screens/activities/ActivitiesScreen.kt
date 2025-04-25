@@ -8,14 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.BigInfoBlock
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
 import com.ifmo.rmp.ui.components.GoalBox
+import com.ifmo.rmp.ui.navigation.Routes
 import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
-fun ActivitiesScreen() {
+fun ActivitiesScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -52,7 +54,7 @@ fun ActivitiesScreen() {
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -60,6 +62,7 @@ fun ActivitiesScreen() {
             GoalBox(
                 iconResId = R.drawable.e_workout,
                 text = "Add workout",
+                onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 4.dp)
@@ -69,6 +72,7 @@ fun ActivitiesScreen() {
             GoalBox(
                 iconResId = R.drawable.e_water,
                 text = "Add water intake",
+                onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 4.dp)
@@ -99,10 +103,4 @@ fun ActivitiesScreen() {
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ActivitiesScreenPreview() {
-    ActivitiesScreen()
 }

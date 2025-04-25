@@ -15,18 +15,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.BigEmojiButton
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.components.FriendNotification
+import com.ifmo.rmp.ui.navigation.Routes
 import com.ifmo.rmp.ui.theme.LatoFont
 
 // доделать скролл + если есть запросы непрочитанные, то пометить(Например красной точкой или обводкой???)
 // подключить в навигацию
 
 @Composable
-fun MainPageScreen() {
+fun MainPageScreen(navController: NavController) {
     val showNotifications = remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -69,6 +71,7 @@ fun MainPageScreen() {
                         BigEmojiButton(
                             emojiResId = R.drawable.e_mainprofile,
                             text = "Profile",
+                            onClick = {  },
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
@@ -76,6 +79,7 @@ fun MainPageScreen() {
                         BigEmojiButton(
                             emojiResId = R.drawable.e_mainclubs,
                             text = "Clubs",
+                            onClick = {  },
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
@@ -83,6 +87,7 @@ fun MainPageScreen() {
                         BigEmojiButton(
                             emojiResId = R.drawable.e_workout,
                             text = "Add Workout",
+                            onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
                             modifier = Modifier.padding(horizontal = 4.dp)
                         )
                     }
@@ -211,10 +216,4 @@ fun MainPageScreen() {
         }
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainPageScreenPreview() {
-    MainPageScreen()
 }

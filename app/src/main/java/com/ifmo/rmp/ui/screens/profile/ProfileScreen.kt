@@ -21,6 +21,7 @@ import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
 import com.ifmo.rmp.ui.components.GoalBox
 import com.ifmo.rmp.ui.components.PersonField
 import com.ifmo.rmp.ui.components.SearchBar
+import com.ifmo.rmp.ui.navigation.Routes
 
 @Composable
 fun ProfileScreen(
@@ -126,6 +127,7 @@ fun ProfileScreen(
                 GoalBox(
                     iconResId = R.drawable.e_step,
                     text = "Daily Step Goal",
+                    onClick = { navController.navigate(Routes.ACTIVITIES) },
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 4.dp)
@@ -134,6 +136,7 @@ fun ProfileScreen(
                 GoalBox(
                     iconResId = R.drawable.e_water,
                     text = "Water Intake",
+                    onClick = { navController.navigate(Routes.ACTIVITIES) },
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)

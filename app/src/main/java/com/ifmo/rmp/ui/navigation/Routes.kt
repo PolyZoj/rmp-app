@@ -18,6 +18,7 @@ import com.ifmo.rmp.ui.components.BottomNavigationBar
 import com.ifmo.rmp.ui.components.FriendButtonState
 import com.ifmo.rmp.ui.screens.mainPage.MainPageScreen
 import com.ifmo.rmp.ui.screens.activities.ActivitiesScreen
+import com.ifmo.rmp.ui.screens.addActivity.AddActivityScreen
 import com.ifmo.rmp.ui.screens.anotherPerson.AnotherPersonScreen
 import com.ifmo.rmp.ui.screens.rewards.RewardsScreen
 
@@ -36,10 +37,10 @@ fun AppNavGraph() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.HOME) {
-                MainPageScreen()
+                MainPageScreen(navController = navController)
             }
             composable(Routes.ACTIVITIES) {
-                ActivitiesScreen()
+                ActivitiesScreen(navController = navController)
             }
             composable(Routes.CLUBS) { /* TODO: Add screen */ }
             composable(Routes.REWARDS) {
@@ -72,6 +73,11 @@ fun AppNavGraph() {
                 AnotherPersonScreen(
                     friendState = FriendButtonState.AddFriend,
                     onFriendActionClick = {},
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(Routes.ADD_ACTIVITY) {
+                AddActivityScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

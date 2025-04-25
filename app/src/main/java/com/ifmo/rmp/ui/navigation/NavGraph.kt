@@ -9,6 +9,7 @@ object Routes {
     const val EDIT_PROFILE = "edit_profile"
     const val ANOTHER_PERSON = "another_person"
     const val ANOTHER_PERSON_WITH_ID = "another_person/{userId}"
+    const val ADD_ACTIVITY = "add_activity"
 
     fun anotherPerson(userId: String): String {
         return "another_person/$userId"
