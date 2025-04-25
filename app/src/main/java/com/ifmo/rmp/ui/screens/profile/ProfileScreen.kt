@@ -127,7 +127,7 @@ fun ProfileScreen(
                 GoalBox(
                     iconResId = R.drawable.e_step,
                     text = "Daily Step Goal",
-                    onClick = { navController.navigate(Routes.ACTIVITIES) },
+                    onClick = { navController.navigate(Routes.ACTIVITIES) }, // судя по всему это ломает навигацию, надо будет переделать
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 4.dp)
@@ -136,7 +136,7 @@ fun ProfileScreen(
                 GoalBox(
                     iconResId = R.drawable.e_water,
                     text = "Water Intake",
-                    onClick = { navController.navigate(Routes.ACTIVITIES) },
+                    onClick = { navController.navigate(Routes.ACTIVITIES) }, // судя по всему это ломает навигацию, надо будет переделать
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)
