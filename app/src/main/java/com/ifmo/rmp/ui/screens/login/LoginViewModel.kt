@@ -1,25 +1,32 @@
+package com.ifmo.rmp.ui.screens.login
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.POST
+import android.content.Context
+import retrofit2.HttpException
 
 class LoginViewModel : ViewModel() {
-
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
-    private val _emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://10.0.2.2:8081/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 
-    fun onEmailChange(newEmail: String) {
-        val error = if (newEmail.isNotEmpty() && !_emailRegex.matches(newEmail)) {
-            "Invalid email format"
-        } else ""
+    private val authApi: AuthApi = retrofit.create(AuthApi::class.java)
 
+    fun onUsernameChange(newUsername: String) {
         _uiState.value = _uiState.value.copy(
-            email = newEmail,
-            errorMessage = error,
+            username = newUsername,
+            errorMessage = "",
             isSuccess = false
         )
     }
@@ -32,17 +39,12 @@ class LoginViewModel : ViewModel() {
         )
     }
 
-    fun login() {
-        val email = _uiState.value.email
+    fun login(context: Context) {
+        val username = _uiState.value.username
         val password = _uiState.value.password
 
-        if (email.isBlank() || password.isBlank()) {
+        if (username.isBlank() || password.isBlank()) {
             _uiState.value = _uiState.value.copy(errorMessage = "Fields cannot be empty")
-            return
-        }
-
-        if (!_emailRegex.matches(email)) {
-            _uiState.value = _uiState.value.copy(errorMessage = "Invalid email format")
             return
         }
 
@@ -50,27 +52,62 @@ class LoginViewModel : ViewModel() {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
-                // TODO: добавить api, когда напишут бэк
-                delay(1500)
+                val request = LoginRequest(username = username, password = password)
+                val response = authApi.login(request)
+
+                val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                with(sharedPreferences.edit()) {
+                    putString("user_id", response.id)
+                    putString("token", response.token)
+                    apply()
+                }
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    isSuccess = true
+                    isSuccess = true,
+                    errorMessage = ""
                 )
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Invalid username or password"
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Server error: ${e.message}"
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Login failed: ${e.message ?: "Unknown error"}"
+                    errorMessage = "Network error: ${e.message}"
                 )
             }
         }
     }
-}
 
-data class LoginUiState(
-    val email: String = "",
-    val password: String = "",
-    val errorMessage: String = "",
-    val isLoading: Boolean = false,
-    val isSuccess: Boolean = false
-)
+    interface AuthApi {
+        @POST("api/v1/auth/login")
+        suspend fun login(@Body request: LoginRequest): LoginResponse
+    }
+
+    data class LoginRequest(
+        val username: String,
+        val password: String
+    )
+
+    data class LoginResponse(
+        val id: String,
+        val token: String
+    )
+
+    data class LoginUiState(
+        val username: String = "",
+        val password: String = "",
+        val errorMessage: String = "",
+        val isLoading: Boolean = false,
+        val isSuccess: Boolean = false
+    )
+}

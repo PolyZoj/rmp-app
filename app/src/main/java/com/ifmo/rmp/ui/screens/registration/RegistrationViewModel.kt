@@ -1,5 +1,6 @@
 package com.ifmo.rmp.ui.screens.registration
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,6 +10,7 @@ class RegistrationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RegistrationUiState())
     val uiState: StateFlow<RegistrationUiState> = _uiState
 
+    
     fun onEmailChange(newEmail: String) {
         _uiState.value = _uiState.value.copy(email = newEmail, errorMessage = "")
     }

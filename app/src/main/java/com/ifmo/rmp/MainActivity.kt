@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.ifmo.rmp.ui.navigation.AppNavGraph
+import com.ifmo.rmp.ui.screens.login.LoginScreen
+import com.ifmo.rmp.ui.screens.login.LoginViewModel
 import com.ifmo.rmp.ui.theme.RmpTheme
 
 class MainActivity : ComponentActivity() {
@@ -14,6 +16,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             RmpTheme {
                 AppNavGraph()
+                LoginScreen(
+                    viewModel = LoginViewModel(),
+                )
             }
         }
     }
