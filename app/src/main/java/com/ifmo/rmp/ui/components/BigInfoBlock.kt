@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
 fun BigInfoBlock(
@@ -38,14 +39,15 @@ fun BigInfoBlock(
             Text(
                 text = title,
                 color = Color(0xFF6B6A6A).copy(alpha = 0.5f),
-                fontSize = 16.sp
+                fontSize = 14.sp,
+                fontFamily = LatoFont
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = value,
                 color = Color.Black,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontFamily = LatoFont
             )
         }
     }

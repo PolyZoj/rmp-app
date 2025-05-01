@@ -8,19 +8,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.BigInfoBlock
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
+import com.ifmo.rmp.ui.components.GoalBox
+import com.ifmo.rmp.ui.navigation.Routes
+import com.ifmo.rmp.ui.theme.LatoFont
 
 @Composable
-fun ActivitiesScreen() {
+fun ActivitiesScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
+            .padding(top = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = "Activity Summary", fontSize = 24.sp)
+        Text(text = "Activity Summary", fontSize = 22.sp, fontFamily = LatoFont)
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -45,13 +50,39 @@ fun ActivitiesScreen() {
                 modifier = Modifier.wrapContentWidth()
             ) {
                 BigInfoBlock(title = "Workouts completed", value = "2")
-                BigInfoBlock(title = "Calories burned", value = "500")
+                BigInfoBlock(title = "Calories burned", value = "500 / 5000")
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            GoalBox(
+                iconResId = R.drawable.e_workout,
+                text = "Add workout",
+                onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp)
+                    .padding(start = 8.dp)
+            )
 
-        Text(text = "Friends' Activity", fontSize = 20.sp)
+            GoalBox(
+                iconResId = R.drawable.e_water,
+                text = "Add water intake",
+                onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+                    .padding(end = 8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(text = "Friends' Activity", fontSize = 18.sp, fontFamily = LatoFont)
 
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -72,10 +103,4 @@ fun ActivitiesScreen() {
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ActivitiesScreenPreview() {
-    ActivitiesScreen()
 }

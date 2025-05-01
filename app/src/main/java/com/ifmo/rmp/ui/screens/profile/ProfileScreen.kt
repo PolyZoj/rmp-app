@@ -1,10 +1,10 @@
 package com.ifmo.rmp.ui.screens.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,20 +12,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.theme.LatoFont
 import com.ifmo.rmp.R
 import com.ifmo.rmp.ui.components.EmojiIcon
-
-
-// Также разобраться как работать с друзьями, пока что немного не понимаю в чем тут их смысл
-// Также скорее всего тут надо будет редиркеты делать
-// Написать логику
-
+import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
+import com.ifmo.rmp.ui.components.GoalBox
+import com.ifmo.rmp.ui.components.PersonField
+import com.ifmo.rmp.ui.components.SearchBar
+import com.ifmo.rmp.ui.navigation.Routes
 
 @Composable
 fun ProfileScreen(
-    onNavigateToEditProfile: () -> Unit
+    onNavigateToEditProfile: () -> Unit,
+    navController: NavController
 ) {
     val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
 
@@ -34,11 +35,11 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(Color.White)
             .padding(horizontal = 12.dp)
+            .padding(top = 24.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 56.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -60,12 +61,14 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(text = "Currently a member of:", fontSize = 12.sp, color = Color.Gray, fontFamily = LatoFont)
-                    Text(text = "Mexico52club", fontSize = 14.sp, fontFamily = LatoFont)
+                    Text(text = "Currently a member of:", fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
+                    Text(text = "Mexico52club", fontSize = 16.sp, fontFamily = LatoFont)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Weak statistics", fontSize = 18.sp, fontFamily = LatoFont)
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -80,83 +83,102 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Completed Challenges", fontSize = 16.sp, fontFamily = LatoFont)
+            Text(text = "Completed Challenges", fontSize = 18.sp, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp)
-                    .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                EmojiIcon(iconResId = R.drawable.e_trophy)
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(text = "Daily Challenge", fontSize = 14.sp, fontFamily = LatoFont)
-                    Text(text = "30-day streak", fontSize = 12.sp, color = Color.Gray, fontFamily = LatoFont)
-                }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            val challenges = listOf(
+                Triple("Daily Challenge", "30-day streak", R.drawable.e_trophy),
+                Triple("Weekly Push", "5 completed", R.drawable.e_trophy),
+                Triple("Monthly Beast", "100% tasks", R.drawable.e_trophy),
+                Triple("Steps Hero", "50k steps", R.drawable.e_step),
+                Triple("Hydration King", "7-day streak", R.drawable.e_water)
+            )
 
-            Text(text = "Quick Goals", fontSize = 16.sp, fontFamily = LatoFont)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 4.dp)
-                        .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                        .padding(12.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        EmojiIcon(iconResId = R.drawable.e_step)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Daily Step Goal", fontSize = 14.sp, fontFamily = LatoFont)
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 4.dp)
-                        .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                        .padding(12.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        EmojiIcon(iconResId = R.drawable.e_water)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Water Intake", fontSize = 14.sp, fontFamily = LatoFont)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(text = "Find Friends", fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
-            Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
-                    .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                    .padding(start = 8.dp),
-                contentAlignment = Alignment.CenterStart
+                    .height(180.dp)
             ) {
-                Text(text = "Search for friends", fontSize = 14.sp, color = Color.Gray, fontFamily = LatoFont)
+                LazyColumn(
+                    contentPadding = PaddingValues(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(challenges.take(5)) { challenge ->
+                        EmojiAndTextWithDescriptionLine(
+                            iconResId = challenge.third,
+                            title = challenge.first,
+                            subtitle = challenge.second,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp)
+                        )
+                    }
+                }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(text = "Quick Goals", fontSize = 18.sp, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                GoalBox(
+                    iconResId = R.drawable.e_step,
+                    text = "Daily Step Goal",
+                    onClick = { navController.navigate(Routes.ACTIVITIES) }, // судя по всему это ломает навигацию, надо будет переделать
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp)
+                )
+
+                GoalBox(
+                    iconResId = R.drawable.e_water,
+                    text = "Water Intake",
+                    onClick = { navController.navigate(Routes.ACTIVITIES) }, // судя по всему это ломает навигацию, надо будет переделать
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(text = "Find Friends", fontSize = 18.sp, fontFamily = LatoFont)
+            Spacer(modifier = Modifier.height(4.dp))
+            SearchBar()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val friends: List<Pair<String, Int>> = listOf(
+                "Toxa" to R.drawable.e_profile,
+                "Roma" to R.drawable.e_profile,
+                "9mice" to R.drawable.e_profile,
+                "Roman52" to R.drawable.e_profile,
+                "RomanPPPiroman" to R.drawable.e_profile
+            )
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
             ) {
-                EmojiIcon(iconResId = R.drawable.e_clubs)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Toxa", fontSize = 14.sp, fontFamily = LatoFont)
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = 42.dp)
+                ) {
+                    items(friends) { friend ->
+                        PersonField(
+                            name = friend.first,
+                            iconResId = friend.second,
+                            onClick = {
+                                navController.navigate("another_person/123")
+                            }
+                        )
+                    }
+                }
             }
+
         }
     }
 }
