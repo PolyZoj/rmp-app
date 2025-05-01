@@ -15,7 +15,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RmpTheme {
-                AppNavGraph()
                 LoginScreen(
                     viewModel = LoginViewModel(),
                 )
