@@ -23,6 +23,8 @@ import com.ifmo.rmp.ui.screens.activities.ActivitiesScreen
 import com.ifmo.rmp.ui.screens.addActivity.AddActivityScreen
 import com.ifmo.rmp.ui.screens.anotherPerson.AnotherPersonScreen
 import com.ifmo.rmp.ui.screens.rewards.RewardsScreen
+import com.ifmo.rmp.ui.screens.clubs.ClubsScreen
+import com.ifmo.rmp.ui.screens.clubs.ClubCreationScreen
 
 @Composable
 fun AppNavGraph() {
@@ -30,7 +32,7 @@ fun AppNavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN,
+        startDestination = Routes.CLUBS,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(Routes.LOGIN) {
@@ -70,7 +72,7 @@ fun AppNavGraph() {
                     BottomNavigationBar(navController)
                 }
             ) { innerPadding ->
-                /* TODO: Add screen */
+                ClubsScreen(navController = navController)
             }
         }
         
@@ -127,6 +129,12 @@ fun AppNavGraph() {
         composable(Routes.ADD_ACTIVITY) {
             AddActivityScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Routes.CREATE_CLUB) {
+            ClubCreationScreen(
+                navController = navController
             )
         }
     }

@@ -5,9 +5,10 @@ import com.ifmo.rmp.data.interceptor.AuthInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object NetworkModule {
-    private const val BASE_URL = "http://localhost:8081/"
+    private const val BASE_URL = "http://10.0.2.2:8085/"
     
     private var apiService: ApiService? = null
     
@@ -15,6 +16,9 @@ object NetworkModule {
         if (apiService == null) {
             val client = OkHttpClient.Builder()
                 .addInterceptor(AuthInterceptor(context))
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
                 .build()
                 
             val retrofit = Retrofit.Builder()
