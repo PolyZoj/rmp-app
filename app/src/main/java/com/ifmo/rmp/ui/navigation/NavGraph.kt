@@ -1,6 +1,7 @@
 package com.ifmo.rmp.ui.navigation
 
 object Routes {
+    const val LOGIN = "login"
     const val HOME = "home"
     const val ACTIVITIES = "activities"
     const val CLUBS = "clubs"

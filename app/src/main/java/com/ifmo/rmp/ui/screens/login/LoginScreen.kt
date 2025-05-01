@@ -16,22 +16,23 @@ import com.ifmo.rmp.ui.components.BigButton
 import com.ifmo.rmp.ui.components.CustomPasswordField
 import com.ifmo.rmp.ui.components.CustomTextField
 import androidx.navigation.NavController
+import com.ifmo.rmp.ui.navigation.Routes
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-//    navController: NavController
+    navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-//    if (uiState.isSuccess) {
-//        LaunchedEffect(Unit) {
-//            navController.navigate("main_screen") {
-//                popUpTo("login") { inclusive = true }
-//            }
-//        }
-//    }
+    if (uiState.isSuccess) {
+        LaunchedEffect(Unit) {
+            navController.navigate(Routes.HOME) {
+                popUpTo(Routes.LOGIN) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
