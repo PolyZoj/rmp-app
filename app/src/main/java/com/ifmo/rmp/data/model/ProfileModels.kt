@@ -43,13 +43,15 @@ data class IdByUsernameResponse(
 )
 
 data class UserDtoResponse(
-    val user_dto: UserDto
-)
-
-data class UserDto(
-    val user: User,
+    val user_id: String,
+    val first_name: String,
+    val last_name: String,
+    val email: String,
+    val avatar_url: String,
+    val is_admin: Boolean,
+    val club_id: Int?,
     val username: String,
-    val weight: Float,
+    val weight: Double,
     val height: Int,
     val birth_date: String,
     val unit_system: String,
@@ -58,20 +60,11 @@ data class UserDto(
     val daily_step_goal: Int,
     val water_intake_goal: Int,
     val calorie_goal: Int,
-    val sleep_goal: Float,
-    val workouts_goal: Int
+    val sleep_goal: Double,
+    val workouts_goal: Int,
+    val status: String
 )
 
-data class User(
-    val user_id: Int,
-    val first_name: String,
-    val last_name: String,
-    val email: String,
-    val avatar_url: String,
-    val is_admin: Boolean,
-    val club_id: Int?,
-    val created_at: String
-)
 
 data class UserUpdateRequest(
     val avatar_url: String? = null,

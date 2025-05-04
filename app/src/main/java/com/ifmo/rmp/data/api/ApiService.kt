@@ -4,6 +4,9 @@ import com.ifmo.rmp.data.model.ClubCreateRequest
 import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.data.model.ClubsListResponse
+import com.ifmo.rmp.data.model.FindFriendListResponse
+import com.ifmo.rmp.data.model.FindFriendsRequest
+import com.ifmo.rmp.data.model.FriendListResponse
 import com.ifmo.rmp.data.model.FriendOptionsRequest
 import com.ifmo.rmp.data.model.FriendOptionsResponse
 import com.ifmo.rmp.data.model.FriendRequestsListResponse
@@ -59,5 +62,11 @@ interface ApiService {
 
     @POST("api/v1/users/goals/update")
     suspend fun updateUserProfile(@Body request: UserUpdateRequest): FriendOptionsResponse
+
+    @GET("api/v1/users/friends/list")
+    suspend fun getFriendsList(): FriendListResponse
+
+    @POST("api/v1/users/friends/find")
+    suspend fun findFriends(@Body request: FindFriendsRequest): FindFriendListResponse
 
 }
