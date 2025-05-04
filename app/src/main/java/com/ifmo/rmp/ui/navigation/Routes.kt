@@ -25,6 +25,7 @@ import com.ifmo.rmp.ui.screens.anotherPerson.AnotherPersonScreen
 import com.ifmo.rmp.ui.screens.rewards.RewardsScreen
 import com.ifmo.rmp.ui.screens.clubs.ClubsScreen
 import com.ifmo.rmp.ui.screens.clubs.ClubCreationScreen
+import com.ifmo.rmp.ui.screens.profile.ProfileViewModel
 
 @Composable
 fun AppNavGraph() {

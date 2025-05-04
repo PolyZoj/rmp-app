@@ -31,7 +31,7 @@ data class FriendOptionsRequest(
 )
 
 data class FindFriendsRequest(
-    val find_username: Int
+    val find_username: String
 )
 
 data class FriendOptionsResponse(

@@ -23,11 +23,12 @@ import androidx.compose.ui.draw.clip
 
 @Composable
 fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
     hint: String = "Find Friends",
     onSearchClick: (String) -> Unit = {}
 ) {
     val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
-    var text by remember { mutableStateOf(TextFieldValue("")) }
 
     Row(
         modifier = Modifier
@@ -40,8 +41,8 @@ fun SearchBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
-            value = text,
-            onValueChange = { text = it },
+            value = query,
+            onValueChange = { onQueryChange(it) },
             placeholder = {
                 Text(
                     text = hint,
@@ -69,7 +70,7 @@ fun SearchBar(
                 .size(32.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.Black)
-                .clickable { onSearchClick(text.text) },
+                .clickable { onSearchClick(query) },
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -81,8 +82,3 @@ fun SearchBar(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SearchBarPreview() {
-    SearchBar()
-}

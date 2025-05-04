@@ -96,7 +96,7 @@ class UserRepository(private val apiService: ApiService) {
         }
     }
 
-    suspend fun findFriends(username: Int): Result<FindFriendListResponse> {
+    suspend fun findFriends(username: String): Result<FindFriendListResponse> {
         return try {
             Result.success(apiService.findFriends(FindFriendsRequest(username)))
         } catch (e: Exception) {
