@@ -99,12 +99,12 @@ fun ClubsScreen(
         Spacer(modifier = Modifier.height(8.dp))
         
         // Search Bar
-        SearchBar(
-            hint = "Search for clubs...",
-            onSearchClick = { searchQuery ->
-                // Handle search
-            }
-        )
+//        SearchBar(
+//            hint = "Search for clubs...",
+//            onSearchClick = { searchQuery ->
+//                // Handle search
+//            }
+//        )
         
         Spacer(modifier = Modifier.height(16.dp))
         
