@@ -19,6 +19,7 @@ import com.ifmo.rmp.data.model.UserUpdateRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -60,7 +61,7 @@ interface ApiService {
     @GET("api/v1/users/username/{userName}")
     suspend fun getIdByUsername(@Path("userName") userName: String): IdByUsernameResponse
 
-    @POST("api/v1/users/goals/update")
+    @PUT("api/v1/users/goals/update")
     suspend fun updateUserProfile(@Body request: UserUpdateRequest): FriendOptionsResponse
 
     @GET("api/v1/users/friends/list")

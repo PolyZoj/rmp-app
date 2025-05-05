@@ -30,12 +30,12 @@ fun ProfileScreen(
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
     with(sharedPreferences.edit()) {
-        putString("user_id", "16")
-        putString("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNiIsImlzcyI6Imh0dHBzOi8vand0LXByb3ZpZGVyLWRvbWFpbi8iLCJhdWQiOiJqd3QtYXVkaWVuY2UiLCJ1c2VybmFtZSI6IlNPTEFOMiIsInVzZXJJZCI6IjE2IiwiZXhwIjoxNzQ2Mzk2MzU1fQ.iEfie0zweS0ivWf-D7qwMUzej-0GbOnhAXwvH8M_WFI")
+        putString("user_id", "22")
+        putString("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMiIsImlzcyI6Imh0dHBzOi8vand0LXByb3ZpZGVyLWRvbWFpbi8iLCJhdWQiOiJqd3QtYXVkaWVuY2UiLCJ1c2VybmFtZSI6Imdsb2dhbmc1MiIsInVzZXJJZCI6IjIyIiwiZXhwIjoxNzQ2NDg0NjYyfQ.EW2avLv6IrKp2vTi9RhckJwV3mgRFq18MQSiMCx5iIo")
         apply()
     }
 
-    val userId = "16"
+    val userId = "22"
     val userRepository = remember { UserRepository.getInstance(context) }
     val viewModel = remember { ProfileViewModel(userRepository) }
 
@@ -87,7 +87,11 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    EmojiIcon(iconResId = R.drawable.e_profile)
+                    val userAvatarResId = remember(user?.avatar_url) {
+                        val name = user?.avatar_url ?: "e_profile"
+                        context.resources.getIdentifier(name, "drawable", context.packageName)
+                    }
+                    EmojiIcon(iconResId = userAvatarResId)
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column(modifier = Modifier.clickable { onNavigateToEditProfile() }) {
@@ -224,9 +228,13 @@ fun ProfileScreen(
                         contentPadding = PaddingValues(bottom = 42.dp)
                     ) {
                         items(displayedFriends) { friend ->
+                            val avatarResId = remember(friend.avatar_url) {
+                                val name = friend.avatar_url ?: "e_profile"
+                                context.resources.getIdentifier(name, "drawable", context.packageName)
+                            }
                             PersonField(
                                 name = friend.username,
-                                iconResId = R.drawable.e_profile,
+                                iconResId = avatarResId,
                                 onClick = {
                                     // Клик можно реализовать позже
                                 }
