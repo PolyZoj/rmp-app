@@ -127,6 +127,14 @@ class RegistrationViewModel : ViewModel() {
         )
     }
 
+    fun onAvatarSelected(avatarId: Int) {
+        _uiState.value = _uiState.value.copy(
+            selectedAvatar = avatarId,
+            errorMessage = "",
+            isSuccess = false
+        )
+    }
+
     fun register(context: Context) {
         val state = _uiState.value
 
@@ -183,7 +191,8 @@ class RegistrationViewModel : ViewModel() {
                         birthDate = state.dateOfBirth,
                         dailyStepGoal = stepGoal,
                         waterIntakeGoal = waterIntake,
-                        calorieGoal = calorieGoal
+                        calorieGoal = calorieGoal,
+                        avatarId = state.selectedAvatar
                     )
                     
                     result.fold(
@@ -192,7 +201,6 @@ class RegistrationViewModel : ViewModel() {
                                 isLoading = false,
                                 isSuccess = true,
                                 errorMessage = "",
-                                userId = response.id
                             )
                         },
                         onFailure = { exception ->
@@ -245,10 +253,10 @@ class RegistrationViewModel : ViewModel() {
         val stepGoal: String = "",
         val waterIntake: String = "",
         val calorieGoal: String = "",
+        val selectedAvatar: Int = 1,
         val errorMessage: String = "",
         val cursorPosition: Int = 0,
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false,
-        val userId: String = ""
     )
 }

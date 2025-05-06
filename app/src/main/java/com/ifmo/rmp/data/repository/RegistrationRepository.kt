@@ -38,7 +38,8 @@ class RegistrationRepository(private val apiService: ApiService, private val con
         birthDate: String,
         dailyStepGoal: Int,
         waterIntakeGoal: Int,
-        calorieGoal: Int
+        calorieGoal: Int,
+        avatarId: Int
     ): Result<RegistrationResponse> {
         return try {
             val request = RegistrationRequest(
@@ -47,7 +48,7 @@ class RegistrationRepository(private val apiService: ApiService, private val con
                 first_name = firstName,
                 last_name = lastName,
                 email = email,
-                avatar_url = "1",
+                avatar_url = avatarId.toString(),
                 weight = weight,
                 height = height,
                 birth_date = birthDate,

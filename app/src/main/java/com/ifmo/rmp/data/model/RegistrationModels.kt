@@ -6,7 +6,7 @@ data class RegistrationRequest(
     val first_name: String,
     val last_name: String,
     val email: String,
-    val avatar_url: String = "1",
+    val avatar_url: String,
     val weight: Int,
     val height: Int,
     val birth_date: String,

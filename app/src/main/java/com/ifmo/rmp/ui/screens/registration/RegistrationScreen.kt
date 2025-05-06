@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.ifmo.rmp.ui.components.BigButton
 import com.ifmo.rmp.ui.components.CustomPasswordField
 import com.ifmo.rmp.ui.components.CustomTextField
+import com.ifmo.rmp.ui.components.AvatarSelector
 import com.ifmo.rmp.ui.theme.AppTypography
 import java.text.SimpleDateFormat
 import java.util.*
@@ -61,6 +62,18 @@ fun RegistrationScreen(
                 textAlign = TextAlign.Left,
                 modifier = Modifier.padding(top = 80.dp, bottom = 20.dp)
             )
+        }
+
+        item {
+            AvatarSelector(
+                selectedAvatar = uiState.selectedAvatar,
+                onAvatarSelected = viewModel::onAvatarSelected,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
         }
 
         item {
