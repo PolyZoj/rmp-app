@@ -13,15 +13,9 @@ import com.ifmo.rmp.ui.components.BigButton
 import com.ifmo.rmp.ui.components.CustomPasswordField
 import com.ifmo.rmp.ui.components.CustomTextField
 import com.ifmo.rmp.ui.theme.AppTypography
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
     viewModel: RegistrationViewModel,
@@ -31,35 +25,27 @@ fun RegistrationScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
 
     if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val date = Date(millis)
-                            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            viewModel.onDateOfBirthChange(formatter.format(date))
-                        }
-                        showDatePicker = false
-                    }
-                ) {
-                    Text("OK")
-                }
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        android.app.DatePickerDialog(
+            context,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val date = Calendar.getInstance().apply {
+                    set(selectedYear, selectedMonth, selectedDay)
+                }.time
+                val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                viewModel.onDateOfBirthChange(formatter.format(date))
+                showDatePicker = false
             },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDatePicker = false }
-                ) {
-                    Text("Cancel")
-                }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+            year,
+            month,
+            day
+        ).show()
     }
 
     LazyColumn(
