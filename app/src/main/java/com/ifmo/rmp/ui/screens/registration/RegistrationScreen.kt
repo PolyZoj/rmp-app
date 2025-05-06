@@ -2,163 +2,276 @@ package com.ifmo.rmp.ui.screens.registration
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ifmo.rmp.ui.components.BigButton
 import com.ifmo.rmp.ui.components.CustomPasswordField
 import com.ifmo.rmp.ui.components.CustomTextField
-import com.ifmo.rmp.ui.theme.LatoFont
+import com.ifmo.rmp.ui.theme.AppTypography
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import java.text.SimpleDateFormat
+import java.util.*
 
-@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationScreen(viewModel: RegistrationViewModel = viewModel()) {
+fun RegistrationScreen(
+    viewModel: RegistrationViewModel,
+//    navController: NavController
+) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val scrollState = rememberScrollState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val date = Date(millis)
+                            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            viewModel.onDateOfBirthChange(formatter.format(date))
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDatePicker = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.Center
     ) {
         item {
             Text(
-                modifier = Modifier.padding(start = 12.dp, top = 50.dp, bottom = 20.dp),
-                text = "Join us!",
-                fontSize = 24.sp,
-                fontFamily = LatoFont
-            )
-        }
-        item {
-            RegistrationTextField(
-                "Email",
-                uiState.email,
-                viewModel::onEmailChange,
-                "Enter your email"
-            )
-        }
-        item {
-            RegistrationPasswordField(
-                "Password",
-                uiState.password,
-                viewModel::onPasswordChange,
-                "Create a password"
-            )
-        }
-        item {
-            RegistrationPasswordField(
-                "Confirm Password",
-                uiState.confirmPassword,
-                viewModel::onConfirmPasswordChange,
-                "Repeat your password"
-            )
-        }
-        item {
-            RegistrationTextField(
-                "First Name",
-                uiState.firstName,
-                viewModel::onFirstNameChange,
-                "Enter your first name"
-            )
-        }
-        item {
-            RegistrationTextField(
-                "Last Name",
-                uiState.lastName,
-                viewModel::onLastNameChange,
-                "Enter your last name"
-            )
-        }
-        item {
-            RegistrationTextField(
-                "Date of Birth",
-                uiState.dateOfBirth,
-                viewModel::onDateOfBirthChange,
-                "Enter your date of birth"
-            )
-        }
-        item {
-            RegistrationTextField(
-                "Weight",
-                uiState.weight,
-                viewModel::onWeightChange,
-                "Enter your weight"
-            )
-        }
-        item {
-            RegistrationTextField(
-                "Height",
-                uiState.height,
-                viewModel::onHeightChange,
-                "Enter your height"
-            )
-        }
-        item {
-            RegistrationTextField(
-                "Daily Step Goal",
-                uiState.stepGoal,
-                viewModel::onStepGoalChange,
-                "Set your step goal"
-            )
-        }
-        item {
-            RegistrationTextField(
-                "Water Intake Goal",
-                uiState.waterIntake,
-                viewModel::onWaterIntakeChange,
-                "Set your water intake goal"
+                text = "Create Account",
+                style = AppTypography.titleLarge,
+                textAlign = TextAlign.Left,
+                modifier = Modifier.padding(top = 80.dp, bottom = 20.dp)
             )
         }
 
         item {
-            BigButton("Create Account", onClick = viewModel::register)
+            CustomTextField(
+                value = uiState.email,
+                onValueChange = viewModel::onEmailChange,
+                label = "Email",
+                placeholder = "Enter your email",
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
         item {
-            Text(
-                text = uiState.errorMessage,
-                fontSize = 14.sp,
-                color = androidx.compose.ui.graphics.Color.Red,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.username,
+                onValueChange = viewModel::onUsernameChange,
+                label = "Username",
+                placeholder = "Enter your username",
+                modifier = Modifier.fillMaxWidth()
             )
         }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.firstName,
+                onValueChange = viewModel::onFirstNameChange,
+                label = "First Name",
+                placeholder = "Enter first name",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.lastName,
+                onValueChange = viewModel::onLastNameChange,
+                label = "Last Name",
+                placeholder = "Enter last name",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.dateOfBirth,
+                onValueChange = { showDatePicker = true },
+                label = "Date of Birth",
+                placeholder = "Click to select date",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.weight,
+                onValueChange = viewModel::onWeightChange,
+                label = "Weight",
+                placeholder = "Enter weight in kg",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.height,
+                onValueChange = viewModel::onHeightChange,
+                label = "Height",
+                placeholder = "Enter height in cm",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.stepGoal,
+                onValueChange = viewModel::onStepGoalChange,
+                label = "Daily Step Goal",
+                placeholder = "Enter your daily step goal",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.waterIntake,
+                onValueChange = viewModel::onWaterIntakeChange,
+                label = "Water Intake Goal",
+                placeholder = "Enter daily water intake in ml",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.calorieGoal,
+                onValueChange = viewModel::onCalorieGoalChange,
+                label = "Calorie Goal",
+                placeholder = "Enter daily calorie goal",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomPasswordField(
+                value = uiState.password,
+                onValueChange = viewModel::onPasswordChange,
+                label = "Password",
+                placeholder = "Create a password",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomPasswordField(
+                value = uiState.confirmPassword,
+                onValueChange = viewModel::onConfirmPasswordChange,
+                label = "Confirm Password",
+                placeholder = "Repeat your password",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            if (uiState.errorMessage.isNotEmpty()) {
+                Text(
+                    text = uiState.errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = AppTypography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+            }
+        }
+
+        item {
+            BigButton(
+                text = if (uiState.isLoading) "Processing..." else "Create Account",
+                onClick = { if (!uiState.isLoading) viewModel.register(context) },
+            )
+        }
+
+//        TextButton(
+//            onClick = { navController.navigate("login") },
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Text(
+//                text = "Already have an account? Log in",
+//                style = AppTypography.bodyLarge
+//            )
+//        }
     }
-}
-
-@Composable
-fun RegistrationTextField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String
-) {
-    CustomTextField(
-        modifier = Modifier.padding(vertical = 5.dp),
-        label,
-        value,
-        onValueChange,
-        placeholder
-    )
-}
-
-@Composable
-fun RegistrationPasswordField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String
-) {
-    CustomPasswordField(
-        modifier = Modifier.padding(vertical = 5.dp),
-        label,
-        value,
-        onValueChange,
-        placeholder
-    )
 }

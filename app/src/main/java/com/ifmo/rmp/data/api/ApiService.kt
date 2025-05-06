@@ -7,6 +7,8 @@ import com.ifmo.rmp.data.model.ClubsListResponse
 import com.ifmo.rmp.data.model.LoginRequest
 import com.ifmo.rmp.data.model.LoginResponse
 import com.ifmo.rmp.data.model.Profile
+import com.ifmo.rmp.data.model.RegistrationRequest
+import com.ifmo.rmp.data.model.RegistrationResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -16,6 +18,9 @@ import retrofit2.http.Query
 interface ApiService {
     @POST("api/v1/auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
+
+    @POST("api/v1/auth/register")
+    suspend fun register(@Body request: RegistrationRequest): RegistrationResponse
 
     @GET("api/v1/users/{userId}/profile")
     suspend fun getUserProfile(@Path("userId") userId: String): Profile
