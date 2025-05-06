@@ -127,9 +127,9 @@ class RegistrationViewModel : ViewModel() {
         )
     }
 
-    fun onAvatarSelected(avatarId: Int) {
+    fun onAvatarSelected(avatarName: String) {
         _uiState.value = _uiState.value.copy(
-            selectedAvatar = avatarId,
+            selectedAvatar = avatarName,
             errorMessage = "",
             isSuccess = false
         )
@@ -192,7 +192,7 @@ class RegistrationViewModel : ViewModel() {
                         dailyStepGoal = stepGoal,
                         waterIntakeGoal = waterIntake,
                         calorieGoal = calorieGoal,
-                        avatarId = state.selectedAvatar
+                        avatarName = state.selectedAvatar
                     )
                     
                     result.fold(
@@ -253,7 +253,7 @@ class RegistrationViewModel : ViewModel() {
         val stepGoal: String = "",
         val waterIntake: String = "",
         val calorieGoal: String = "",
-        val selectedAvatar: Int = 1,
+        val selectedAvatar: String = "e_avatar_1",
         val errorMessage: String = "",
         val cursorPosition: Int = 0,
         val isLoading: Boolean = false,

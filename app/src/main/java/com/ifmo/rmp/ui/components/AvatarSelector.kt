@@ -20,8 +20,8 @@ import com.ifmo.rmp.R
 
 @Composable
 fun AvatarSelector(
-    selectedAvatar: Int,
-    onAvatarSelected: (Int) -> Unit,
+    selectedAvatar: String,
+    onAvatarSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -38,10 +38,11 @@ fun AvatarSelector(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             for (avatarId in 1..4) {
+                val avatarName = "e_avatar_$avatarId"
                 AvatarItem(
-                    avatarId = avatarId,
-                    isSelected = selectedAvatar == avatarId,
-                    onSelect = { onAvatarSelected(avatarId) }
+                    avatarName = avatarName,
+                    isSelected = selectedAvatar == avatarName,
+                    onSelect = { onAvatarSelected(avatarName) }
                 )
             }
         }
@@ -50,7 +51,7 @@ fun AvatarSelector(
 
 @Composable
 private fun AvatarItem(
-    avatarId: Int,
+    avatarName: String,
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {
@@ -71,8 +72,8 @@ private fun AvatarItem(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = getAvatarResourceId(avatarId)),
-            contentDescription = "Avatar $avatarId",
+            painter = painterResource(id = getAvatarResourceId(avatarName)),
+            contentDescription = "Avatar $avatarName",
             modifier = Modifier
                 .size(70.dp)
                 .clip(CircleShape),
@@ -81,12 +82,12 @@ private fun AvatarItem(
     }
 }
 
-private fun getAvatarResourceId(avatarId: Int): Int {
-    return when (avatarId) {
-        1 -> R.drawable.avatar_1
-        2 -> R.drawable.avatar_2
-        3 -> R.drawable.avatar_3
-        4 -> R.drawable.avatar_4
-        else -> R.drawable.avatar_1
+private fun getAvatarResourceId(avatarName: String): Int {
+    return when (avatarName) {
+        "e_avatar_1" -> R.drawable.e_avatar_1
+        "e_avatar_2" -> R.drawable.e_avatar_2
+        "e_avatar_3" -> R.drawable.e_avatar_3
+        "e_avatar_4" -> R.drawable.e_avatar_4
+        else -> R.drawable.e_avatar_1
     }
 } 
