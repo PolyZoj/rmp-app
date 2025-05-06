@@ -16,16 +16,26 @@ import com.ifmo.rmp.ui.components.AvatarSelector
 import com.ifmo.rmp.ui.theme.AppTypography
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.navigation.NavController
+import com.ifmo.rmp.ui.navigation.Routes
 
 @Composable
 fun RegistrationScreen(
     viewModel: RegistrationViewModel,
-//    navController: NavController
+    navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     var showDatePicker by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(Routes.HOME) {
+                popUpTo(Routes.LOGIN) { inclusive = true }
+            }
+        }
+    }
 
     if (showDatePicker) {
         val calendar = Calendar.getInstance()
@@ -262,15 +272,5 @@ fun RegistrationScreen(
                 onClick = { if (!uiState.isLoading) viewModel.register(context) },
             )
         }
-
-//        TextButton(
-//            onClick = { navController.navigate("login") },
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            Text(
-//                text = "Already have an account? Log in",
-//                style = AppTypography.bodyLarge
-//            )
-//        }
     }
 }

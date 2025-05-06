@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,21 +81,16 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = "Don't have an account?",
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = "Register",
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp
-        )
+        TextButton(
+            onClick = { navController.navigate(Routes.REGISTRATION) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Don't have an account? Register",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         if (uiState.isLoading) {
             Box(

@@ -20,9 +20,10 @@ class UserRepository(private val apiService: ApiService) {
         }
     }
 
-    suspend fun getFriendRequests(): Result<FriendRequestsListResponse> {
+    suspend fun getUserProfile(userId: String, token: String): Result<Profile> {
         return try {
-            Result.success(apiService.getFriendsNotifications())
+            val profile = apiService.getUserProfile(userId, "Bearer $token")
+            Result.success(profile)
         } catch (e: Exception) {
             Result.failure(e)
         }

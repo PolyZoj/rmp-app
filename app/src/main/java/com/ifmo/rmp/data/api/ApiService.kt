@@ -25,6 +25,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Header
 
 interface ApiService {
     @POST("api/v1/auth/login")
@@ -35,7 +36,10 @@ interface ApiService {
   
     // теперь используем api/v1/users/{userId}, этот запрос потом надо удалить
     @GET("api/v1/users/{userId}/profile")
-    suspend fun getUserProfile(@Path("userId") userId: String): Profile
+    suspend fun getUserProfile(
+        @Path("userId") userId: String,
+        @Header("Authorization") token: String
+    ): Profile
     
     @GET("api/v1/clubs/{clubId}")
     suspend fun getClubInfo(@Path("clubId") clubId: String): ClubInfoResponse

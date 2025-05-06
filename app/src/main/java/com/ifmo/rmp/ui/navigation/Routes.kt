@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +20,8 @@ import com.ifmo.rmp.ui.components.BottomNavigationBar
 import com.ifmo.rmp.ui.components.FriendButtonState
 import com.ifmo.rmp.ui.screens.login.LoginScreen
 import com.ifmo.rmp.ui.screens.login.LoginViewModel
+import com.ifmo.rmp.ui.screens.registration.RegistrationScreen
+import com.ifmo.rmp.ui.screens.registration.RegistrationViewModel
 import com.ifmo.rmp.ui.screens.mainPage.MainPageScreen
 import com.ifmo.rmp.ui.screens.activities.ActivitiesScreen
 import com.ifmo.rmp.ui.screens.addActivity.AddActivityScreen
@@ -28,17 +32,22 @@ import com.ifmo.rmp.ui.screens.clubs.ClubCreationScreen
 import com.ifmo.rmp.ui.screens.profile.ProfileViewModel
 
 @Composable
-fun AppNavGraph() {
-    val navController = rememberNavController()
-
+fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.CLUBS,
+        startDestination = Routes.LOGIN,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(Routes.LOGIN) {
             LoginScreen(
                 viewModel = LoginViewModel(),
+                navController = navController
+            )
+        }
+        
+        composable(Routes.REGISTRATION) {
+            RegistrationScreen(
+                viewModel = RegistrationViewModel(),
                 navController = navController
             )
         }
@@ -108,7 +117,7 @@ fun AppNavGraph() {
         
         composable(Routes.ANOTHER_PERSON) {
             AnotherPersonScreen(
-                friendState = FriendButtonState.AddFriend, // потом динамически
+                friendState = FriendButtonState.AddFriend,
                 onFriendActionClick = {},
                 onNavigateBack = { navController.popBackStack() }
             )
