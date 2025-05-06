@@ -3,19 +3,26 @@ package com.ifmo.rmp.data.api
 import android.content.Context
 import com.ifmo.rmp.data.interceptor.AuthInterceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object NetworkModule {
     private const val BASE_URL = "http://10.0.2.2:8081/"
+ // private const val BASE_URL = "http://10.0.2.2:8082/" //TODO : настроить потом порты для разных запросов
     
     private var apiService: ApiService? = null
+
+    val logging = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
     
     fun provideApiService(context: Context): ApiService {
         if (apiService == null) {
             val client = OkHttpClient.Builder()
                 .addInterceptor(AuthInterceptor(context))
+                .addInterceptor(logging)
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
