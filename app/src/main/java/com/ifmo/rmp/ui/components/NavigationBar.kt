@@ -53,7 +53,7 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
                 onClick = {
                     if (currentRoute != route) {
                         navController.navigate(route) {
-                            popUpTo(Routes.HOME) { saveState = true }
+                            popUpTo(Routes.PROFILE) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
