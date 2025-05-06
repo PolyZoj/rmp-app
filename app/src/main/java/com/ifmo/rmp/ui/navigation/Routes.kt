@@ -16,71 +16,127 @@ import com.ifmo.rmp.ui.screens.editProfile.EditProfileScreen
 import com.ifmo.rmp.ui.screens.profile.ProfileScreen
 import com.ifmo.rmp.ui.components.BottomNavigationBar
 import com.ifmo.rmp.ui.components.FriendButtonState
+import com.ifmo.rmp.ui.screens.login.LoginScreen
+import com.ifmo.rmp.ui.screens.login.LoginViewModel
 import com.ifmo.rmp.ui.screens.mainPage.MainPageScreen
 import com.ifmo.rmp.ui.screens.activities.ActivitiesScreen
 import com.ifmo.rmp.ui.screens.addActivity.AddActivityScreen
 import com.ifmo.rmp.ui.screens.anotherPerson.AnotherPersonScreen
 import com.ifmo.rmp.ui.screens.rewards.RewardsScreen
+import com.ifmo.rmp.ui.screens.clubs.ClubsScreen
+import com.ifmo.rmp.ui.screens.clubs.ClubCreationScreen
+import com.ifmo.rmp.ui.screens.profile.ProfileViewModel
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
 
-    Scaffold(
-        bottomBar = {
-            BottomNavigationBar(navController)
+    NavHost(
+        navController = navController,
+        startDestination = Routes.CLUBS,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        composable(Routes.LOGIN) {
+            LoginScreen(
+                viewModel = LoginViewModel(),
+                navController = navController
+            )
         }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Routes.PROFILE,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Routes.HOME) {
-                MainPageScreen(navController = navController)
+        
+        composable(Routes.HOME) {
+            Scaffold(
+                bottomBar = {
+                    BottomNavigationBar(navController)
+                }
+            ) { innerPadding ->
+                MainPageScreen(
+                    navController = navController
+                )
             }
-            composable(Routes.ACTIVITIES) {
-                ActivitiesScreen(navController = navController)
+        }
+        
+        composable(Routes.ACTIVITIES) {
+            Scaffold(
+                bottomBar = {
+                    BottomNavigationBar(navController)
+                }
+            ) { innerPadding ->
+                ActivitiesScreen(
+                    navController = navController
+                )
             }
-            composable(Routes.CLUBS) { /* TODO: Add screen */ }
-            composable(Routes.REWARDS) {
+        }
+        
+        composable(Routes.CLUBS) {
+            Scaffold(
+                bottomBar = {
+                    BottomNavigationBar(navController)
+                }
+            ) { innerPadding ->
+                ClubsScreen(navController = navController)
+            }
+        }
+        
+        composable(Routes.REWARDS) {
+            Scaffold(
+                bottomBar = {
+                    BottomNavigationBar(navController)
+                }
+            ) { innerPadding ->
                 RewardsScreen()
             }
-            composable(Routes.PROFILE) {
+        }
+        
+        composable(Routes.PROFILE) {
+            Scaffold(
+                bottomBar = {
+                    BottomNavigationBar(navController)
+                }
+            ) { innerPadding ->
                 ProfileScreen(
                     onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
-                    navController = navController,
+                    navController = navController
                 )
             }
-            composable(Routes.EDIT_PROFILE) {
-                EditProfileScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-            composable(Routes.ANOTHER_PERSON) {
-                AnotherPersonScreen(
-                    friendState = FriendButtonState.AddFriend, // потом динамически
-                    onFriendActionClick = {},
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-            composable(
-                route = Routes.ANOTHER_PERSON_WITH_ID,
-                arguments = listOf(navArgument("userId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
+        }
+        
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Routes.ANOTHER_PERSON) {
+            AnotherPersonScreen(
+                friendState = FriendButtonState.AddFriend, // потом динамически
+                onFriendActionClick = {},
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(
+            route = Routes.ANOTHER_PERSON_WITH_ID,
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
 
-                AnotherPersonScreen(
-                    friendState = FriendButtonState.AddFriend,
-                    onFriendActionClick = {},
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-            composable(Routes.ADD_ACTIVITY) {
-                AddActivityScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
+            AnotherPersonScreen(
+                friendState = FriendButtonState.AddFriend,
+                onFriendActionClick = {},
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Routes.ADD_ACTIVITY) {
+            AddActivityScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Routes.CREATE_CLUB) {
+            ClubCreationScreen(
+                navController = navController
+            )
         }
     }
 }

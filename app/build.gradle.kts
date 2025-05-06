@@ -61,4 +61,5 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.androidx.navigation.compose)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
