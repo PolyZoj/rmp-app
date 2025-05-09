@@ -26,19 +26,28 @@ import com.ifmo.rmp.ui.screens.rewards.RewardsScreen
 import com.ifmo.rmp.ui.screens.clubs.ClubsScreen
 import com.ifmo.rmp.ui.screens.clubs.ClubCreationScreen
 import com.ifmo.rmp.ui.screens.profile.ProfileViewModel
+import com.ifmo.rmp.ui.screens.registration.RegistrationScreen
+import com.ifmo.rmp.ui.screens.registration.RegistrationViewModel
 
 @Composable
-fun AppNavGraph() {
+fun AppNavGraph(startDestination: String) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Routes.CLUBS,
+        startDestination = startDestination,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(Routes.LOGIN) {
             LoginScreen(
                 viewModel = LoginViewModel(),
+                navController = navController
+            )
+        }
+
+        composable(Routes.REGISTRATION) {
+            RegistrationScreen(
+                viewModel = RegistrationViewModel(),
                 navController = navController
             )
         }

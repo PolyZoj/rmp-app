@@ -9,10 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ifmo.rmp.ui.components.BigButton
 import com.ifmo.rmp.ui.components.CustomPasswordField
 import com.ifmo.rmp.ui.components.CustomTextField
 import com.ifmo.rmp.ui.components.AvatarSelector
+import com.ifmo.rmp.ui.navigation.Routes
 import com.ifmo.rmp.ui.theme.AppTypography
 import java.text.SimpleDateFormat
 import java.util.*
@@ -20,11 +22,10 @@ import java.util.*
 @Composable
 fun RegistrationScreen(
     viewModel: RegistrationViewModel,
-//    navController: NavController
+    navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
     var showDatePicker by remember { mutableStateOf(false) }
 
     if (showDatePicker) {
@@ -47,6 +48,14 @@ fun RegistrationScreen(
             month,
             day
         ).show()
+    }
+
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(Routes.HOME) {
+                popUpTo(Routes.REGISTRATION) { inclusive = true }
+            }
+        }
     }
 
     LazyColumn(
@@ -263,14 +272,16 @@ fun RegistrationScreen(
             )
         }
 
-//        TextButton(
-//            onClick = { navController.navigate("login") },
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            Text(
-//                text = "Already have an account? Log in",
-//                style = AppTypography.bodyLarge
-//            )
-//        }
+        item {
+            TextButton(
+                onClick = { navController.navigate("login") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Already have an account? Log in",
+                    style = AppTypography.bodyLarge
+                )
+            }
+        }
     }
 }
