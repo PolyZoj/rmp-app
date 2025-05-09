@@ -1,5 +1,6 @@
 package com.ifmo.rmp.ui.screens.login
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -90,7 +91,9 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(5.dp))
 
         Text(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate(Routes.REGISTRATION) },
             text = "Register",
             textAlign = TextAlign.Center,
             fontSize = 16.sp
