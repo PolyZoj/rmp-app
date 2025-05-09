@@ -64,7 +64,7 @@ class RegistrationRepository(private val apiService: ApiService, private val con
             val response = apiService.register(request)
             
             sharedPreferences.edit().apply {
-                putString("auth_token", response.token)
+                putString("token", response.token)
                 putString("user_id", response.id)
                 apply()
             }
