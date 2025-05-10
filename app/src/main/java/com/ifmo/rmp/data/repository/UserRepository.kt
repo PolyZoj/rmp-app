@@ -1,11 +1,11 @@
 package com.ifmo.rmp.data.repository
 
 import android.content.Context
-import com.ifmo.rmp.data.api.ApiService
 import com.ifmo.rmp.data.api.NetworkModule
+import com.ifmo.rmp.data.api.UserApiService
 import com.ifmo.rmp.data.model.*
 
-class UserRepository(private val apiService: ApiService) {
+class UserRepository(private val userApiService: UserApiService) {
 
     companion object {
         @Volatile
@@ -14,24 +14,16 @@ class UserRepository(private val apiService: ApiService) {
         fun getInstance(context: Context): UserRepository {
             return instance ?: synchronized(this) {
                 instance ?: UserRepository(
-                    NetworkModule.provideApiService(context)
+                    NetworkModule.provideUserApiService(context)
                 ).also { instance = it }
             }
-        }
-    }
-
-    suspend fun getFriendRequests(): Result<FriendRequestsListResponse> {
-        return try {
-            Result.success(apiService.getFriendsNotifications())
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
 
     suspend fun acceptFriendRequest(friendId: Int): Result<FriendOptionsResponse> {
         return try {
             val request = FriendOptionsRequest(friend_id = friendId)
-            Result.success(apiService.acceptRequest(request))
+            Result.success(userApiService.acceptRequest(request))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -40,7 +32,7 @@ class UserRepository(private val apiService: ApiService) {
     suspend fun denyFriendRequest(friendId: Int): Result<FriendOptionsResponse> {
         return try {
             val request = FriendOptionsRequest(friend_id = friendId)
-            Result.success(apiService.denyRequest(request))
+            Result.success(userApiService.denyRequest(request))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -49,7 +41,7 @@ class UserRepository(private val apiService: ApiService) {
     suspend fun addFriend(friendId: Int): Result<FriendOptionsResponse> {
         return try {
             val request = FriendOptionsRequest(friend_id = friendId)
-            Result.success(apiService.addFriend(request))
+            Result.success(userApiService.addFriend(request))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -58,7 +50,7 @@ class UserRepository(private val apiService: ApiService) {
     suspend fun removeFriend(friendId: Int): Result<FriendOptionsResponse> {
         return try {
             val request = FriendOptionsRequest(friend_id = friendId)
-            Result.success(apiService.removeFriend(request))
+            Result.success(userApiService.removeFriend(request))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -66,7 +58,7 @@ class UserRepository(private val apiService: ApiService) {
 
     suspend fun getUserData(userId: String): Result<UserDtoResponse> {
         return try {
-            Result.success(apiService.userData(userId))
+            Result.success(userApiService.userData(userId))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -74,7 +66,7 @@ class UserRepository(private val apiService: ApiService) {
 
     suspend fun getUserIdByUsername(username: String): Result<IdByUsernameResponse> {
         return try {
-            Result.success(apiService.getIdByUsername(username))
+            Result.success(userApiService.getIdByUsername(username))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -82,7 +74,7 @@ class UserRepository(private val apiService: ApiService) {
 
     suspend fun updateUserProfile(request: UserUpdateRequest): Result<FriendOptionsResponse> {
         return try {
-            Result.success(apiService.updateUserProfile(request))
+            Result.success(userApiService.updateUserProfile(request))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -90,7 +82,7 @@ class UserRepository(private val apiService: ApiService) {
 
     suspend fun getFriendsList(): Result<FriendListResponse> {
         return try {
-            Result.success(apiService.getFriendsList())
+            Result.success(userApiService.getFriendsList())
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -98,7 +90,7 @@ class UserRepository(private val apiService: ApiService) {
 
     suspend fun findFriends(username: String): Result<FindFriendListResponse> {
         return try {
-            Result.success(apiService.findFriends(FindFriendsRequest(username)))
+            Result.success(userApiService.findFriends(FindFriendsRequest(username)))
         } catch (e: Exception) {
             Result.failure(e)
         }

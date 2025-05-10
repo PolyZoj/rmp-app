@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RmpTheme {
-                AppNavGraph()
+                AppNavGraph("login")
             }
         }
     }
