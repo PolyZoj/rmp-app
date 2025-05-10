@@ -3,7 +3,6 @@ package com.ifmo.rmp.ui.screens.login
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ifmo.rmp.data.api.NetworkModule
 import com.ifmo.rmp.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +14,10 @@ class LoginViewModel : ViewModel() {
     val uiState: StateFlow<LoginUiState> = _uiState
 
     private var authRepository: AuthRepository? = null
-    
+
     private fun getAuthRepository(context: Context): AuthRepository {
         if (authRepository == null) {
-            val apiService = NetworkModule.provideApiService(context)
-            authRepository = AuthRepository(apiService, context)
+            authRepository = AuthRepository.getInstance(context)
         }
         return authRepository!!
     }
@@ -52,12 +50,12 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val repository = getAuthRepository(context)
                 val result = repository.login(username, password)
-                
+
                 result.fold(
-                    onSuccess = {
+                    onSuccess = { response ->
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             isSuccess = true,

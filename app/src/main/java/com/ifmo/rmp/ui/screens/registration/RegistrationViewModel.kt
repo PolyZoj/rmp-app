@@ -3,7 +3,7 @@ package com.ifmo.rmp.ui.screens.registration
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ifmo.rmp.data.repository.RegistrationRepository
+import com.ifmo.rmp.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,13 +13,13 @@ class RegistrationViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RegistrationUiState())
     val uiState: StateFlow<RegistrationUiState> = _uiState
 
-    private var registrationRepository: RegistrationRepository? = null
-    
-    private fun getRegistrationRepository(context: Context): RegistrationRepository {
-        if (registrationRepository == null) {
-            registrationRepository = RegistrationRepository.getInstance(context)
+    private var authRepository: AuthRepository? = null
+
+    private fun getAuthRepository(context: Context): AuthRepository {
+        if (authRepository == null) {
+            authRepository = AuthRepository.getInstance(context)
         }
-        return registrationRepository!!
+        return authRepository!!
     }
 
     fun onEmailChange(newEmail: String) {
@@ -79,7 +79,7 @@ class RegistrationViewModel : ViewModel() {
             )
             return
         }
-        
+
         _uiState.value = _uiState.value.copy(
             dateOfBirth = newDate,
             errorMessage = "",
@@ -138,7 +138,7 @@ class RegistrationViewModel : ViewModel() {
     fun register(context: Context) {
         val state = _uiState.value
 
-        if (state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank() || 
+        if (state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank() ||
             state.username.isBlank() || state.firstName.isBlank() || state.lastName.isBlank() ||
             state.dateOfBirth.isBlank() || state.weight.isBlank() || state.height.isBlank() ||
             state.stepGoal.isBlank() || state.waterIntake.isBlank() || state.calorieGoal.isBlank()) {
@@ -178,8 +178,8 @@ class RegistrationViewModel : ViewModel() {
             viewModelScope.launch {
                 try {
                     _uiState.value = _uiState.value.copy(isLoading = true)
-                    
-                    val repository = getRegistrationRepository(context)
+
+                    val repository = getAuthRepository(context)
                     val result = repository.register(
                         username = state.username,
                         password = state.password,
@@ -194,13 +194,13 @@ class RegistrationViewModel : ViewModel() {
                         calorieGoal = calorieGoal,
                         avatarName = state.selectedAvatar
                     )
-                    
+
                     result.fold(
                         onSuccess = { response ->
                             _uiState.value = _uiState.value.copy(
                                 isLoading = false,
                                 isSuccess = true,
-                                errorMessage = "",
+                                errorMessage = ""
                             )
                         },
                         onFailure = { exception ->
@@ -257,6 +257,6 @@ class RegistrationViewModel : ViewModel() {
         val errorMessage: String = "",
         val cursorPosition: Int = 0,
         val isLoading: Boolean = false,
-        val isSuccess: Boolean = false,
+        val isSuccess: Boolean = false
     )
 }
