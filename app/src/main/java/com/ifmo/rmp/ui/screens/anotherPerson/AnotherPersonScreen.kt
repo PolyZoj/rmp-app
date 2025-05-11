@@ -161,14 +161,14 @@ fun AnotherPersonScreen(
                 contentAlignment = Alignment.Center
             ) {
                 FriendButton(
-                    initialState = friendButtonState,
+                    state = friendButtonState,
                     onAddFriend = {
-//                        viewModel.addFriend(actualUserId)
-//                        onFriendActionClick()
+                        userState?.user_id?.let { viewModel.addFriend(it.toInt()) }
+                        onFriendActionClick()
                     },
                     onRemoveFriend = {
-//                        viewModel.removeFriend(actualUserId)
-//                        onFriendActionClick()
+                        userState?.user_id?.let { viewModel.addFriend(it.toInt()) }
+                        onFriendActionClick()
                     }
                 )
             }

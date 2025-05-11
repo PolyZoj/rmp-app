@@ -23,19 +23,14 @@ enum class FriendButtonState {
 
 @Composable
 fun FriendButton(
-    initialState: FriendButtonState,
+    state: FriendButtonState,
     onAddFriend: () -> Unit = {},
     onRemoveFriend: () -> Unit = {}
 ) {
-    var state by remember { mutableStateOf(initialState) }
-
     when (state) {
         FriendButtonState.AddFriend -> {
             Button(
-                onClick = {
-                    onAddFriend()
-                    state = FriendButtonState.InviteSent
-                },
+                onClick = onAddFriend,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF228D00),
                     contentColor = Color.White
@@ -64,10 +59,7 @@ fun FriendButton(
 
         FriendButtonState.RemoveFriend -> {
             OutlinedButton(
-                onClick = {
-                    onRemoveFriend()
-                    state = FriendButtonState.AddFriend
-                },
+                onClick = onRemoveFriend,
                 border = BorderStroke(1.dp, Color(0xFF8B0000)),
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.White,
@@ -78,24 +70,6 @@ fun FriendButton(
                 Text("Remove Friend", fontSize = 14.sp)
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun FriendButtonPreview() {
-    Column {
-        FriendButton(
-            initialState = FriendButtonState.AddFriend,
-            onAddFriend = { println("Add Friend Clicked") }
-        )
-        FriendButton(
-            initialState = FriendButtonState.InviteSent
-        )
-        FriendButton(
-            initialState = FriendButtonState.RemoveFriend,
-            onRemoveFriend = { println("Removed Friend") }
-        )
     }
 }
 
