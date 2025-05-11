@@ -1,6 +1,7 @@
 package com.ifmo.rmp.ui.screens.profile
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.FriendStructure
