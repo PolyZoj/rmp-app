@@ -37,11 +37,18 @@ fun MainPageScreen(navController: NavController) {
 
     val userId = sharedPreferences.getString("user_id", "") ?: ""
 
+    val userFullName by viewModel.userFullName.collectAsState()
+    val steps by viewModel.steps.collectAsState()
+    val waterIntake by viewModel.waterIntake.collectAsState()
+    val workouts by viewModel.workouts.collectAsState()
+    val stepPercentage by viewModel.stepPercentage.collectAsState()
+    val waterPercentage by viewModel.waterPercentage.collectAsState()
+    val workoutPercentage by viewModel.workoutPercentage.collectAsState()
+
     LaunchedEffect(userId) {
         viewModel.loadUserData(userId)
+        viewModel.loadDailyStats(context, userId)
     }
-
-    val userFullName by viewModel.userFullName.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -121,22 +128,22 @@ fun MainPageScreen(navController: NavController) {
                 ) {
                     InfoBlock(
                         title = "Total Steps",
-                        value = "15,000",
-                        percentage = 5,
+                        value = steps.toString(),
+                        percentage = stepPercentage,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(1.dp))
                     InfoBlock(
                         title = "Water Intake",
-                        value = "8 cups",
-                        percentage = -10,
+                        value = "$waterIntake cups",
+                        percentage = waterPercentage,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(1.dp))
                     InfoBlock(
                         title = "Workouts",
-                        value = "20",
-                        percentage = 15,
+                        value = workouts.toString(),
+                        percentage = workoutPercentage,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -233,5 +240,3 @@ fun MainPageScreen(navController: NavController) {
         }
     }
 }
-
-
