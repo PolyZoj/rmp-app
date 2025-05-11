@@ -7,6 +7,8 @@ import com.ifmo.rmp.data.model.ClubCreateRequest
 import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.data.model.ClubsListResponse
+import com.ifmo.rmp.data.model.ClubMemberRequest
+import com.ifmo.rmp.data.model.ClubMemberResponse
 
 class ClubRepository(private val clubApiService: ClubApiService) {
 
@@ -26,7 +28,7 @@ class ClubRepository(private val clubApiService: ClubApiService) {
     suspend fun getClubInfo(clubId: String): Result<ClubInfoResponse> {
         return try {
             val response = clubApiService.getClubInfo(clubId)
-            Result.success(response)
+            Result.success(response.club)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -45,6 +47,25 @@ class ClubRepository(private val clubApiService: ClubApiService) {
         return try {
             val request = ClubCreateRequest(name = name, description = description)
             val response = clubApiService.createClub(request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    suspend fun addMember(clubId: String, userId: String): Result<ClubMemberResponse> {
+        return try {
+            val request = ClubMemberRequest(userId = userId)
+            val response = clubApiService.addMember(clubId, request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    suspend fun removeMember(clubId: String, userId: String): Result<ClubMemberResponse> {
+        return try {
+            val response = clubApiService.removeMember(clubId, userId)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

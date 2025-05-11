@@ -28,6 +28,7 @@ import com.ifmo.rmp.ui.screens.clubs.ClubCreationScreen
 import com.ifmo.rmp.ui.screens.profile.ProfileViewModel
 import com.ifmo.rmp.ui.screens.registration.RegistrationScreen
 import com.ifmo.rmp.ui.screens.registration.RegistrationViewModel
+import com.ifmo.rmp.ui.screens.clubs.ManageClubScreen
 
 @Composable
 fun AppNavGraph(startDestination: String) {
@@ -146,6 +147,17 @@ fun AppNavGraph(startDestination: String) {
         composable(Routes.CREATE_CLUB) {
             ClubCreationScreen(
                 navController = navController
+            )
+        }
+        
+        composable(
+            route = Routes.MANAGE_CLUB_WITH_ID,
+            arguments = listOf(navArgument("clubId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val clubId = backStackEntry.arguments?.getString("clubId") ?: return@composable
+            ManageClubScreen(
+                navController = navController,
+                clubId = clubId
             )
         }
     }
