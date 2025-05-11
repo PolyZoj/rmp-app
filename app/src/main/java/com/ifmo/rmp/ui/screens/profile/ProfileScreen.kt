@@ -48,6 +48,8 @@ fun ProfileScreen(
     val stepPercentage by viewModel.stepPercentage.collectAsState()
     val waterPercentage by viewModel.waterPercentage.collectAsState()
     val workoutPercentage by viewModel.workoutPercentage.collectAsState()
+    val level by viewModel.level.collectAsState()
+    val xp by viewModel.xp.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -104,7 +106,7 @@ fun ProfileScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = "Level 5 | 5252 XP",
+                            text = "Level $level | $xp XP",
                             fontSize = 14.sp,
                             color = Color.Gray,
                             fontFamily = LatoFont
