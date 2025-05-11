@@ -47,6 +47,9 @@ interface ClubApiService {
 
 interface UserApiService {
 
+    @GET("api/v1/users/friends/notifications")
+    suspend fun getNotifications(): FriendRequestsListResponse
+
     @POST("api/v1/users/friends/notifications/accept")
     suspend fun acceptRequest(@Body request: FriendOptionsRequest): FriendOptionsResponse
 

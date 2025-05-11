@@ -20,6 +20,14 @@ class UserRepository(private val userApiService: UserApiService) {
         }
     }
 
+    suspend fun getNotificationList(): Result<FriendRequestsListResponse>{
+        return try {
+            Result.success(userApiService.getNotifications())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun acceptFriendRequest(friendId: Int): Result<FriendOptionsResponse> {
         return try {
             val request = FriendOptionsRequest(friend_id = friendId)
