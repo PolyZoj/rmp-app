@@ -23,7 +23,7 @@ data class FriendListResponse(
 )
 
 data class FindFriendListResponse(
-    val possible_friends: List<FriendStructure>
+    val possible_friend: List<FriendStructure>
 )
 
 data class FriendOptionsRequest(

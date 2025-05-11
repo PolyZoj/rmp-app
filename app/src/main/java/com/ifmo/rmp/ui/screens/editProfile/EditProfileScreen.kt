@@ -1,5 +1,6 @@
 package com.ifmo.rmp.ui.screens.editProfile
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -27,7 +28,8 @@ fun EditProfileScreen(
     val viewModel = remember { EditProfileViewModel(userRepository) }
     val uiState by viewModel.uiState.collectAsState()
 
-    val userId = "22"
+    val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    val userId = sharedPreferences.getString("user_id", "") ?: ""
 
     LaunchedEffect(Unit) {
         viewModel.loadUserData(userId)

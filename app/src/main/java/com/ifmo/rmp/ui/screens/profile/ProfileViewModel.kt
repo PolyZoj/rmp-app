@@ -59,12 +59,16 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
 
     fun searchFriends(query: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             val result = userRepository.findFriends(query)
             result.onSuccess {
-                _searchResults.value = it.possible_friends
+                _searchResults.value = it.possible_friend
+                Log.d("ProfileViewModel", "Search results updated: ${it.possible_friend}")
+                System.out.println("changed")
             }.onFailure {
                 _errorMessage.value = "Ошибка поиска друзей: ${it.message}"
             }
+            _isLoading.value = false
         }
     }
 
