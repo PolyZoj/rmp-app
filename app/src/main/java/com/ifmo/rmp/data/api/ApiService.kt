@@ -4,6 +4,7 @@ import com.ifmo.rmp.data.model.ClubCreateRequest
 import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.data.model.ClubsListResponse
+import com.ifmo.rmp.data.model.DailyStatsResponse
 import com.ifmo.rmp.data.model.FindFriendListResponse
 import com.ifmo.rmp.data.model.FindFriendsRequest
 import com.ifmo.rmp.data.model.FriendListResponse
@@ -76,5 +77,12 @@ interface UserApiService {
 
     @POST("api/v1/users/friends/find")
     suspend fun findFriends(@Body request: FindFriendsRequest): FindFriendListResponse
+
+}
+
+interface StatsApiService {
+
+    @GET("api/v1/stats/daily/{user_id}/{date}")
+    suspend fun getDailyStats(@Path("user_id") userId: String, @Path("date") date: String): DailyStatsResponse
 
 }
