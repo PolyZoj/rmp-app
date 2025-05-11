@@ -117,7 +117,6 @@ fun AppNavGraph(startDestination: String) {
         
         composable(Routes.ANOTHER_PERSON) {
             AnotherPersonScreen(
-                friendState = FriendButtonState.AddFriend, // потом динамически
                 onFriendActionClick = {},
                 onNavigateBack = { navController.popBackStack() }
             )
@@ -130,7 +129,6 @@ fun AppNavGraph(startDestination: String) {
             val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
             AnotherPersonScreen(
                 userId = userId,
-                friendState = FriendButtonState.AddFriend,
                 onNavigateBack = { navController.popBackStack() },
                 onFriendActionClick = {},
             )
