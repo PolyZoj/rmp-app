@@ -9,34 +9,54 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object NetworkModule {
-    private const val BASE_URL = "http://10.0.2.2:8081/"
- // private const val BASE_URL = "http://10.0.2.2:8082/" //TODO : настроить потом порты для разных запросов
-    
-    private var apiService: ApiService? = null
+    private const val AUTH_BASE_URL = "http://10.0.2.2:8081/"
+    private const val USER_BASE_URL = "http://10.0.2.2:8082/"
+    private const val CLUB_BASE_URL = "http://10.0.2.2:8085/"
 
-    val logging = HttpLoggingInterceptor().apply {
+    private var authApi: AuthApiService? = null
+    private var userApi: UserApiService? = null
+    private var clubApi: ClubApiService? = null
+
+    private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
-    
-    fun provideApiService(context: Context): ApiService {
-        if (apiService == null) {
-            val client = OkHttpClient.Builder()
-                .addInterceptor(AuthInterceptor(context))
-                .addInterceptor(logging)
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(15, TimeUnit.SECONDS)
-                .writeTimeout(15, TimeUnit.SECONDS)
-                .build()
-                
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                
-            apiService = retrofit.create(ApiService::class.java)
-        }
-        
-        return apiService!!
+
+    private fun provideOkHttpClient(context: Context): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(context))
+            .addInterceptor(logging)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .build()
     }
-} 
+
+    private fun provideRetrofit(baseUrl: String, context: Context): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(provideOkHttpClient(context))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    fun provideAuthApiService(context: Context): AuthApiService {
+        if (authApi == null) {
+            authApi = provideRetrofit(AUTH_BASE_URL, context).create(AuthApiService::class.java)
+        }
+        return authApi!!
+    }
+
+    fun provideUserApiService(context: Context): UserApiService {
+        if (userApi == null) {
+            userApi = provideRetrofit(USER_BASE_URL, context).create(UserApiService::class.java)
+        }
+        return userApi!!
+    }
+
+    fun provideClubApiService(context: Context): ClubApiService {
+        if (clubApi == null) {
+            clubApi = provideRetrofit(CLUB_BASE_URL, context).create(ClubApiService::class.java)
+        }
+        return clubApi!!
+    }
+}

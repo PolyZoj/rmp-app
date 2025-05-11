@@ -26,28 +26,29 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface ApiService {
+interface AuthApiService {
     @POST("api/v1/auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
     @POST("api/v1/auth/register")
     suspend fun register(@Body request: RegistrationRequest): RegistrationResponse
-  
-    // теперь используем api/v1/users/{userId}, этот запрос потом надо удалить
-    @GET("api/v1/users/{userId}/profile")
-    suspend fun getUserProfile(@Path("userId") userId: String): Profile
-    
+}
+
+interface ClubApiService {
     @GET("api/v1/clubs/{clubId}")
     suspend fun getClubInfo(@Path("clubId") clubId: String): ClubInfoResponse
-    
+
     @GET("api/v1/clubs/list")
     suspend fun getClubsList(@Query("limit") limit: Int = 10, @Query("offset") offset: Int = 0): ClubsListResponse
-    
+
     @POST("api/v1/clubs/create")
     suspend fun createClub(@Body request: ClubCreateRequest): ClubCreateResponse
+}
 
-    @GET("/api/v1/users/friends/notifications")
-    suspend fun getFriendsNotifications(): FriendRequestsListResponse
+interface UserApiService {
+
+    @GET("api/v1/users/friends/notifications")
+    suspend fun getNotifications(): FriendRequestsListResponse
 
     @POST("api/v1/users/friends/notifications/accept")
     suspend fun acceptRequest(@Body request: FriendOptionsRequest): FriendOptionsResponse

@@ -29,13 +29,8 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-    with(sharedPreferences.edit()) {
-        putString("user_id", "22")
-        putString("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMiIsImlzcyI6Imh0dHBzOi8vand0LXByb3ZpZGVyLWRvbWFpbi8iLCJhdWQiOiJqd3QtYXVkaWVuY2UiLCJ1c2VybmFtZSI6Imdsb2dhbmc1MiIsInVzZXJJZCI6IjIyIiwiZXhwIjoxNzQ2NDg0NjYyfQ.EW2avLv6IrKp2vTi9RhckJwV3mgRFq18MQSiMCx5iIo")
-        apply()
-    }
 
-    val userId = "22"
+    val userId = sharedPreferences.getString("user_id", "") ?: ""
     val userRepository = remember { UserRepository.getInstance(context) }
     val viewModel = remember { ProfileViewModel(userRepository) }
 
@@ -52,7 +47,7 @@ fun ProfileScreen(
 
     var searchQuery by remember { mutableStateOf("") }
 
-    LaunchedEffect(userId) {
+    LaunchedEffect(sharedPreferences) {
         viewModel.loadUser(userId)
         viewModel.loadFriends()
     }

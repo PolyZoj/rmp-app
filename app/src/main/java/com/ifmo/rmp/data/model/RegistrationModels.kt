@@ -23,4 +23,4 @@ data class RegistrationRequest(
 data class RegistrationResponse(
     val id: String,
     val token: String
-) 
+)
