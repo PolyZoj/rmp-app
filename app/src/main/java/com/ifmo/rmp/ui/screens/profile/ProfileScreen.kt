@@ -247,7 +247,7 @@ fun ProfileScreen(
                                 name = friend.username,
                                 iconResId = avatarResId,
                                 onClick = {
-                                    // Клик можно реализовать позже
+                                    navController.navigate(Routes.anotherPerson(friend.user_id))
                                 }
                             )
                         }
