@@ -42,6 +42,13 @@ fun ProfileScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
+    val steps by viewModel.steps.collectAsState()
+    val waterIntake by viewModel.waterIntake.collectAsState()
+    val workouts by viewModel.workouts.collectAsState()
+    val stepPercentage by viewModel.stepPercentage.collectAsState()
+    val waterPercentage by viewModel.waterPercentage.collectAsState()
+    val workoutPercentage by viewModel.workoutPercentage.collectAsState()
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -50,6 +57,7 @@ fun ProfileScreen(
     LaunchedEffect(sharedPreferences) {
         viewModel.loadUser(userId)
         viewModel.loadFriends()
+        viewModel.loadDailyStats(context, userId)
     }
 
     LaunchedEffect(errorMessage) {
@@ -122,18 +130,33 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = "Weak statistics", fontSize = 18.sp, fontFamily = LatoFont)
+                Text(text = "Daily Statistics", fontSize = 18.sp, fontFamily = LatoFont)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    InfoBlock(title = "Total Steps", value = "15,000", percentage = 5, modifier = Modifier.weight(1f))
+                    InfoBlock(
+                        title = "Total Steps",
+                        value = steps.toString(),
+                        percentage = stepPercentage,
+                        modifier = Modifier.weight(1f)
+                    )
                     Spacer(modifier = Modifier.width(1.dp))
-                    InfoBlock(title = "Water Intake", value = "8 cups", percentage = -10, modifier = Modifier.weight(1f))
+                    InfoBlock(
+                        title = "Water Intake",
+                        value = "$waterIntake cups",
+                        percentage = waterPercentage,
+                        modifier = Modifier.weight(1f)
+                    )
                     Spacer(modifier = Modifier.width(1.dp))
-                    InfoBlock(title = "Workouts", value = "20", percentage = 15, modifier = Modifier.weight(1f))
+                    InfoBlock(
+                        title = "Workouts",
+                        value = workouts.toString(),
+                        percentage = workoutPercentage,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -257,4 +280,3 @@ fun ProfileScreen(
         }
     }
 }
-
