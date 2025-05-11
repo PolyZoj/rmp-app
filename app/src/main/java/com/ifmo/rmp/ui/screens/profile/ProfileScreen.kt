@@ -121,7 +121,7 @@ fun ProfileScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = user?.club_id.toString() ?: "No club",
+                            text = user?.club_id?.toString() ?: "No club",
                             fontSize = 16.sp,
                             fontFamily = LatoFont
                         )

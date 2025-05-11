@@ -19,16 +19,13 @@ import com.ifmo.rmp.R
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.FriendButton
-import com.ifmo.rmp.ui.components.FriendButtonState
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.theme.LatoFont
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun AnotherPersonScreen(
     onNavigateBack: () -> Unit,
     userId: String? = null,
-    friendState: FriendButtonState,
     onFriendActionClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -43,6 +40,8 @@ fun AnotherPersonScreen(
     LaunchedEffect(actualUserId) {
         viewModel.loadUser(actualUserId)
     }
+
+    val friendButtonState by viewModel.friendButtonState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -85,11 +84,12 @@ fun AnotherPersonScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val userAvatarResId = remember(userState?.avatar_url) {
-                    val name = userState?.avatar_url ?: "e_profile"
-                    context.resources.getIdentifier(name, "drawable", context.packageName)
+                val avatarResId = remember(userState?.avatar_url) {
+                    val resourceName = userState?.avatar_url ?: "e_profile"
+                    val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                    if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                 }
-                EmojiIcon(iconResId = userAvatarResId)
+                EmojiIcon(iconResId = avatarResId)
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column {
@@ -157,15 +157,22 @@ fun AnotherPersonScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 FriendButton(
-                    initialState = friendState,
-                    onAddFriend = onFriendActionClick
+                    initialState = friendButtonState,
+                    onAddFriend = {
+//                        viewModel.addFriend(actualUserId)
+//                        onFriendActionClick()
+                    },
+                    onRemoveFriend = {
+//                        viewModel.removeFriend(actualUserId)
+//                        onFriendActionClick()
+                    }
                 )
             }
         }
     }
 }
+
