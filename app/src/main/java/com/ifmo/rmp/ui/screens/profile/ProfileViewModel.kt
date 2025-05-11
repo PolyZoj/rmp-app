@@ -3,7 +3,6 @@ package com.ifmo.rmp.ui.screens.profile
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import android.util.Log
 import com.ifmo.rmp.data.model.FriendStructure
 import com.ifmo.rmp.data.model.UserDtoResponse
 import com.ifmo.rmp.data.repository.StatsRepository
@@ -59,18 +58,21 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
     private val _workoutPercentage = MutableStateFlow(0)
     val workoutPercentage: StateFlow<Int> = _workoutPercentage
 
+    private val _level = MutableStateFlow(0)
+    val level: StateFlow<Int> = _level
+
+    private val _xp = MutableStateFlow(0)
+    val xp: StateFlow<Int> = _xp
+
     fun loadUser(userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             val result = userRepository.getUserData(userId)
             result.onSuccess {
-                Log.d("ProfileViewModel", "Пользователь загружен: $it")
                 _user.value = it
-
                 _stepGoal.value = it.daily_step_goal
                 _waterGoal.value = it.water_intake_goal
                 _workoutGoal.value = it.workouts_goal
-
                 _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
                 _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
                 _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
@@ -124,7 +126,8 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
                 _steps.value = stats.calorie_count
                 _waterIntake.value = stats.water_count
                 _workouts.value = stats.workouts_count
-
+                _level.value = stats.level
+                _xp.value = stats.xp
                 _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
                 _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
                 _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
@@ -132,6 +135,8 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
                 _steps.value = 0
                 _waterIntake.value = 0
                 _workouts.value = 0
+                _level.value = 0
+                _xp.value = 0
                 _stepPercentage.value = 0
                 _waterPercentage.value = 0
                 _workoutPercentage.value = 0
