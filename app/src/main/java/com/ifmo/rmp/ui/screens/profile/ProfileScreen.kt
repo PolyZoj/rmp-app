@@ -91,8 +91,9 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val userAvatarResId = remember(user?.avatar_url) {
-                        val name = user?.avatar_url ?: "e_profile"
-                        context.resources.getIdentifier(name, "drawable", context.packageName)
+                        val resourceName = user?.avatar_url ?: "e_profile"
+                        val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                        if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                     }
                     EmojiIcon(iconResId = userAvatarResId)
                     Spacer(modifier = Modifier.width(12.dp))

@@ -27,14 +27,12 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
             result
                 .onSuccess { userData ->
                     _user.value = userData
-                    println(userData.status)
                     _friendButtonState.value = when (userData.status) {
                         "YourFriend" -> FriendButtonState.RemoveFriend
                         "InviteSent" -> FriendButtonState.InviteSent
                         "NotYourFriend" -> FriendButtonState.AddFriend
                         else -> FriendButtonState.AddFriend
                     }
-                    println(_friendButtonState.value)
                 }
                 .onFailure { error ->
                     _errorMessage.value = "Ошибка загрузки пользователя: ${error.message}"
@@ -42,10 +40,44 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
         }
     }
 
+    fun addFriend(friendId: Int) {
+        viewModelScope.launch {
+            val result = userRepository.addFriend(friendId)
+            result
+                .onSuccess { response ->
+                    if (response.success == "true") {
+                        _friendButtonState.value = FriendButtonState.InviteSent
+                    } else {
+                        _errorMessage.value = "Не удалось отправить заявку"
+                    }
+                }
+                .onFailure { error ->
+                    _errorMessage.value = "Ошибка при добавлении в друзья: ${error.message}"
+                }
+        }
+    }
+
+    fun removeFriend(friendId: Int) {
+        viewModelScope.launch {
+            val result = userRepository.removeFriend(friendId)
+            result
+                .onSuccess { response ->
+                    if (response.success == "true") {
+                        _friendButtonState.value = FriendButtonState.AddFriend
+                    } else {
+                        _errorMessage.value = "Не удалось удалить из друзей"
+                    }
+                }
+                .onFailure { error ->
+                    _errorMessage.value = "Ошибка при удалении из друзей: ${error.message}"
+                }
+        }
+    }
 
     fun clearError() {
         _errorMessage.value = null
     }
 }
+
 
 
