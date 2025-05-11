@@ -16,6 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ifmo.rmp.R
+import com.ifmo.rmp.data.model.AchievementStatus
+import com.ifmo.rmp.data.model.getDrawableResId
+import com.ifmo.rmp.data.repository.ChallengesRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.*
 import com.ifmo.rmp.ui.navigation.Routes
@@ -32,11 +35,13 @@ fun ProfileScreen(
 
     val userId = sharedPreferences.getString("user_id", "") ?: ""
     val userRepository = remember { UserRepository.getInstance(context) }
-    val viewModel = remember { ProfileViewModel(userRepository) }
+    val challengesRepository = remember { ChallengesRepository.getInstance(context) }
+    val viewModel = remember { ProfileViewModel(userRepository, challengesRepository) }
 
     val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
 
     val user by viewModel.user.collectAsState()
+    val achievements by viewModel.challengesList.collectAsState()
     val friends by viewModel.friends.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -164,14 +169,6 @@ fun ProfileScreen(
                 Text(text = "Completed Challenges", fontSize = 18.sp, fontFamily = LatoFont)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                val challenges = listOf(
-                    Triple("Daily Challenge", "30-day streak", R.drawable.e_trophy),
-                    Triple("Weekly Push", "5 completed", R.drawable.e_trophy),
-                    Triple("Monthly Beast", "100% tasks", R.drawable.e_trophy),
-                    Triple("Steps Hero", "50k steps", R.drawable.e_step),
-                    Triple("Hydration King", "7-day streak", R.drawable.e_water)
-                )
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -181,15 +178,18 @@ fun ProfileScreen(
                         contentPadding = PaddingValues(vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(challenges.take(5)) { challenge ->
-                            EmojiAndTextWithDescriptionLine(
-                                iconResId = challenge.third,
-                                title = challenge.first,
-                                subtitle = challenge.second,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 4.dp)
-                            )
+
+                        this@LazyColumn.items(achievements.take(5)) { achievement ->
+                            if (achievement.status == AchievementStatus.COMPLETED) {
+                                EmojiAndTextWithDescriptionLine(
+                                    iconResId = getDrawableResId(achievement.icon),
+                                    title = achievement.title,
+                                    subtitle = achievement.description,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 4.dp)
+                                )
+                            }
                         }
                     }
                 }

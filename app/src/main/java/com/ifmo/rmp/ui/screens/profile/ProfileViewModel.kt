@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.util.Log
+import com.ifmo.rmp.data.model.Achievement
 import com.ifmo.rmp.data.model.FriendStructure
 import com.ifmo.rmp.data.model.UserDtoResponse
+import com.ifmo.rmp.data.repository.ChallengesRepository
 import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class ProfileViewModel(private val userRepository: UserRepository) : ViewModel() {
+class ProfileViewModel(private val userRepository: UserRepository, private val challengesRepository: ChallengesRepository) : ViewModel() {
 
     private val _user = MutableStateFlow<UserDtoResponse?>(null)
     val user: StateFlow<UserDtoResponse?> = _user
@@ -59,10 +61,15 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
     private val _workoutPercentage = MutableStateFlow(0)
     val workoutPercentage: StateFlow<Int> = _workoutPercentage
 
+    private val _challengesList = MutableStateFlow<List<Achievement>>(emptyList())
+    val challengesList: StateFlow<List<Achievement>> = _challengesList
+
     fun loadUser(userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             val result = userRepository.getUserData(userId)
+            val achievements = challengesRepository.getAchievementsById(userId)
+
             result.onSuccess {
                 Log.d("ProfileViewModel", "Пользователь загружен: $it")
                 _user.value = it
@@ -77,8 +84,14 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
             }.onFailure {
                 _errorMessage.value = "Ошибка загрузки пользователя: ${it.message}"
             }
+
+            achievements.onSuccess {
+                _challengesList.value = it
+            }
+
             _isLoading.value = false
         }
+
     }
 
     fun loadFriends() {

@@ -3,7 +3,9 @@ package com.ifmo.rmp.ui.screens.mainPage
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ifmo.rmp.data.model.Achievement
 import com.ifmo.rmp.data.model.FriendStructure
+import com.ifmo.rmp.data.repository.ChallengesRepository
 import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +16,8 @@ import java.util.Calendar
 import java.util.Locale
 
 class MainPageViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val challengesRepository: ChallengesRepository
 ) : ViewModel() {
 
     private val _isNotificationsVisible = MutableStateFlow(false)
@@ -53,23 +56,29 @@ class MainPageViewModel(
     private val _workoutPercentage = MutableStateFlow(0)
     val workoutPercentage: StateFlow<Int> = _workoutPercentage
 
+    private val _challengesList = MutableStateFlow<List<Achievement>>(emptyList())
+    val challengesList: StateFlow<List<Achievement>> = _challengesList
+
     fun loadUserData(userId: String) {
         if (userId.isBlank()) return
 
         viewModelScope.launch {
             val result = userRepository.getUserData(userId)
+            val achievements = challengesRepository.getAchievementsById(userId)
             result.onSuccess {
                 _userFullName.value = "${it.first_name} ${it.last_name}"
-
                 _stepGoal.value = it.daily_step_goal
                 _waterGoal.value = it.water_intake_goal
                 _workoutGoal.value = it.workouts_goal
-
                 _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
                 _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
                 _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
             }.onFailure {
                 _userFullName.value = "User"
+            }
+
+            achievements.onSuccess {
+                _challengesList.value = it
             }
         }
     }
