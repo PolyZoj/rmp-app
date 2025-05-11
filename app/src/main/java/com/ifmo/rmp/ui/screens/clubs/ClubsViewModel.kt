@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
+import com.ifmo.rmp.data.model.ClubMemberResponse
 import com.ifmo.rmp.data.repository.ClubRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -134,6 +135,78 @@ class ClubsViewModel : ViewModel() {
         }
     }
     
+    fun addMember(context: Context, clubId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                val repository = getClubRepository(context)
+                val result = repository.addMember(clubId, userId)
+                
+                result.fold(
+                    onSuccess = { response ->
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            lastMemberOperation = response,
+                            isSuccess = true,
+                            errorMessage = ""
+                        )
+                        
+                        // Refresh club info after adding member
+                        getClubInfo(context, clubId)
+                    },
+                    onFailure = { exception ->
+                        handleError(exception)
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Network error: ${e.message ?: "Unknown error"}"
+                )
+            }
+        }
+    }
+    
+    fun removeMember(context: Context, clubId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                val repository = getClubRepository(context)
+                val result = repository.removeMember(clubId, userId)
+                
+                result.fold(
+                    onSuccess = { response ->
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            lastMemberOperation = response,
+                            isSuccess = true,
+                            errorMessage = ""
+                        )
+                        
+                        // Refresh club info after removing member
+                        getClubInfo(context, clubId)
+                    },
+                    onFailure = { exception ->
+                        handleError(exception)
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Network error: ${e.message ?: "Unknown error"}"
+                )
+            }
+        }
+    }
+    
+    fun clearLastMemberOperation() {
+        _uiState.value = _uiState.value.copy(
+            lastMemberOperation = null
+        )
+    }
+    
     private fun handleError(exception: Throwable) {
         when (exception) {
             is HttpException -> {
@@ -151,7 +224,7 @@ class ClubsViewModel : ViewModel() {
             else -> {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Network error: ${exception.message}"
+                    errorMessage = "Network error: ${exception.message ?: "Unknown error"}"
                 )
             }
         }
@@ -163,6 +236,7 @@ class ClubsViewModel : ViewModel() {
         val clubInfo: ClubInfoResponse? = null,
         val clubsList: List<ClubInfoResponse> = emptyList(),
         val createdClub: ClubCreateResponse? = null,
+        val lastMemberOperation: ClubMemberResponse? = null,
         val errorMessage: String = "",
         val isLoading: Boolean = false,
         val isSuccess: Boolean = false
