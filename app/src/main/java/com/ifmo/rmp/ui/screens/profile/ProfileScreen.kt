@@ -220,6 +220,8 @@ fun ProfileScreen(
                 Text(text = "Find Friends", fontSize = 18.sp, fontFamily = LatoFont)
                 Spacer(modifier = Modifier.height(4.dp))
 
+                val displayedFriends = if (searchQuery.isEmpty()) friends ?: emptyList() else searchResults ?: emptyList()
+
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = {
@@ -230,8 +232,6 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                val displayedFriends = if (searchQuery.isEmpty()) friends else searchResults
-
                 Box(modifier = Modifier.fillMaxWidth()) {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -240,9 +240,11 @@ fun ProfileScreen(
                     ) {
                         items(displayedFriends) { friend ->
                             val avatarResId = remember(friend.avatar_url) {
-                                val name = friend.avatar_url ?: "e_profile"
-                                context.resources.getIdentifier(name, "drawable", context.packageName)
+                                val resourceName = friend.avatar_url ?: "e_profile"
+                                val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                                if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                             }
+
                             PersonField(
                                 name = friend.username,
                                 iconResId = avatarResId,
@@ -251,10 +253,10 @@ fun ProfileScreen(
                                 }
                             )
                         }
+
                     }
                 }
             }
         }
     }
 }
-
