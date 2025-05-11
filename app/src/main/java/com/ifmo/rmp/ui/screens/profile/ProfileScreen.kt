@@ -48,6 +48,9 @@ fun ProfileScreen(
     val stepPercentage by viewModel.stepPercentage.collectAsState()
     val waterPercentage by viewModel.waterPercentage.collectAsState()
     val workoutPercentage by viewModel.workoutPercentage.collectAsState()
+    val level by viewModel.level.collectAsState()
+    val xp by viewModel.xp.collectAsState()
+    val clubName by viewModel.clubName.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -58,6 +61,12 @@ fun ProfileScreen(
         viewModel.loadUser(userId)
         viewModel.loadFriends()
         viewModel.loadDailyStats(context, userId)
+    }
+
+    LaunchedEffect(user?.club_id) {
+        user?.club_id?.let {
+            viewModel.loadClubName(context, it)
+        }
     }
 
     LaunchedEffect(errorMessage) {
@@ -105,7 +114,7 @@ fun ProfileScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = "Level 5 | 5252 XP",
+                            text = "Level $level | $xp XP",
                             fontSize = 14.sp,
                             color = Color.Gray,
                             fontFamily = LatoFont
@@ -122,7 +131,7 @@ fun ProfileScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = user?.club_id?.toString() ?: "No club",
+                            text = clubName,
                             fontSize = 16.sp,
                             fontFamily = LatoFont
                         )
