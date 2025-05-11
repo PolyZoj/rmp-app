@@ -50,6 +50,7 @@ fun ProfileScreen(
     val workoutPercentage by viewModel.workoutPercentage.collectAsState()
     val level by viewModel.level.collectAsState()
     val xp by viewModel.xp.collectAsState()
+    val clubName by viewModel.clubName.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -60,6 +61,12 @@ fun ProfileScreen(
         viewModel.loadUser(userId)
         viewModel.loadFriends()
         viewModel.loadDailyStats(context, userId)
+    }
+
+    LaunchedEffect(user?.club_id) {
+        user?.club_id?.let {
+            viewModel.loadClubName(context, it)
+        }
     }
 
     LaunchedEffect(errorMessage) {
@@ -94,7 +101,8 @@ fun ProfileScreen(
                 ) {
                     val userAvatarResId = remember(user?.avatar_url) {
                         val name = user?.avatar_url ?: "e_profile"
-                        context.resources.getIdentifier(name, "drawable", context.packageName)
+                        val id = context.resources.getIdentifier(name, "drawable", context.packageName)
+                        if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                     }
                     EmojiIcon(iconResId = userAvatarResId)
                     Spacer(modifier = Modifier.width(12.dp))
@@ -123,7 +131,7 @@ fun ProfileScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = user?.club_id?.toString() ?: "No club",
+                            text = clubName,
                             fontSize = 16.sp,
                             fontFamily = LatoFont
                         )

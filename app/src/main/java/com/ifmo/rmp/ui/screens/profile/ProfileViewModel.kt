@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.FriendStructure
 import com.ifmo.rmp.data.model.UserDtoResponse
+import com.ifmo.rmp.data.repository.ClubRepository
 import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,6 +65,9 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
 
     private val _xp = MutableStateFlow(0)
     val xp: StateFlow<Int> = _xp
+
+    private val _clubName = MutableStateFlow("No club")
+    val clubName: StateFlow<String> = _clubName
 
     fun loadUser(userId: String) {
         viewModelScope.launch {
@@ -142,6 +146,33 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
                 _waterPercentage.value = 0
                 _workoutPercentage.value = 0
                 _errorMessage.value = "Ошибка загрузки статистики: ${it.message}"
+            }
+        }
+    }
+    
+    fun loadClubName(context: Context, clubId: Int?) {
+        if (clubId == null) {
+            _clubName.value = "No club"
+            return
+        }
+        
+        viewModelScope.launch {
+            try {
+                val clubRepository = ClubRepository.getInstance(context)
+                val result = clubRepository.getClubInfo(clubId.toString())
+                
+                result.fold(
+                    onSuccess = { club ->
+                        _clubName.value = club.name ?: "Unnamed Club"
+                    },
+                    onFailure = {
+                        _clubName.value = "Club #$clubId"
+                        _errorMessage.value = "Ошибка загрузки информации о клубе: ${it.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _clubName.value = "Club #$clubId"
+                _errorMessage.value = "Ошибка загрузки информации о клубе: ${e.message}"
             }
         }
     }
