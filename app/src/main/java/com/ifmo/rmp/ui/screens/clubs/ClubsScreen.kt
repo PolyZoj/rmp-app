@@ -10,14 +10,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +42,9 @@ import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.SearchBar
 import com.ifmo.rmp.ui.navigation.Routes
+import android.content.Context
+import com.ifmo.rmp.ui.theme.LatoFont
+
 
 @Composable
 fun ClubsScreen(
@@ -45,6 +54,16 @@ fun ClubsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     
+    // Get the current user ID from SharedPreferences
+    val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+    
+    // Get a safe club icon resource ID
+    val clubIconResId = remember {
+        val id = context.resources.getIdentifier("e_clubs", "drawable", context.packageName)
+        if (id != 0) id else R.drawable.e_profile // Fallback to profile icon if clubs icon is missing
+    }
+    
     // Load clubs list when screen is first displayed
     LaunchedEffect(Unit) {
         viewModel.getClubsList(context)
@@ -52,21 +71,34 @@ fun ClubsScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .padding(top = 60.dp)
     ) {
         // Current Club Section
         Text(
             text = "Your current club",
             fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+//            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         // Display current club if available
         val currentClub = uiState.clubInfo
         if (currentClub != null) {
-            ClubItem(club = currentClub, onClick = {})
+            ClubItemDetailed(
+                club = currentClub,
+                clubIconResId = clubIconResId,
+                isMember = currentClub.isJoined == true,
+                onManageClick = {
+                    // Navigate to club management screen
+                    println("Navigating to club management screen for club ID: ${currentClub.id}")
+                    println("Routes.manageClub: ${currentClub}")
+                    currentClub.id?.let { clubId ->
+                        navController.navigate(Routes.manageClub(clubId))
+                    }
+                }
+            )
         } else {
             // Placeholder for when no club is joined
             Text(
@@ -119,11 +151,17 @@ fun ClubsScreen(
         } else if (uiState.clubsList.isNotEmpty()) {
             LazyColumn {
                 items(uiState.clubsList) { club ->
-                    ClubItem(
+                    ClubItemWithJoinButton(
                         club = club,
+                        clubIconResId = clubIconResId,
                         onClick = {
-                            // Navigate to club details or join
-                            viewModel.getClubInfo(context, club.id)
+                            viewModel.getClubInfo(context, club.id ?: "")
+                            if (club.id != null) {
+                                navController.navigate(Routes.manageClub(club.id))
+                            }
+                        },
+                        onJoin = {
+                            viewModel.addMember(context, club.id ?: "", currentUserId)
                         }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -151,6 +189,7 @@ fun ClubsScreen(
 @Composable
 fun ClubItem(
     club: ClubInfoResponse,
+    clubIconResId: Int,
     onClick: () -> Unit
 ) {
     Row(
@@ -160,7 +199,6 @@ fun ClubItem(
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Club Avatar (Circle with icon)
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -168,28 +206,216 @@ fun ClubItem(
                 .background(Color(0xFFFFCCCC)), // Light red background
             contentAlignment = Alignment.Center
         ) {
-            // Using EmojiIcon for the club avatar
             EmojiIcon(
-                iconResId = R.drawable.e_clubs,
+                iconResId = clubIconResId,
                 size = 32
             )
         }
         
         Spacer(modifier = Modifier.width(16.dp))
         
-        // Club info
         Column {
             Text(
-                text = club.name,
+                text = club.name ?: "Unnamed Club",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
             
             Text(
-                text = club.description,
+                text = club.description ?: "No description",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
+        }
+    }
+}
+
+@Composable
+fun ClubItemDetailed(
+    club: ClubInfoResponse,
+    clubIconResId: Int,
+    isMember: Boolean,
+    onManageClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFFFCCCC)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        EmojiIcon(
+                            iconResId = clubIconResId,
+                            size = 32
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(16.dp))
+                    
+                    Column {
+                        Text(
+                            text = club.name ?: "Unnamed Club",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        Text(
+                            text = club.description ?: "No description",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                
+                if (club.ownerId.equals(currentUserId)) {
+                    IconButton(onClick = onManageClick) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Manage club",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ClubStat(label = "Members", value = "${club.members?.size ?: 0}")
+                ClubStat(label = "Owner", value = if (club.ownerId?.isNotEmpty() == true) "ID: ${club.ownerId}" else "Unknown")
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(
+                onClick = onManageClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Manage club"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Manage Club")
+            }
+        }
+    }
+}
+
+@Composable
+fun ClubStat(
+    label: String,
+    value: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = Color.Gray
+        )
+    }
+}
+
+@Composable
+fun ClubItemWithJoinButton(
+    club: ClubInfoResponse,
+    clubIconResId: Int,
+    onClick: () -> Unit,
+    onJoin: () -> Unit
+) {
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFFFCCCC)),
+                contentAlignment = Alignment.Center
+            ) {
+                EmojiIcon(
+                    iconResId = clubIconResId,
+                    size = 32
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Column {
+                Text(
+                    text = club.name ?: "Unnamed Club",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Text(
+                    text = club.description ?: "No description",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
+        }
+        
+        if (club.isJoined == true) {
+            Text(
+                text = "Joined",
+                color = Color.Green,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        } else {
+            Button(
+                onClick = onJoin,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier.height(36.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp)
+            ) {
+                Text("Join", fontSize = 14.sp)
+            }
         }
     }
 }

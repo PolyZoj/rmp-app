@@ -7,6 +7,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,11 +30,12 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
         Routes.PROFILE to R.drawable.e_profile
     )
 
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
         modifier = modifier,
-        containerColor = Color.White,
+        containerColor = Color(0xFFEFE7E7),
         contentColor = Color.Black
     ) {
         items.forEach { (route, icon) ->
@@ -43,7 +45,14 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
                         EmojiIcon(iconResId = icon)
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = route.replaceFirstChar { it.uppercase() },
+                            text = when(route) {
+                                Routes.HOME -> "Home"
+                                Routes.ACTIVITIES -> "Activities"
+                                Routes.CLUBS -> "Clubs"
+                                Routes.REWARDS -> "Rewards"
+                                Routes.PROFILE -> "Profile"
+                                else -> ""
+                            },
                             fontFamily = LatoFont,
                             style = TextStyle(fontSize = 12.sp)
                         )
@@ -53,7 +62,10 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
                 onClick = {
                     if (currentRoute != route) {
                         navController.navigate(route) {
-                            popUpTo(Routes.PROFILE) { saveState = true }
+                            // Очищаем стек до стартового экрана (HOME)
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }

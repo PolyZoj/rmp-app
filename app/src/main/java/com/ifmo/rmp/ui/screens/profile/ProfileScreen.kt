@@ -1,7 +1,6 @@
 package com.ifmo.rmp.ui.screens.profile
 
 import android.content.Context
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,6 +51,9 @@ fun ProfileScreen(
     val stepPercentage by viewModel.stepPercentage.collectAsState()
     val waterPercentage by viewModel.waterPercentage.collectAsState()
     val workoutPercentage by viewModel.workoutPercentage.collectAsState()
+    val level by viewModel.level.collectAsState()
+    val xp by viewModel.xp.collectAsState()
+    val clubName by viewModel.clubName.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -62,6 +64,12 @@ fun ProfileScreen(
         viewModel.loadUser(userId)
         viewModel.loadFriends()
         viewModel.loadDailyStats(context, userId)
+    }
+
+    LaunchedEffect(user?.club_id) {
+        user?.club_id?.let {
+            viewModel.loadClubName(context, it)
+        }
     }
 
     LaunchedEffect(errorMessage) {
@@ -82,9 +90,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color.White)
                 .padding(horizontal = 12.dp)
-                .padding(top = 24.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
@@ -95,10 +101,11 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val userAvatarResId = remember(user?.avatar_url) {
-                        val name = user?.avatar_url ?: "e_profile"
-                        context.resources.getIdentifier(name, "drawable", context.packageName)
+                        val resourceName = user?.avatar_url ?: "e_profile"
+                        val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                        if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                     }
-                    EmojiIcon(iconResId = userAvatarResId)
+                    EmojiIcon(iconResId = userAvatarResId, 36)
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column(modifier = Modifier.clickable { onNavigateToEditProfile() }) {
@@ -108,7 +115,7 @@ fun ProfileScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = "Level 5 | 5252 XP",
+                            text = "Level $level | $xp XP",
                             fontSize = 14.sp,
                             color = Color.Gray,
                             fontFamily = LatoFont
@@ -125,7 +132,7 @@ fun ProfileScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = user?.club_id.toString() ?: "No club",
+                            text = clubName,
                             fontSize = 16.sp,
                             fontFamily = LatoFont
                         )
@@ -207,7 +214,7 @@ fun ProfileScreen(
                         text = "Daily Step Goal",
                         onClick = {
                             navController.navigate(Routes.ACTIVITIES) {
-                                popUpTo(Routes.PROFILE) {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -224,7 +231,7 @@ fun ProfileScreen(
                         text = "Water Intake",
                         onClick = {
                             navController.navigate(Routes.ACTIVITIES) {
-                                popUpTo(Routes.PROFILE) {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
                                 launchSingleTop = true

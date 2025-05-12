@@ -90,22 +90,39 @@ fun MainPageScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     BigEmojiButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp),
                         emojiResId = R.drawable.e_mainprofile,
                         text = "Profile",
-                        onClick = { },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp)
+                        onClick = {
+                            navController.navigate(Routes.PROFILE) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                     BigEmojiButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp),
                         emojiResId = R.drawable.e_mainclubs,
                         text = "Clubs",
-                        onClick = { },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp)
+                        onClick = {
+                            navController.navigate(Routes.CLUBS) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                     BigEmojiButton(
+
                         emojiResId = R.drawable.e_workout,
                         text = "Add Workout",
                         onClick = { navController.navigate(Routes.ADD_ACTIVITY) },

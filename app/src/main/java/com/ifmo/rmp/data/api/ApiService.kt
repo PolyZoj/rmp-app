@@ -1,9 +1,12 @@
 package com.ifmo.rmp.data.api
 
+import com.ifmo.rmp.data.model.AddStatsRequest
+import com.ifmo.rmp.data.model.AddStatsResponse
 import com.ifmo.rmp.data.model.ClubCreateRequest
 import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.data.model.ClubsListResponse
+import com.ifmo.rmp.data.model.ClubResponse
 import com.ifmo.rmp.data.model.DailyStatsResponse
 import com.ifmo.rmp.data.model.FindFriendListResponse
 import com.ifmo.rmp.data.model.FindFriendsRequest
@@ -21,8 +24,11 @@ import com.ifmo.rmp.data.model.UserDtoResponse
 import com.ifmo.rmp.data.model.UserUpdateRequest
 import com.ifmo.rmp.data.model.Achievement
 import com.ifmo.rmp.data.model.Achievements
+import com.ifmo.rmp.data.model.ClubMemberRequest
+import com.ifmo.rmp.data.model.ClubMemberResponse
 
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -39,13 +45,19 @@ interface AuthApiService {
 
 interface ClubApiService {
     @GET("api/v1/clubs/{clubId}")
-    suspend fun getClubInfo(@Path("clubId") clubId: String): ClubInfoResponse
+    suspend fun getClubInfo(@Path("clubId") clubId: String): ClubResponse
 
     @GET("api/v1/clubs/list")
     suspend fun getClubsList(@Query("limit") limit: Int = 10, @Query("offset") offset: Int = 0): ClubsListResponse
 
     @POST("api/v1/clubs/create")
     suspend fun createClub(@Body request: ClubCreateRequest): ClubCreateResponse
+    
+    @POST("api/v1/clubs/{clubId}/members")
+    suspend fun addMember(@Path("clubId") clubId: String, @Body request: ClubMemberRequest): ClubMemberResponse
+    
+    @DELETE("api/v1/clubs/{clubId}/members/{userId}")
+    suspend fun removeMember(@Path("clubId") clubId: String, @Path("userId") userId: String): ClubMemberResponse
 }
 
 interface UserApiService {
@@ -87,6 +99,8 @@ interface StatsApiService {
     @GET("api/v1/stats/daily/{user_id}/{date}")
     suspend fun getDailyStats(@Path("user_id") userId: String, @Path("date") date: String): DailyStatsResponse
 
+    @POST("api/v1/stats/add")
+    suspend fun addStats(@Body request: AddStatsRequest): AddStatsResponse
 }
 
 interface ChallengesApiService {

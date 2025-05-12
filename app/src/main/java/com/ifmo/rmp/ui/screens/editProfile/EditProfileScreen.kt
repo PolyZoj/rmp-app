@@ -27,86 +27,99 @@ fun EditProfileScreen(
     val userRepository = remember { UserRepository.getInstance(context) }
     val viewModel = remember { EditProfileViewModel(userRepository) }
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("user_id", "") ?: ""
+
+    LaunchedEffect(viewModel.showSuccessMessage.value) {
+        if (viewModel.showSuccessMessage.value) {
+            snackbarHostState.showSnackbar("✅ User Profile Settings successfully edited")
+            viewModel.resetSuccessMessage()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadUserData(userId)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp)
-            .padding(top = 32.dp)
-    ) {
-        Row(
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(2.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 12.dp)
+                .padding(top = 32.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.e_arrow_left),
-                contentDescription = "Back",
+            Row(
                 modifier = Modifier
-                    .size(24.dp)
-                    .clickable { onNavigateBack() }
+                    .fillMaxWidth()
+                    .padding(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.e_arrow_left),
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onNavigateBack() }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "User Profile Settings",
+                    fontFamily = LatoFont,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CustomTextField(
+                label = "Weight (kg)",
+                value = uiState.weight,
+                onValueChange = viewModel::onWeightChange
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "User Profile Settings",
-                fontFamily = LatoFont,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
+            Spacer(modifier = Modifier.height(12.dp))
+
+            CustomTextField(
+                label = "Daily Step Goal (steps)",
+                value = uiState.dailyStepGoal,
+                onValueChange = viewModel::onStepGoalChange
             )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            CustomTextField(
+                label = "Water Intake Goal (ml)",
+                value = uiState.waterIntakeGoal,
+                onValueChange = viewModel::onWaterIntakeChange
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            CustomTextField(
+                label = "Calorie Goal",
+                value = uiState.calorieGoal,
+                onValueChange = viewModel::onCalorieGoalChange
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (uiState.errorMessage != null) {
+                Text(
+                    text = uiState.errorMessage ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            BigButton(
+                text = "Save",
+                onClick = { viewModel.saveProfile() }
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            label = "Weight (kg)",
-            value = uiState.weight,
-            onValueChange = viewModel::onWeightChange
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        CustomTextField(
-            label = "Daily Step Goal (steps)",
-            value = uiState.dailyStepGoal,
-            onValueChange = viewModel::onStepGoalChange
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        CustomTextField(
-            label = "Water Intake Goal (ml)",
-            value = uiState.waterIntakeGoal,
-            onValueChange = viewModel::onWaterIntakeChange
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        CustomTextField(
-            label = "Calorie Goal",
-            value = uiState.calorieGoal,
-            onValueChange = viewModel::onCalorieGoalChange
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        if (uiState.errorMessage != null) {
-            Text(
-                text = uiState.errorMessage ?: "",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        BigButton(
-            text = "Save",
-            onClick = { viewModel.saveProfile() }
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
     }
 }

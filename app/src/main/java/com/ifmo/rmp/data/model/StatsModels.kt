@@ -9,3 +9,13 @@ data class DailyStatsResponse(
     val workouts_count: Int,
     val completed_challenges: Int
 )
+
+data class AddStatsRequest(
+    val id: String,
+    val type: String,
+    val add: Int
+)
+
+data class AddStatsResponse(
+    val status: Boolean
+)

@@ -28,7 +28,7 @@ fun InfoBlock(
             .padding(horizontal = 12.dp)
             .width(113.dp)
             .height(88.dp)
-            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .background(Color.Transparent, shape = RoundedCornerShape(8.dp))
             .border(1.dp, borderColor, shape = RoundedCornerShape(8.dp))
     ) {
         Column(modifier = Modifier.padding(8.dp)) {

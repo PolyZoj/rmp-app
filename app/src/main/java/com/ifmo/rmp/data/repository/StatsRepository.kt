@@ -3,6 +3,8 @@ package com.ifmo.rmp.data.repository
 import android.content.Context
 import com.ifmo.rmp.data.api.NetworkModule
 import com.ifmo.rmp.data.api.StatsApiService
+import com.ifmo.rmp.data.model.AddStatsRequest
+import com.ifmo.rmp.data.model.AddStatsResponse
 import com.ifmo.rmp.data.model.DailyStatsResponse
 
 class StatsRepository(private val statsApiService: StatsApiService) {
@@ -23,6 +25,15 @@ class StatsRepository(private val statsApiService: StatsApiService) {
     suspend fun getDailyStats(userId: String, date: String): Result<DailyStatsResponse> {
         return try {
             val response = statsApiService.getDailyStats(userId, date)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun addStats(request: AddStatsRequest): Result<AddStatsResponse> {
+        return try {
+            val response = statsApiService.addStats(request)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

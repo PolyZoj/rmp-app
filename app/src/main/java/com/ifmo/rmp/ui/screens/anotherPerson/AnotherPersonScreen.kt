@@ -19,16 +19,13 @@ import com.ifmo.rmp.R
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.FriendButton
-import com.ifmo.rmp.ui.components.FriendButtonState
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.theme.LatoFont
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun AnotherPersonScreen(
     onNavigateBack: () -> Unit,
     userId: String? = null,
-    friendState: FriendButtonState,
     onFriendActionClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -39,9 +36,20 @@ fun AnotherPersonScreen(
     val viewModel = remember { AnotherPersonViewModel(userRepository) }
 
     val userState by viewModel.user.collectAsState()
+    val friendButtonState by viewModel.friendButtonState.collectAsState()
+
+    val steps by viewModel.steps.collectAsState()
+    val waterIntake by viewModel.waterIntake.collectAsState()
+    val workouts by viewModel.workouts.collectAsState()
+    val stepPercentage by viewModel.stepPercentage.collectAsState()
+    val waterPercentage by viewModel.waterPercentage.collectAsState()
+    val workoutPercentage by viewModel.workoutPercentage.collectAsState()
+    val level by viewModel.level.collectAsState()
+    val xp by viewModel.xp.collectAsState()
 
     LaunchedEffect(actualUserId) {
         viewModel.loadUser(actualUserId)
+        viewModel.loadDailyStats(context, actualUserId)
     }
 
     Box(
@@ -85,11 +93,12 @@ fun AnotherPersonScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val userAvatarResId = remember(userState?.avatar_url) {
-                    val name = userState?.avatar_url ?: "e_profile"
-                    context.resources.getIdentifier(name, "drawable", context.packageName)
+                val avatarResId = remember(userState?.avatar_url) {
+                    val resourceName = userState?.avatar_url ?: "e_profile"
+                    val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                    if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                 }
-                EmojiIcon(iconResId = userAvatarResId)
+                EmojiIcon(iconResId = avatarResId)
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column {
@@ -99,7 +108,7 @@ fun AnotherPersonScreen(
                         fontFamily = LatoFont
                     )
                     Text(
-                        text = "Level 7 | 5252 XP",
+                        text = "Level $level | $xp XP",
                         fontSize = 14.sp,
                         color = Color.Gray,
                         fontFamily = LatoFont
@@ -125,7 +134,7 @@ fun AnotherPersonScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Weak statistics", fontSize = 18.sp, fontFamily = LatoFont)
+            Text(text = "Daily Statistics", fontSize = 18.sp, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -134,22 +143,22 @@ fun AnotherPersonScreen(
             ) {
                 InfoBlock(
                     title = "Total Steps",
-                    value = "454",
-                    percentage = -40,
+                    value = steps.toString(),
+                    percentage = stepPercentage,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(1.dp))
                 InfoBlock(
                     title = "Water Intake",
-                    value = "10 cups",
-                    percentage = 3,
+                    value = "$waterIntake cups",
+                    percentage = waterPercentage,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(1.dp))
                 InfoBlock(
                     title = "Workouts",
-                    value = "1",
-                    percentage = 12,
+                    value = workouts.toString(),
+                    percentage = workoutPercentage,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -157,13 +166,19 @@ fun AnotherPersonScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 FriendButton(
-                    initialState = friendState,
-                    onAddFriend = onFriendActionClick
+                    state = friendButtonState,
+                    onAddFriend = {
+                        userState?.user_id?.let { viewModel.addFriend(it.toInt()) }
+                        onFriendActionClick()
+                    },
+                    onRemoveFriend = {
+                        userState?.user_id?.let { viewModel.addFriend(it.toInt()) }
+                        onFriendActionClick()
+                    }
                 )
             }
         }
