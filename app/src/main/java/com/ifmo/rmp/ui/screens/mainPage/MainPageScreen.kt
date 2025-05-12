@@ -87,6 +87,9 @@ fun MainPageScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     BigEmojiButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp),
                         emojiResId = R.drawable.e_mainprofile,
                         text = "Profile",
                         onClick = {
@@ -100,6 +103,9 @@ fun MainPageScreen(navController: NavController) {
                         }
                     )
                     BigEmojiButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp),
                         emojiResId = R.drawable.e_mainclubs,
                         text = "Clubs",
                         onClick = {
@@ -113,6 +119,7 @@ fun MainPageScreen(navController: NavController) {
                         }
                     )
                     BigEmojiButton(
+
                         emojiResId = R.drawable.e_workout,
                         text = "Add Workout",
                         onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
