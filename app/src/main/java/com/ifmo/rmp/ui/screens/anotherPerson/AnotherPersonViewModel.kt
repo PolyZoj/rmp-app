@@ -78,7 +78,7 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                     _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
                 }
                 .onFailure { error ->
-                    _errorMessage.value = "Ошибка загрузки пользователя: ${error.message}"
+                    _errorMessage.value = "Failed to load user: ${error.message}"
                 }
         }
     }
@@ -91,11 +91,11 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                     if (response.success == "true") {
                         _friendButtonState.value = FriendButtonState.InviteSent
                     } else {
-                        _errorMessage.value = "Не удалось отправить заявку"
+                        _errorMessage.value = "Failed to send friend request"
                     }
                 }
                 .onFailure { error ->
-                    _errorMessage.value = "Ошибка при добавлении в друзья: ${error.message}"
+                    _errorMessage.value = "Failed to add friend: ${error.message}"
                 }
         }
     }
@@ -108,11 +108,11 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                     if (response.success == "true") {
                         _friendButtonState.value = FriendButtonState.AddFriend
                     } else {
-                        _errorMessage.value = "Не удалось удалить из друзей"
+                        _errorMessage.value = "Failed to remove friend"
                     }
                 }
                 .onFailure { error ->
-                    _errorMessage.value = "Ошибка при удалении из друзей: ${error.message}"
+                    _errorMessage.value = "Failed to remove friend: ${error.message}"
                 }
         }
     }
@@ -148,7 +148,7 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                 _stepPercentage.value = 0
                 _waterPercentage.value = 0
                 _workoutPercentage.value = 0
-                _errorMessage.value = "Ошибка загрузки статистики: ${it.message}"
+                _errorMessage.value = "Failed to load statistics: ${it.message}"
             }
         }
     }
