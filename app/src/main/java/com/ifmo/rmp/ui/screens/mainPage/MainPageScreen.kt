@@ -26,6 +26,7 @@ import com.ifmo.rmp.ui.components.FriendNotification
 import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.navigation.Routes
 import com.ifmo.rmp.ui.theme.LatoFont
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainPageScreen(navController: NavController) {
@@ -36,6 +37,8 @@ fun MainPageScreen(navController: NavController) {
 
     val showNotifications by viewModel.isNotificationsVisible.collectAsState()
     val friendRequests by viewModel.friendRequests.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     val userId = sharedPreferences.getString("user_id", "") ?: ""
@@ -48,208 +51,226 @@ fun MainPageScreen(navController: NavController) {
     val waterPercentage by viewModel.waterPercentage.collectAsState()
     val workoutPercentage by viewModel.workoutPercentage.collectAsState()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(userId) {
         viewModel.loadUserData(userId)
-        viewModel.loadDailyStats(context, userId)
+        viewModel.loadStats(context, userId)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(it)
+                viewModel.clearError()
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 16.dp)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(padding)
         ) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Welcome, $userFullName!",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = LatoFont
-                    )
-                    IconButton(
-                        onClick = { viewModel.showNotificationsDialog() }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications"
+                        Text(
+                            text = "Welcome, $userFullName!",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = LatoFont
+                        )
+                        IconButton(
+                            onClick = { viewModel.showNotificationsDialog() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifications"
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        BigEmojiButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 4.dp),
+                            emojiResId = R.drawable.e_mainprofile,
+                            text = "Profile",
+                            onClick = {
+                                navController.navigate(Routes.PROFILE) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                        BigEmojiButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 4.dp),
+                            emojiResId = R.drawable.e_mainclubs,
+                            text = "Clubs",
+                            onClick = {
+                                navController.navigate(Routes.CLUBS) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                        BigEmojiButton(
+                            emojiResId = R.drawable.e_workout,
+                            text = "Add Workout",
+                            onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 4.dp)
                         )
                     }
                 }
-            }
 
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    BigEmojiButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp),
-                        emojiResId = R.drawable.e_mainprofile,
-                        text = "Profile",
-                        onClick = {
-                            navController.navigate(Routes.PROFILE) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
-                    BigEmojiButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp),
-                        emojiResId = R.drawable.e_mainclubs,
-                        text = "Clubs",
-                        onClick = {
-                            navController.navigate(Routes.CLUBS) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
-                    BigEmojiButton(
-
-                        emojiResId = R.drawable.e_workout,
-                        text = "Add Workout",
-                        onClick = { navController.navigate(Routes.ADD_ACTIVITY) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp)
+                item {
+                    Text(
+                        text = "Daily Goal Progress",
+                        fontSize = 18.sp,
+                        fontFamily = LatoFont
                     )
                 }
-            }
 
-            item {
-                Text(
-                    text = "Daily Goal Progress",
-                    fontSize = 18.sp,
-                    fontFamily = LatoFont
-                )
-            }
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        InfoBlock(
+                            title = "Total Steps",
+                            value = if (isLoading) "Loading..." else "$steps",
+                            percentage = stepPercentage,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(modifier = Modifier.width(1.dp))
+                        InfoBlock(
+                            title = "Water Intake",
+                            value = if (isLoading) "Loading..." else "$waterIntake cups",
+                            percentage = waterPercentage,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(modifier = Modifier.width(1.dp))
+                        InfoBlock(
+                            title = "Workouts",
+                            value = if (isLoading) "Loading..." else "$workouts",
+                            percentage = workoutPercentage,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
 
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    InfoBlock(
-                        title = "Total Steps",
-                        value = steps.toString(),
-                        percentage = stepPercentage,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(1.dp))
-                    InfoBlock(
-                        title = "Water Intake",
-                        value = "$waterIntake cups",
-                        percentage = waterPercentage,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(1.dp))
-                    InfoBlock(
-                        title = "Workouts",
-                        value = workouts.toString(),
-                        percentage = workoutPercentage,
-                        modifier = Modifier.weight(1f)
+                item {
+                    Text(
+                        text = "Available Challenges",
+                        fontSize = 18.sp,
+                        fontFamily = LatoFont
                     )
                 }
-            }
 
-            item {
-                Text(
-                    text = "Available Challenges",
-                    fontSize = 18.sp,
-                    fontFamily = LatoFont
-                )
-            }
-
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-
-                    this@LazyColumn.items(achievements) { achievement ->
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        this@LazyColumn.items(achievements) { achievement ->
                             EmojiAndTextWithDescriptionLine(
                                 iconResId = getDrawableResId(achievement.icon),
                                 title = achievement.title,
                                 subtitle = achievement.description
                             )
+                        }
                     }
                 }
             }
-        }
 
-        if (showNotifications) {
-            AlertDialog(
-                onDismissRequest = { viewModel.hideNotificationsDialog() },
-                title = {
-                    Text(
-                        text = "Notifications",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                },
-                text = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                    ) {
-                        if (friendRequests.isEmpty()) {
-                            Text(
-                                text = "No friend requests",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        } else {
-                            LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                items(
-                                    items = friendRequests,
-                                    key = { it.user_id } // ВАЖНО: фикс потерь при обновлении
-                                ) { friend ->
-                                    FriendNotification(
-                                        userId = friend.user_id,
-                                        userName = friend.username,
-                                        onAccept = {
-                                            viewModel.acceptRequest(friend.user_id.toInt())
-                                        },
-                                        onDecline = {
-                                            viewModel.declineRequest(friend.user_id.toInt())
-                                        }
-                                    )
+            if (showNotifications) {
+                AlertDialog(
+                    onDismissRequest = { viewModel.hideNotificationsDialog() },
+                    title = {
+                        Text(
+                            text = "Notifications",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                    },
+                    text = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                        ) {
+                            if (friendRequests.isEmpty()) {
+                                Text(
+                                    text = "No friend requests",
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            } else {
+                                LazyColumn(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    items(
+                                        items = friendRequests,
+                                        key = { it.user_id }
+                                    ) { friend ->
+                                        FriendNotification(
+                                            userId = friend.user_id,
+                                            userName = friend.username,
+                                            onAccept = {
+                                                viewModel.acceptRequest(friend.user_id.toInt())
+                                            },
+                                            onDecline = {
+                                                viewModel.declineRequest(friend.user_id.toInt())
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = { viewModel.hideNotificationsDialog() },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text("Close", fontSize = 16.sp)
-                    }
-                },
-                containerColor = Color.White,
-                shape = MaterialTheme.shapes.medium
-            )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { viewModel.hideNotificationsDialog() },
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text("Close", fontSize = 16.sp)
+                        }
+                    },
+                    containerColor = Color.White,
+                    shape = MaterialTheme.shapes.medium
+                )
+            }
         }
     }
 }

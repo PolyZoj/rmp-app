@@ -36,8 +36,6 @@ fun ProfileScreen(
     val challengesRepository = remember { ChallengesRepository.getInstance(context) }
     val viewModel = remember { ProfileViewModel(userRepository, challengesRepository) }
 
-    val borderColor = Color(0xFF6B6A6A).copy(alpha = 0.5f)
-
     val user by viewModel.user.collectAsState()
     val achievements by viewModel.challengesList.collectAsState()
     val friends by viewModel.friends.collectAsState()
@@ -63,7 +61,7 @@ fun ProfileScreen(
     LaunchedEffect(sharedPreferences) {
         viewModel.loadUser(userId)
         viewModel.loadFriends()
-        viewModel.loadDailyStats(context, userId)
+        viewModel.loadStats(context, userId)
     }
 
     LaunchedEffect(user?.club_id) {
@@ -150,21 +148,21 @@ fun ProfileScreen(
                 ) {
                     InfoBlock(
                         title = "Total Steps",
-                        value = steps.toString(),
+                        value = if (isLoading) "Loading..." else "$steps",
                         percentage = stepPercentage,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(1.dp))
                     InfoBlock(
                         title = "Water Intake",
-                        value = "$waterIntake cups",
+                        value = if (isLoading) "Loading..." else "$waterIntake",
                         percentage = waterPercentage,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(1.dp))
                     InfoBlock(
                         title = "Workouts",
-                        value = workouts.toString(),
+                        value = if (isLoading) "Loading..." else "$workouts",
                         percentage = workoutPercentage,
                         modifier = Modifier.weight(1f)
                     )
@@ -184,8 +182,7 @@ fun ProfileScreen(
                         contentPadding = PaddingValues(vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-
-                        this@LazyColumn.items(achievements.take(10)) { achievement ->
+                        items(achievements.take(10)) { achievement ->
                             if (achievement.status == "COMPLETED") {
                                 EmojiAndTextWithDescriptionLine(
                                     iconResId = getDrawableResId(achievement.icon),
@@ -249,7 +246,7 @@ fun ProfileScreen(
                 Text(text = "Find Friends", fontSize = 18.sp, fontFamily = LatoFont)
                 Spacer(modifier = Modifier.height(4.dp))
 
-                val displayedFriends = if (searchQuery.isEmpty()) friends ?: emptyList() else searchResults ?: emptyList()
+                val displayedFriends = if (searchQuery.isEmpty()) friends else searchResults
 
                 SearchBar(
                     query = searchQuery,
@@ -282,7 +279,6 @@ fun ProfileScreen(
                                 }
                             )
                         }
-
                     }
                 }
             }

@@ -34,8 +34,8 @@ class AddActivityViewModel(
             val request = AddStatsRequest(id = userId, type = "water", add = milliliters)
             val result = statsRepository.addStats(request)
             result.onSuccess { response ->
-                if (response.status) {
-                    _successMessage.value = "✅ Water intake added successfully: $milliliters ml"
+                if (response.message == "success") {
+                    _successMessage.value = "Water intake added successfully: $milliliters ml"
                 } else {
                     _errorMessage.value = "Failed to add water"
                 }
@@ -59,8 +59,8 @@ class AddActivityViewModel(
             val request = AddStatsRequest(id = userId, type = "workout", add = minutes)
             val result = statsRepository.addStats(request)
             result.onSuccess { response ->
-                if (response.status) {
-                    _successMessage.value = "✅ Workout added successfully: $minutes min"
+                if (response.message == "success") {
+                    _successMessage.value = "Workout added successfully: $minutes min"
                 } else {
                     _errorMessage.value = "Failed to add workout"
                 }

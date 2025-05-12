@@ -8,9 +8,6 @@ import com.ifmo.rmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class ActivitiesViewModel(
     private val userRepository: UserRepository,
@@ -38,7 +35,7 @@ class ActivitiesViewModel(
     private val _workoutGoal = MutableStateFlow(2)
     val workoutGoal: StateFlow<Int> = _workoutGoal
 
-    private val _calorieGoal = MutableStateFlow(5000) // Фиксированная цель, уточнить
+    private val _calorieGoal = MutableStateFlow(5000)
     val calorieGoal: StateFlow<Int> = _calorieGoal
 
     private val _errorMessage = MutableStateFlow<String?>(null)
@@ -68,7 +65,7 @@ class ActivitiesViewModel(
         }
     }
 
-    fun loadDailyStats(context: Context, userId: String) {
+    fun loadStats(context: Context, userId: String) {
         if (userId.isBlank()) {
             _errorMessage.value = "User ID is missing"
             return
@@ -76,12 +73,10 @@ class ActivitiesViewModel(
 
         viewModelScope.launch {
             _isLoading.value = true
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            val currentDate = dateFormat.format(Calendar.getInstance().time)
-            val result = statsRepository.getDailyStats(userId, currentDate)
+            val result = statsRepository.getStats(userId)
 
             result.onSuccess { stats ->
-                _steps.value = stats.calorie_count // Используется как шаги, как в ProfileViewModel
+                _steps.value = stats.steps_count
                 _waterIntake.value = stats.water_count
                 _workouts.value = stats.workouts_count
                 _calories.value = stats.calorie_count

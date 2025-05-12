@@ -48,13 +48,11 @@ fun ActivitiesScreen(navController: NavController) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Загрузка данных
     LaunchedEffect(userId) {
         viewModel.loadUserData(context, userId)
-        viewModel.loadDailyStats(context, userId)
+        viewModel.loadStats(context, userId)
     }
 
-    // Обработка ошибок
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             coroutineScope.launch {
@@ -72,7 +70,7 @@ fun ActivitiesScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(padding)
                 .padding(horizontal = 12.dp)
-//                .padding(top = 16.dp)
+                .padding(top = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(24.dp))
             Text(text = "Activity Summary", fontSize = 22.sp, fontFamily = LatoFont)
@@ -94,7 +92,7 @@ fun ActivitiesScreen(navController: NavController) {
                     )
                     BigInfoBlock(
                         title = "Water intake",
-                        value = if (isLoading) "Loading..." else "$waterIntake cups / $waterGoal cups"
+                        value = if (isLoading) "Loading..." else "$waterIntake / $waterGoal"
                     )
                 }
 

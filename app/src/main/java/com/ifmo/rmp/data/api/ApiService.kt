@@ -7,7 +7,6 @@ import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.data.model.ClubsListResponse
 import com.ifmo.rmp.data.model.ClubResponse
-import com.ifmo.rmp.data.model.DailyStatsResponse
 import com.ifmo.rmp.data.model.FindFriendListResponse
 import com.ifmo.rmp.data.model.FindFriendsRequest
 import com.ifmo.rmp.data.model.FriendListResponse
@@ -26,6 +25,7 @@ import com.ifmo.rmp.data.model.Achievement
 import com.ifmo.rmp.data.model.Achievements
 import com.ifmo.rmp.data.model.ClubMemberRequest
 import com.ifmo.rmp.data.model.ClubMemberResponse
+import com.ifmo.rmp.data.model.StatsResponse
 
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -96,11 +96,12 @@ interface UserApiService {
 
 interface StatsApiService {
 
-    @GET("api/v1/stats/daily/{user_id}/{date}")
-    suspend fun getDailyStats(@Path("user_id") userId: String, @Path("date") date: String): DailyStatsResponse
+    @GET("stats/{user_id}")
+    suspend fun getStats(@Path("user_id") userId: String): StatsResponse
 
-    @POST("api/v1/stats/add")
+    @POST("stats/add")
     suspend fun addStats(@Body request: AddStatsRequest): AddStatsResponse
+
 }
 
 interface ChallengesApiService {

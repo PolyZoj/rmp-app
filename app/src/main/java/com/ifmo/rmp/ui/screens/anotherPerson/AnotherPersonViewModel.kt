@@ -10,9 +10,6 @@ import com.ifmo.rmp.ui.components.FriendButtonState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewModel() {
 
@@ -58,62 +55,63 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
     private val _xp = MutableStateFlow(0)
     val xp: StateFlow<Int> = _xp
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun loadUser(userId: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             val result = userRepository.getUserData(userId)
-            result
-                .onSuccess { userData ->
-                    _user.value = userData
-                    _friendButtonState.value = when (userData.status) {
-                        "YourFriend" -> FriendButtonState.RemoveFriend
-                        "InviteSent" -> FriendButtonState.InviteSent
-                        "NotYourFriend" -> FriendButtonState.AddFriend
-                        else -> FriendButtonState.AddFriend
-                    }
-                    _stepGoal.value = userData.daily_step_goal
-                    _waterGoal.value = userData.water_intake_goal
-                    _workoutGoal.value = userData.workouts_goal
-                    _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
-                    _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
-                    _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
+            result.onSuccess { userData ->
+                _user.value = userData
+                _friendButtonState.value = when (userData.status) {
+                    "YourFriend" -> FriendButtonState.RemoveFriend
+                    "InviteSent" -> FriendButtonState.InviteSent
+                    "NotYourFriend" -> FriendButtonState.AddFriend
+                    else -> FriendButtonState.AddFriend
                 }
-                .onFailure { error ->
-                    _errorMessage.value = "Failed to load user: ${error.message}"
-                }
+                _stepGoal.value = userData.daily_step_goal
+                _waterGoal.value = userData.water_intake_goal
+                _workoutGoal.value = userData.workouts_goal
+                updatePercentages()
+            }.onFailure { error ->
+                _errorMessage.value = "Failed to load user: ${error.message}"
+            }
+            _isLoading.value = false
         }
     }
 
     fun addFriend(friendId: Int) {
         viewModelScope.launch {
+            _isLoading.value = true
             val result = userRepository.addFriend(friendId)
-            result
-                .onSuccess { response ->
-                    if (response.success == "true") {
-                        _friendButtonState.value = FriendButtonState.InviteSent
-                    } else {
-                        _errorMessage.value = "Failed to send friend request"
-                    }
+            result.onSuccess { response ->
+                if (response.success == "true") {
+                    _friendButtonState.value = FriendButtonState.InviteSent
+                } else {
+                    _errorMessage.value = "Failed to send friend request"
                 }
-                .onFailure { error ->
-                    _errorMessage.value = "Failed to add friend: ${error.message}"
-                }
+            }.onFailure { error ->
+                _errorMessage.value = "Failed to add friend: ${error.message}"
+            }
+            _isLoading.value = false
         }
     }
 
     fun removeFriend(friendId: Int) {
         viewModelScope.launch {
+            _isLoading.value = true
             val result = userRepository.removeFriend(friendId)
-            result
-                .onSuccess { response ->
-                    if (response.success == "true") {
-                        _friendButtonState.value = FriendButtonState.AddFriend
-                    } else {
-                        _errorMessage.value = "Failed to remove friend"
-                    }
+            result.onSuccess { response ->
+                if (response.success == "true") {
+                    _friendButtonState.value = FriendButtonState.AddFriend
+                } else {
+                    _errorMessage.value = "Failed to remove friend"
                 }
-                .onFailure { error ->
-                    _errorMessage.value = "Failed to remove friend: ${error.message}"
-                }
+            }.onFailure { error ->
+                _errorMessage.value = "Failed to remove friend: ${error.message}"
+            }
+            _isLoading.value = false
         }
     }
 
@@ -121,25 +119,26 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
         _errorMessage.value = null
     }
 
-    fun loadDailyStats(context: Context, userId: String) {
-        if (userId.isBlank()) return
+    fun loadStats(context: Context, userId: String) {
+        if (userId.isBlank()) {
+            _errorMessage.value = "User ID is missing"
+            _isLoading.value = false
+            return
+        }
 
         viewModelScope.launch {
+            _isLoading.value = true
             val statsRepository = StatsRepository.getInstance(context)
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            val currentDate = dateFormat.format(Calendar.getInstance().time)
-            val result = statsRepository.getDailyStats(userId, currentDate)
+            val result = statsRepository.getStats(userId)
 
             result.onSuccess { stats ->
-                _steps.value = stats.calorie_count
+                _steps.value = stats.steps_count
                 _waterIntake.value = stats.water_count
                 _workouts.value = stats.workouts_count
                 _level.value = stats.level
                 _xp.value = stats.xp
-                _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
-                _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
-                _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
-            }.onFailure {
+                updatePercentages()
+            }.onFailure { error ->
                 _steps.value = 0
                 _waterIntake.value = 0
                 _workouts.value = 0
@@ -148,8 +147,15 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                 _stepPercentage.value = 0
                 _waterPercentage.value = 0
                 _workoutPercentage.value = 0
-                _errorMessage.value = "Failed to load statistics: ${it.message}"
+                _errorMessage.value = "Failed to load statistics: ${error.message}"
             }
+            _isLoading.value = false
         }
+    }
+
+    private fun updatePercentages() {
+        _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
+        _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
+        _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
     }
 }
