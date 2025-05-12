@@ -36,12 +36,21 @@ fun AnotherPersonScreen(
     val viewModel = remember { AnotherPersonViewModel(userRepository) }
 
     val userState by viewModel.user.collectAsState()
+    val friendButtonState by viewModel.friendButtonState.collectAsState()
+
+    val steps by viewModel.steps.collectAsState()
+    val waterIntake by viewModel.waterIntake.collectAsState()
+    val workouts by viewModel.workouts.collectAsState()
+    val stepPercentage by viewModel.stepPercentage.collectAsState()
+    val waterPercentage by viewModel.waterPercentage.collectAsState()
+    val workoutPercentage by viewModel.workoutPercentage.collectAsState()
+    val level by viewModel.level.collectAsState()
+    val xp by viewModel.xp.collectAsState()
 
     LaunchedEffect(actualUserId) {
         viewModel.loadUser(actualUserId)
+        viewModel.loadDailyStats(context, actualUserId)
     }
-
-    val friendButtonState by viewModel.friendButtonState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -99,7 +108,7 @@ fun AnotherPersonScreen(
                         fontFamily = LatoFont
                     )
                     Text(
-                        text = "Level 7 | 5252 XP",
+                        text = "Level $level | $xp XP",
                         fontSize = 14.sp,
                         color = Color.Gray,
                         fontFamily = LatoFont
@@ -125,7 +134,7 @@ fun AnotherPersonScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Weak statistics", fontSize = 18.sp, fontFamily = LatoFont)
+            Text(text = "Daily Statistics", fontSize = 18.sp, fontFamily = LatoFont)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -134,22 +143,22 @@ fun AnotherPersonScreen(
             ) {
                 InfoBlock(
                     title = "Total Steps",
-                    value = "454",
-                    percentage = -40,
+                    value = steps.toString(),
+                    percentage = stepPercentage,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(1.dp))
                 InfoBlock(
                     title = "Water Intake",
-                    value = "10 cups",
-                    percentage = 3,
+                    value = "$waterIntake cups",
+                    percentage = waterPercentage,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(1.dp))
                 InfoBlock(
                     title = "Workouts",
-                    value = "1",
-                    percentage = 12,
+                    value = workouts.toString(),
+                    percentage = workoutPercentage,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -175,4 +184,3 @@ fun AnotherPersonScreen(
         }
     }
 }
-

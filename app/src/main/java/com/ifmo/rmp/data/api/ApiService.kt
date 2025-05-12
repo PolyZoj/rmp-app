@@ -1,5 +1,7 @@
 package com.ifmo.rmp.data.api
 
+import com.ifmo.rmp.data.model.AddStatsRequest
+import com.ifmo.rmp.data.model.AddStatsResponse
 import com.ifmo.rmp.data.model.ClubCreateRequest
 import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
@@ -94,5 +96,8 @@ interface StatsApiService {
 
     @GET("api/v1/stats/daily/{user_id}/{date}")
     suspend fun getDailyStats(@Path("user_id") userId: String, @Path("date") date: String): DailyStatsResponse
+
+    @POST("api/v1/stats/add")
+    suspend fun addStats(@Body request: AddStatsRequest): AddStatsResponse
 
 }

@@ -1,14 +1,18 @@
 package com.ifmo.rmp.ui.screens.anotherPerson
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.UserDtoResponse
+import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.FriendButtonState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewModel() {
 
@@ -20,6 +24,39 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
 
     private val _friendButtonState = MutableStateFlow(FriendButtonState.AddFriend)
     val friendButtonState: StateFlow<FriendButtonState> = _friendButtonState
+
+    private val _steps = MutableStateFlow(0)
+    val steps: StateFlow<Int> = _steps
+
+    private val _waterIntake = MutableStateFlow(0)
+    val waterIntake: StateFlow<Int> = _waterIntake
+
+    private val _workouts = MutableStateFlow(0)
+    val workouts: StateFlow<Int> = _workouts
+
+    private val _stepGoal = MutableStateFlow(10000)
+    val stepGoal: StateFlow<Int> = _stepGoal
+
+    private val _waterGoal = MutableStateFlow(10)
+    val waterGoal: StateFlow<Int> = _waterGoal
+
+    private val _workoutGoal = MutableStateFlow(2)
+    val workoutGoal: StateFlow<Int> = _workoutGoal
+
+    private val _stepPercentage = MutableStateFlow(0)
+    val stepPercentage: StateFlow<Int> = _stepPercentage
+
+    private val _waterPercentage = MutableStateFlow(0)
+    val waterPercentage: StateFlow<Int> = _waterPercentage
+
+    private val _workoutPercentage = MutableStateFlow(0)
+    val workoutPercentage: StateFlow<Int> = _workoutPercentage
+
+    private val _level = MutableStateFlow(0)
+    val level: StateFlow<Int> = _level
+
+    private val _xp = MutableStateFlow(0)
+    val xp: StateFlow<Int> = _xp
 
     fun loadUser(userId: String) {
         viewModelScope.launch {
@@ -33,9 +70,15 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                         "NotYourFriend" -> FriendButtonState.AddFriend
                         else -> FriendButtonState.AddFriend
                     }
+                    _stepGoal.value = userData.daily_step_goal
+                    _waterGoal.value = userData.water_intake_goal
+                    _workoutGoal.value = userData.workouts_goal
+                    _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
+                    _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
+                    _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
                 }
                 .onFailure { error ->
-                    _errorMessage.value = "Ошибка загрузки пользователя: ${error.message}"
+                    _errorMessage.value = "Failed to load user: ${error.message}"
                 }
         }
     }
@@ -48,11 +91,11 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                     if (response.success == "true") {
                         _friendButtonState.value = FriendButtonState.InviteSent
                     } else {
-                        _errorMessage.value = "Не удалось отправить заявку"
+                        _errorMessage.value = "Failed to send friend request"
                     }
                 }
                 .onFailure { error ->
-                    _errorMessage.value = "Ошибка при добавлении в друзья: ${error.message}"
+                    _errorMessage.value = "Failed to add friend: ${error.message}"
                 }
         }
     }
@@ -65,11 +108,11 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                     if (response.success == "true") {
                         _friendButtonState.value = FriendButtonState.AddFriend
                     } else {
-                        _errorMessage.value = "Не удалось удалить из друзей"
+                        _errorMessage.value = "Failed to remove friend"
                     }
                 }
                 .onFailure { error ->
-                    _errorMessage.value = "Ошибка при удалении из друзей: ${error.message}"
+                    _errorMessage.value = "Failed to remove friend: ${error.message}"
                 }
         }
     }
@@ -77,7 +120,36 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
     fun clearError() {
         _errorMessage.value = null
     }
+
+    fun loadDailyStats(context: Context, userId: String) {
+        if (userId.isBlank()) return
+
+        viewModelScope.launch {
+            val statsRepository = StatsRepository.getInstance(context)
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val currentDate = dateFormat.format(Calendar.getInstance().time)
+            val result = statsRepository.getDailyStats(userId, currentDate)
+
+            result.onSuccess { stats ->
+                _steps.value = stats.calorie_count
+                _waterIntake.value = stats.water_count
+                _workouts.value = stats.workouts_count
+                _level.value = stats.level
+                _xp.value = stats.xp
+                _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
+                _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
+                _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
+            }.onFailure {
+                _steps.value = 0
+                _waterIntake.value = 0
+                _workouts.value = 0
+                _level.value = 0
+                _xp.value = 0
+                _stepPercentage.value = 0
+                _waterPercentage.value = 0
+                _workoutPercentage.value = 0
+                _errorMessage.value = "Failed to load statistics: ${it.message}"
+            }
+        }
+    }
 }
-
-
-

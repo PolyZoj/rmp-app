@@ -149,18 +149,18 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
             }
         }
     }
-    
+
     fun loadClubName(context: Context, clubId: Int?) {
         if (clubId == null) {
             _clubName.value = "No club"
             return
         }
-        
+
         viewModelScope.launch {
             try {
                 val clubRepository = ClubRepository.getInstance(context)
                 val result = clubRepository.getClubInfo(clubId.toString())
-                
+
                 result.fold(
                     onSuccess = { club ->
                         _clubName.value = club.name ?: "Unnamed Club"
