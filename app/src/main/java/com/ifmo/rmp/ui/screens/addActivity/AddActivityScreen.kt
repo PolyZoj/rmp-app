@@ -39,6 +39,7 @@ fun AddActivityScreen(onNavigateBack: () -> Unit) {
     val successMessage by viewModel.successMessage.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    var steps by remember { mutableStateOf(100) }
     var water by remember { mutableStateOf(100) }
     var timeInput by remember { mutableStateOf("") }
 
@@ -49,10 +50,12 @@ fun AddActivityScreen(onNavigateBack: () -> Unit) {
         }
         successMessage?.let {
             snackbarHostState.showSnackbar(it)
-            if (it.contains("Water")) {
+            if (it.contains("Steps")) {
+                steps = 100
+            } else if (it.contains("Water")) {
                 water = 100
             } else if (it.contains("Workout")) {
-                timeInput = "" 
+                timeInput = ""
             }
             viewModel.clearMessages()
         }
@@ -130,7 +133,7 @@ fun AddActivityScreen(onNavigateBack: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            BigButton(text = "Add", onClick = { viewModel.addWater(context, water) })
+            BigButton(text = "Add water", onClick = { viewModel.addWater(context, water) })
 
             Spacer(modifier = Modifier.height(32.dp))
 

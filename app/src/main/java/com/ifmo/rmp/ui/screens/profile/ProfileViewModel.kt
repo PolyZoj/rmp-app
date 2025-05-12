@@ -14,11 +14,11 @@ import com.ifmo.rmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
-class ProfileViewModel(private val userRepository: UserRepository, private val challengesRepository: ChallengesRepository) : ViewModel() {
+class ProfileViewModel(
+    private val userRepository: UserRepository,
+    private val challengesRepository: ChallengesRepository
+) : ViewModel() {
 
     private val _user = MutableStateFlow<UserDtoResponse?>(null)
     val user: StateFlow<UserDtoResponse?> = _user
@@ -45,10 +45,13 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
     val workouts: StateFlow<Int> = _workouts
 
     private val _stepGoal = MutableStateFlow(10000)
+    val stepGoal: StateFlow<Int> = _stepGoal
 
     private val _waterGoal = MutableStateFlow(10)
+    val waterGoal: StateFlow<Int> = _waterGoal
 
     private val _workoutGoal = MutableStateFlow(2)
+    val workoutGoal: StateFlow<Int> = _workoutGoal
 
     private val _stepPercentage = MutableStateFlow(0)
     val stepPercentage: StateFlow<Int> = _stepPercentage
@@ -77,26 +80,24 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
             val result = userRepository.getUserData(userId)
             val achievements = challengesRepository.getAchievementsById(userId)
 
-
             result.onSuccess {
                 _user.value = it
                 _stepGoal.value = it.daily_step_goal
                 _waterGoal.value = it.water_intake_goal
                 _workoutGoal.value = it.workouts_goal
-                _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
-                _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
-                _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
+                updatePercentages()
             }.onFailure {
-                _errorMessage.value = "Ошибка загрузки пользователя: ${it.message}"
+                _errorMessage.value = "Failed to load user: ${it.message}"
             }
 
             achievements.onSuccess {
                 _challengesList.value = it.achievements
+            }.onFailure {
+                _errorMessage.value = "Failed to load achievements: ${it.message}"
             }
 
             _isLoading.value = false
         }
-
     }
 
     fun loadFriends() {
@@ -105,7 +106,7 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
             result.onSuccess {
                 _friends.value = it.friends
             }.onFailure {
-                _errorMessage.value = "Ошибка загрузки друзей: ${it.message}"
+                _errorMessage.value = "Failed to load friends: ${it.message}"
             }
         }
     }
@@ -117,9 +118,8 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
             result.onSuccess {
                 _searchResults.value = it.possible_friend
                 Log.d("ProfileViewModel", "Search results updated: ${it.possible_friend}")
-                System.out.println("changed")
             }.onFailure {
-                _errorMessage.value = "Ошибка поиска друзей: ${it.message}"
+                _errorMessage.value = "Failed to search friends: ${it.message}"
             }
             _isLoading.value = false
         }
@@ -129,24 +129,23 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
         _errorMessage.value = null
     }
 
-    fun loadDailyStats(context: Context, userId: String) {
-        if (userId.isBlank()) return
+    fun loadStats(context: Context, userId: String) {
+        if (userId.isBlank()) {
+            _errorMessage.value = "User ID is missing"
+            return
+        }
 
         viewModelScope.launch {
             val statsRepository = StatsRepository.getInstance(context)
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            val currentDate = dateFormat.format(Calendar.getInstance().time)
-            val result = statsRepository.getDailyStats(userId, currentDate)
+            val result = statsRepository.getStats(userId)
 
             result.onSuccess { stats ->
-                _steps.value = stats.calorie_count
+                _steps.value = stats.steps_count
                 _waterIntake.value = stats.water_count
                 _workouts.value = stats.workouts_count
                 _level.value = stats.level
                 _xp.value = stats.xp
-                _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
-                _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
-                _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
+                updatePercentages()
             }.onFailure {
                 _steps.value = 0
                 _waterIntake.value = 0
@@ -156,9 +155,15 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
                 _stepPercentage.value = 0
                 _waterPercentage.value = 0
                 _workoutPercentage.value = 0
-                _errorMessage.value = "Ошибка загрузки статистики: ${it.message}"
+                _errorMessage.value = "Failed to load statistics: ${it.message}"
             }
         }
+    }
+
+    private fun updatePercentages() {
+        _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
+        _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
+        _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
     }
 
     fun loadClubName(context: Context, clubId: Int?) {
@@ -178,12 +183,12 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
                     },
                     onFailure = {
                         _clubName.value = "Club #$clubId"
-                        _errorMessage.value = "Ошибка загрузки информации о клубе: ${it.message}"
+                        _errorMessage.value = "Failed to load club information: ${it.message}"
                     }
                 )
             } catch (e: Exception) {
                 _clubName.value = "Club #$clubId"
-                _errorMessage.value = "Ошибка загрузки информации о клубе: ${e.message}"
+                _errorMessage.value = "Failed to load club information: ${e.message}"
             }
         }
     }

@@ -1,9 +1,9 @@
 package com.ifmo.rmp.data.model
 
-data class DailyStatsResponse(
-    val date: String,
+data class StatsResponse(
     val level: Int,
     val xp: Int,
+    val steps_count: Int,
     val calorie_count: Int,
     val water_count: Int,
     val workouts_count: Int,
@@ -17,5 +17,6 @@ data class AddStatsRequest(
 )
 
 data class AddStatsResponse(
-    val status: Boolean
+    val message: String,
+    val params: List<Any>
 )

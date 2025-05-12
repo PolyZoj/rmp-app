@@ -11,9 +11,6 @@ import com.ifmo.rmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class MainPageViewModel(
     private val userRepository: UserRepository,
@@ -59,38 +56,53 @@ class MainPageViewModel(
     private val _challengesList = MutableStateFlow<List<Achievement>>(emptyList())
     val challengesList: StateFlow<List<Achievement>> = _challengesList
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun loadUserData(userId: String) {
-        if (userId.isBlank()) return
+        if (userId.isBlank()) {
+            _errorMessage.value = "User ID is missing"
+            return
+        }
 
         viewModelScope.launch {
-            val result = userRepository.getUserData(userId)
-            val achievements = challengesRepository.getAchievementsById(userId)
-            result.onSuccess {
-                _userFullName.value = "${it.first_name} ${it.last_name}"
-                _stepGoal.value = it.daily_step_goal
-                _waterGoal.value = it.water_intake_goal
-                _workoutGoal.value = it.workouts_goal
-                _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
-                _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
-                _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
-            }.onFailure {
+            _isLoading.value = true
+            val userResult = userRepository.getUserData(userId)
+            val achievementsResult = challengesRepository.getAchievementsById(userId)
+            userResult.onSuccess { userData ->
+                _userFullName.value = "${userData.first_name} ${userData.last_name}"
+                _stepGoal.value = userData.daily_step_goal
+                _waterGoal.value = userData.water_intake_goal
+                _workoutGoal.value = userData.workouts_goal
+                updatePercentages()
+            }.onFailure { error ->
                 _userFullName.value = "User"
+                _errorMessage.value = "Failed to load user data: ${error.message}"
             }
 
-            achievements.onSuccess {
-                _challengesList.value = it.achievements
+            achievementsResult.onSuccess { achievements ->
+                _challengesList.value = achievements.achievements
+            }.onFailure { error ->
+                _errorMessage.value = "Failed to load achievements: ${error.message}"
             }
+            _isLoading.value = false
         }
     }
 
     private fun loadNotifications() {
         viewModelScope.launch {
+            _isLoading.value = true
             val result = userRepository.getNotificationList()
-            result.onSuccess {
-                _friendRequests.value = it.friend_requests
-            }.onFailure {
+            result.onSuccess { notifications ->
+                _friendRequests.value = notifications.friend_requests
+            }.onFailure { error ->
                 _friendRequests.value = emptyList()
+                _errorMessage.value = "Failed to load notifications: ${error.message}"
             }
+            _isLoading.value = false
         }
     }
 
@@ -105,47 +117,67 @@ class MainPageViewModel(
 
     fun acceptRequest(userId: Int) {
         viewModelScope.launch {
+            _isLoading.value = true
             userRepository.acceptFriendRequest(userId)
                 .onSuccess {
                     _friendRequests.value = _friendRequests.value.filterNot { it.user_id == userId.toString() }
+                }.onFailure { error ->
+                    _errorMessage.value = "Failed to accept friend request: ${error.message}"
                 }
+            _isLoading.value = false
         }
     }
 
     fun declineRequest(userId: Int) {
         viewModelScope.launch {
+            _isLoading.value = true
             userRepository.denyFriendRequest(userId)
                 .onSuccess {
                     _friendRequests.value = _friendRequests.value.filterNot { it.user_id == userId.toString() }
+                }.onFailure { error ->
+                    _errorMessage.value = "Failed to decline friend request: ${error.message}"
                 }
+            _isLoading.value = false
         }
     }
 
-    fun loadDailyStats(context: Context, userId: String) {
-        if (userId.isBlank()) return
+    fun loadStats(context: Context, userId: String) {
+        if (userId.isBlank()) {
+            _errorMessage.value = "User ID is missing"
+            _isLoading.value = false
+            return
+        }
 
         viewModelScope.launch {
+            _isLoading.value = true
             val statsRepository = StatsRepository.getInstance(context)
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            val currentDate = dateFormat.format(Calendar.getInstance().time)
-            val result = statsRepository.getDailyStats(userId, currentDate)
+            val result = statsRepository.getStats(userId)
 
             result.onSuccess { stats ->
-                _steps.value = stats.calorie_count
+                _steps.value = stats.steps_count
                 _waterIntake.value = stats.water_count
                 _workouts.value = stats.workouts_count
-
-                _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
-                _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
-                _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
-            }.onFailure {
+                updatePercentages()
+            }.onFailure { error ->
                 _steps.value = 0
                 _waterIntake.value = 0
                 _workouts.value = 0
                 _stepPercentage.value = 0
                 _waterPercentage.value = 0
                 _workoutPercentage.value = 0
+                _errorMessage.value = "Failed to load statistics: ${error.message}"
             }
+            _isLoading.value = false
         }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
+    private fun updatePercentages() {
+        _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
+        _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
+        _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
     }
 }
