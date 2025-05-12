@@ -52,7 +52,7 @@ fun ProfileScreen(
     val xp by viewModel.xp.collectAsState()
     val clubName by viewModel.clubName.collectAsState()
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     var searchQuery by remember { mutableStateOf("") }
@@ -72,7 +72,7 @@ fun ProfileScreen(
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             coroutineScope.launch {
-                snackbarHostState.showSnackbar(it)
+                snackBarHostState.showSnackbar(it)
                 viewModel.clearError()
             }
         }
@@ -80,7 +80,7 @@ fun ProfileScreen(
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(snackbarHostState)
+            SnackbarHost(snackBarHostState)
         }
     ) { padding ->
         Box(
@@ -104,7 +104,7 @@ fun ProfileScreen(
                         val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
                         if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                     }
-                    EmojiIcon(iconResId = userAvatarResId)
+                    EmojiIcon(iconResId = userAvatarResId, 36)
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column(modifier = Modifier.clickable { onNavigateToEditProfile() }) {
@@ -218,7 +218,7 @@ fun ProfileScreen(
                         text = "Daily Step Goal",
                         onClick = {
                             navController.navigate(Routes.ACTIVITIES) {
-                                popUpTo(Routes.PROFILE) {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -235,7 +235,7 @@ fun ProfileScreen(
                         text = "Water Intake",
                         onClick = {
                             navController.navigate(Routes.ACTIVITIES) {
-                                popUpTo(Routes.PROFILE) {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
