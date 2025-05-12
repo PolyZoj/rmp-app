@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ifmo.rmp.R
+import com.ifmo.rmp.data.model.getDrawableResId
+import com.ifmo.rmp.data.repository.ChallengesRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.BigEmojiButton
 import com.ifmo.rmp.ui.components.EmojiAndTextWithDescriptionLine
@@ -29,14 +31,15 @@ import com.ifmo.rmp.ui.theme.LatoFont
 fun MainPageScreen(navController: NavController) {
     val context = LocalContext.current
     val userRepository = remember { UserRepository.getInstance(context) }
-    val viewModel = remember { MainPageViewModel(userRepository) }
+    val challengesRepository = remember { ChallengesRepository.getInstance(context) }
+    val viewModel = remember { MainPageViewModel(userRepository, challengesRepository) }
 
     val showNotifications by viewModel.isNotificationsVisible.collectAsState()
     val friendRequests by viewModel.friendRequests.collectAsState()
     val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     val userId = sharedPreferences.getString("user_id", "") ?: ""
-
+    val achievements by viewModel.challengesList.collectAsState()
     val userFullName by viewModel.userFullName.collectAsState()
     val steps by viewModel.steps.collectAsState()
     val waterIntake by viewModel.waterIntake.collectAsState()
@@ -179,21 +182,14 @@ fun MainPageScreen(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    EmojiAndTextWithDescriptionLine(
-                        iconResId = R.drawable.e_step,
-                        title = "Morning Yoga Challenge",
-                        subtitle = "Intermediate"
-                    )
-                    EmojiAndTextWithDescriptionLine(
-                        iconResId = R.drawable.e_step,
-                        title = "10K Steps Daily Challenge",
-                        subtitle = "Easy"
-                    )
-                    EmojiAndTextWithDescriptionLine(
-                        iconResId = R.drawable.e_step,
-                        title = "Weekly Cardio Challenge",
-                        subtitle = "Hard"
-                    )
+
+                    this@LazyColumn.items(achievements) { achievement ->
+                            EmojiAndTextWithDescriptionLine(
+                                iconResId = getDrawableResId(achievement.icon),
+                                title = achievement.title,
+                                subtitle = achievement.description
+                            )
+                    }
                 }
             }
         }

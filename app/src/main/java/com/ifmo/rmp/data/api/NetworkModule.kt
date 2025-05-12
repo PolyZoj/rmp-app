@@ -13,11 +13,13 @@ object NetworkModule {
     private const val USER_BASE_URL = "http://10.0.2.2:8082/"
     private const val CLUB_BASE_URL = "http://10.0.2.2:8085/"
     private const val STATS_BASE_URL = "http://10.0.2.2:8083/"
+    private const val CHALLENGES_BASE_URL = "http://10.0.2.2:8084/"
 
     private var authApi: AuthApiService? = null
     private var userApi: UserApiService? = null
     private var clubApi: ClubApiService? = null
     private var statsApi: StatsApiService? = null
+    private var challengesApi: ChallengesApiService? = null
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -67,5 +69,12 @@ object NetworkModule {
             statsApi = provideRetrofit(STATS_BASE_URL, context).create(StatsApiService::class.java)
         }
         return statsApi!!
+    }
+
+    fun provideChallengesApiService(context: Context): ChallengesApiService {
+        if (challengesApi == null) {
+            challengesApi = provideRetrofit(CHALLENGES_BASE_URL, context).create(ChallengesApiService::class.java)
+        }
+        return challengesApi!!
     }
 }
