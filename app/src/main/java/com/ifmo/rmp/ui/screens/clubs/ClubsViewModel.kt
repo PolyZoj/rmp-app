@@ -40,27 +40,65 @@ class ClubsViewModel : ViewModel() {
         )
     }
 
-    fun getClubInfo(context: Context, clubId: String) {
+    fun getClubInfo(context: Context, clubId: String? = null) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                // Get the current user ID from SharedPreferences
+                val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+                
+                // If clubId is not provided, get it from the user's profile
+                val finalClubId = if (clubId.isNullOrBlank() && currentUserId.isNotBlank()) {
+                    val userRepository = UserRepository.getInstance(context)
+                    val userResult = userRepository.getUserData(currentUserId)
+                    
+                    userResult.fold(
+                        onSuccess = { userData ->
+                            // Convert club_id from Int to String
+                            userData.club_id?.toString() ?: ""
+                        },
+                        onFailure = { "" }
+                    )
+                } else {
+                    clubId ?: ""
+                }
+                
+                println("Getting club info for clubId: $finalClubId")
+                
+                // Only proceed if we have a valid club ID
+                if (finalClubId.isNotBlank()) {
+                    val repository = getClubRepository(context)
+                    val result = repository.getClubInfo(finalClubId)
 
-                val repository = getClubRepository(context)
-                val result = repository.getClubInfo(clubId)
-
-                result.fold(
-                    onSuccess = { clubInfo ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            clubInfo = clubInfo,
-                            errorMessage = ""
-                        )
-                    },
-                    onFailure = { exception ->
-                        handleError(exception)
-                    }
-                )
+                    result.fold(
+                        onSuccess = { clubInfo ->
+                            // Mark the club as joined if the user is a member
+                            val isJoined = clubInfo.members.contains(currentUserId)
+                            val updatedClubInfo = clubInfo.copy(isJoined = isJoined)
+                            
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                clubInfo = updatedClubInfo,
+                                errorMessage = ""
+                            )
+                            println("Club info loaded successfully: ${updatedClubInfo.name}, isJoined=$isJoined")
+                        },
+                        onFailure = { exception ->
+                            println("Error loading club info: ${exception.message}")
+                            handleError(exception)
+                        }
+                    )
+                } else {
+                    println("No valid club ID found")
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = ""
+                    )
+                }
             } catch (e: Exception) {
+                println("Exception in getClubInfo: ${e.message}")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Unexpected error: ${e.message}"
@@ -74,16 +112,30 @@ class ClubsViewModel : ViewModel() {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
+                // Get the current user ID
+                val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+
                 val repository = getClubRepository(context)
                 val result = repository.getClubsList(limit, offset)
 
                 result.fold(
                     onSuccess = { response ->
+                        // Mark clubs as joined if the user is a member
+                        val updatedClubs = response.data.map { club ->
+                            club.copy(isJoined = club.members.contains(currentUserId))
+                        }
+                        
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            clubsList = response.data,
+                            clubsList = updatedClubs,
                             errorMessage = ""
                         )
+                        
+                        println("Clubs list loaded with ${updatedClubs.size} clubs")
+                        updatedClubs.forEach { club ->
+                            println("Club: ${club.name}, isJoined: ${club.isJoined}, members: ${club.members}")
+                        }
                     },
                     onFailure = { exception ->
                         handleError(exception)
@@ -163,6 +215,8 @@ class ClubsViewModel : ViewModel() {
 
                         // Refresh club info after adding member
                         getClubInfo(context, clubId)
+                        // Also refresh the clubs list to update join status
+                        getClubsList(context)
                     },
                     onFailure = { exception ->
                         handleError(exception)
@@ -238,6 +292,26 @@ class ClubsViewModel : ViewModel() {
                     isLoading = false,
                     errorMessage = "Network error: ${e.message ?: "Unknown error"}"
                 )
+            }
+        }
+    }
+
+    // Function to allow a user to leave their current club
+    fun leaveClub(context: Context, clubId: String) {
+        // Get the current user ID from SharedPreferences
+        val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+        
+        if (currentUserId.isNotBlank() && clubId.isNotBlank()) {
+            removeMember(context, clubId, currentUserId)
+            
+            // After leaving, refresh both club info and club list
+            viewModelScope.launch {
+                // Add a small delay to ensure the remove member operation completes
+                kotlinx.coroutines.delay(500)
+                getClubsList(context)
+                // Clear the current club info
+                _uiState.value = _uiState.value.copy(clubInfo = null)
             }
         }
     }

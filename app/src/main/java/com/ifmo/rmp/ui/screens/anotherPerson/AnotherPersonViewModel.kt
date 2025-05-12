@@ -59,7 +59,14 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
     val isLoading: StateFlow<Boolean> = _isLoading
 
     fun loadUser(userId: String) {
-        viewModelScope.launch {
+    viewModelScope.launch {
+        try {
+            if (userId.isBlank()) {
+                _errorMessage.value = "Invalid user ID"
+                _isLoading.value = false
+                return@launch
+            }
+
             _isLoading.value = true
             val result = userRepository.getUserData(userId)
             result.onSuccess { userData ->
@@ -73,13 +80,19 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
                 _stepGoal.value = userData.daily_step_goal
                 _waterGoal.value = userData.water_intake_goal
                 _workoutGoal.value = userData.workouts_goal
-                updatePercentages()
+                _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
+                _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
+                _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
             }.onFailure { error ->
                 _errorMessage.value = "Failed to load user: ${error.message}"
             }
             _isLoading.value = false
+        } catch (e: Exception) {
+            _errorMessage.value = "Error occurred: ${e.message ?: "Unknown error"}"
+            _isLoading.value = false
         }
     }
+}
 
     fun addFriend(friendId: Int) {
         viewModelScope.launch {

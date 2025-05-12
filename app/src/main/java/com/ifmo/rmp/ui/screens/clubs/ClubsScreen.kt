@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,6 +73,8 @@ fun ClubsScreen(
     // Load clubs list when screen is first displayed
     LaunchedEffect(Unit) {
         viewModel.getClubsList(context)
+        // Load current club from user profile
+        viewModel.getClubInfo(context)
     }
 
     // Add member dialog
@@ -134,20 +137,43 @@ fun ClubsScreen(
 
         // Display current club if available
         val currentClub = uiState.clubInfo
+        val hasJoinedClub = currentClub != null && currentClub.members.contains(currentUserId)
+        
         if (currentClub != null) {
-            ClubItemDetailed(
-                club = currentClub,
-                clubIconResId = clubIconResId,
-                isMember = currentClub.isJoined == true,
-                onManageClick = {
-                    // Navigate to club management screen
-                    println("Navigating to club management screen for club ID: ${currentClub.id}")
-                    println("Routes.manageClub: ${currentClub}")
-                    currentClub.id?.let { clubId ->
-                        navController.navigate(Routes.manageClub(clubId))
+            // Check if user is in the members list
+            val isMember = currentClub.members.contains(currentUserId)
+            
+            if (isMember) {
+                println("Displaying current club: ${currentClub.name}, User is member: $isMember")
+                ClubItemDetailed(
+                    club = currentClub,
+                    clubIconResId = clubIconResId,
+                    isMember = true,
+                    onManageClick = {
+                        // Navigate to club management screen
+                        println("Navigating to club management screen for club ID: ${currentClub.id}")
+                        println("Routes.manageClub: ${currentClub}")
+                        currentClub.id?.let { clubId ->
+                            navController.navigate(Routes.manageClub(clubId))
+                        }
+                    },
+                    onLeaveClick = {
+                        // Leave the club if the current user is not the owner
+                        if (currentClub.ownerId != currentUserId) {
+                            currentClub.id?.let { clubId ->
+                                viewModel.leaveClub(context, clubId)
+                            }
+                        }
                     }
-                }
-            )
+                )
+            } else {
+                // If the club is loaded but user is not a member
+                Text(
+                    text = "You haven't joined any club yet",
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
         } else {
             // Placeholder for when no club is joined
             Text(
@@ -157,72 +183,91 @@ fun ClubsScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // Only show "Find club" section and club list if user hasn't joined any club
+        if (!hasJoinedClub) {
+            Spacer(modifier = Modifier.height(24.dp))
 
-        // Find Club Section with Search
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Find club",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-            
-            CreateClubButton {
-                // Navigate to create club screen
-                navController.navigate(Routes.CREATE_CLUB)
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // Search Bar
-//        SearchBar(
-//            hint = "Search for clubs...",
-//            onSearchClick = { searchQuery ->
-//                // Handle search
-//            }
-//        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // List of clubs
-        if (uiState.isLoading) {
-            Box(
+            // Find Club Section with Search
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                CircularProgressIndicator()
-            }
-        } else if (uiState.clubsList.isNotEmpty()) {
-            LazyColumn {
-                items(uiState.clubsList) { club ->
-                    ClubItemWithJoinButton(
-                        club = club,
-                        clubIconResId = clubIconResId,
-                        onClick = {
-                            viewModel.getClubInfo(context, club.id ?: "")
-                            if (club.id != null) {
-                                navController.navigate(Routes.manageClub(club.id))
-                            }
-                        },
-                        onJoin = {
-                            // Show dialog to enter username
-                            dialogClubId = club.id ?: ""
-                            showAddMemberDialog = true
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Find club",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                CreateClubButton {
+                    // Navigate to create club screen
+                    navController.navigate(Routes.CREATE_CLUB)
                 }
             }
-        } else if (!uiState.isLoading && uiState.errorMessage.isEmpty()) {
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Search Bar
+//            SearchBar(
+//                hint = "Search for clubs...",
+//                onSearchClick = { searchQuery ->
+//                    // Handle search
+//                }
+//            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // List of clubs
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (uiState.clubsList.isNotEmpty()) {
+                LazyColumn {
+                    items(uiState.clubsList) { club ->
+                        ClubItemWithJoinButton(
+                            club = club,
+                            clubIconResId = clubIconResId,
+                            onClick = {
+                                // Explicitly pass the club ID when navigating to the club management screen
+                                if (club.id != null && club.id.isNotBlank()) {
+                                    viewModel.getClubInfo(context, club.id)
+                                    navController.navigate(Routes.manageClub(club.id))
+                                }
+                            },
+                            onJoin = {
+                                if (club.ownerId == currentUserId) {
+                                    // Club owner adding a member - show dialog
+                                    dialogClubId = club.id ?: ""
+                                    showAddMemberDialog = true
+                                } else {
+                                    // Regular user joining a club
+                                    viewModel.addMember(context, club.id ?: "", currentUserId)
+                                }
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            } else if (!uiState.isLoading && uiState.errorMessage.isEmpty()) {
+                Text(
+                    text = "No clubs found",
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+        } else {
+            // Show a message that the user can leave their current club if they want to join another
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "No clubs found",
+                text = "You need to leave your current club to join another one",
+                fontSize = 16.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(vertical = 16.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
         
@@ -286,7 +331,8 @@ fun ClubItemDetailed(
     club: ClubInfoResponse,
     clubIconResId: Int,
     isMember: Boolean,
-    onManageClick: () -> Unit
+    onManageClick: () -> Unit,
+    onLeaveClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
@@ -359,20 +405,44 @@ fun ClubItemDetailed(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Button(
-                onClick = onManageClick,
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Manage club"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Manage Club")
+                Button(
+                    onClick = onManageClick,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Manage club"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Manage")
+                }
+                
+                // Only show leave button if the user is not the owner and onLeaveClick is provided
+                if (club.ownerId != currentUserId && onLeaveClick != null) {
+                    Button(
+                        onClick = onLeaveClick,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Leave club"
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Leave")
+                    }
+                }
             }
         }
     }
@@ -409,6 +479,9 @@ fun ClubItemWithJoinButton(
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
     val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+    
+    // Determine if user is already a member
+    val isJoined = club.isJoined == true || club.members.contains(currentUserId)
     
     Row(
         modifier = Modifier
@@ -449,14 +522,15 @@ fun ClubItemWithJoinButton(
             }
         }
         
-        if (club.isJoined == true) {
+        if (isJoined) {
             Text(
                 text = "Joined",
                 color = Color.Green,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
-        } else if (club.ownerId == currentUserId) {
+        } else {
+            // Show button for all clubs where the user is not a member
             Button(
                 onClick = onJoin,
                 colors = ButtonDefaults.buttonColors(
@@ -465,7 +539,11 @@ fun ClubItemWithJoinButton(
                 modifier = Modifier.height(36.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
-                Text("Add Member", fontSize = 14.sp)
+                if (club.ownerId == currentUserId) {
+                    Text("Add Member", fontSize = 14.sp)
+                } else {
+                    Text("Join", fontSize = 14.sp)
+                }
             }
         }
     }
