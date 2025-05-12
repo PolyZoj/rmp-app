@@ -36,7 +36,7 @@ fun SearchBar(
             .height(48.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, borderColor, RoundedCornerShape(12.dp))
-            .background(Color.White)
+            .background(Color.Transparent)
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

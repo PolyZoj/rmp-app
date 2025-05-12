@@ -35,7 +35,7 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
 
     NavigationBar(
         modifier = modifier,
-        containerColor = Color.White,
+        containerColor = Color(0xFFEFE7E7),
         contentColor = Color.Black
     ) {
         items.forEach { (route, icon) ->

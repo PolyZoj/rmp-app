@@ -1,5 +1,6 @@
 package com.ifmo.rmp.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,6 +42,7 @@ fun CustomTextField(
             },
             singleLine = true,
             modifier = Modifier
+                .background(Color.Transparent)
                 .fillMaxWidth()
                 .border(1.dp, Color(0xFF6B6A6A), RoundedCornerShape(8.dp)),
             placeholder = {
@@ -53,8 +55,8 @@ fun CustomTextField(
             },
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             )
