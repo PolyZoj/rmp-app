@@ -71,7 +71,7 @@ fun ActivitiesScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(padding)
                 .padding(horizontal = 12.dp)
-                .padding(top = 16.dp)
+//                .padding(top = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(24.dp))
             Text(text = "Activity Summary", fontSize = 22.sp, fontFamily = LatoFont)

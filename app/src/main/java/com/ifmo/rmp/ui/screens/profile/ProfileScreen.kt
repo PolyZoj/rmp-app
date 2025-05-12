@@ -1,7 +1,6 @@
 package com.ifmo.rmp.ui.screens.profile
 
 import android.content.Context
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -87,9 +86,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color.White)
                 .padding(horizontal = 12.dp)
-                .padding(top = 24.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
@@ -104,7 +101,7 @@ fun ProfileScreen(
                         val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
                         if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                     }
-                    EmojiIcon(iconResId = userAvatarResId)
+                    EmojiIcon(iconResId = userAvatarResId, 36)
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column(modifier = Modifier.clickable { onNavigateToEditProfile() }) {
@@ -218,7 +215,7 @@ fun ProfileScreen(
                         text = "Daily Step Goal",
                         onClick = {
                             navController.navigate(Routes.ACTIVITIES) {
-                                popUpTo(Routes.PROFILE) {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -235,7 +232,7 @@ fun ProfileScreen(
                         text = "Water Intake",
                         onClick = {
                             navController.navigate(Routes.ACTIVITIES) {
-                                popUpTo(Routes.PROFILE) {
+                                popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
                                 launchSingleTop = true

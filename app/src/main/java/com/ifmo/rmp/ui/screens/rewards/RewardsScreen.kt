@@ -44,7 +44,7 @@ fun RewardsScreen() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .padding(top = 16.dp)
+            .padding(top = 36.dp)
     ) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Your Achievements", fontSize = 22.sp, fontFamily = LatoFont)

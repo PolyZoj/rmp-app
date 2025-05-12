@@ -43,6 +43,8 @@ import com.ifmo.rmp.ui.components.EmojiIcon
 import com.ifmo.rmp.ui.components.SearchBar
 import com.ifmo.rmp.ui.navigation.Routes
 import android.content.Context
+import com.ifmo.rmp.ui.theme.LatoFont
+
 
 @Composable
 fun ClubsScreen(
@@ -69,14 +71,15 @@ fun ClubsScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .padding(top = 60.dp)
     ) {
         // Current Club Section
         Text(
             text = "Your current club",
             fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+//            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
