@@ -7,6 +7,7 @@ import com.ifmo.rmp.data.model.ClubCreateResponse
 import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.data.model.ClubMemberResponse
 import com.ifmo.rmp.data.repository.ClubRepository
+import com.ifmo.rmp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -165,6 +166,38 @@ class ClubsViewModel : ViewModel() {
                     },
                     onFailure = { exception ->
                         handleError(exception)
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Network error: ${e.message ?: "Unknown error"}"
+                )
+            }
+        }
+    }
+
+    fun addMemberByUsername(context: Context, clubId: String, username: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                val userRepository = UserRepository.getInstance(context)
+                val userIdResult = userRepository.getUserIdByUsername(username)
+                
+                userIdResult.fold(
+                    onSuccess = { response ->
+                        val userId = response.user_id
+                        addMember(context, clubId, userId)
+                    },
+                    onFailure = { exception ->
+                        // Ignore errors and attempt to add with the username directly
+                        // This handles the case where username doesn't exist but we want to proceed anyway
+//                        addMember(context, clubId, username)
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = "Network error: ${exception.message ?: "Unknown error"}"
+                        )
                     }
                 )
             } catch (e: Exception) {

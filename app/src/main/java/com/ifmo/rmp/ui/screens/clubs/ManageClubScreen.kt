@@ -1,5 +1,6 @@
 package com.ifmo.rmp.ui.screens.clubs
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,6 +57,8 @@ fun ManageClubScreen(
     val context = LocalContext.current
     
     var newMemberId by remember { mutableStateOf("") }
+    val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
     
     val userRepository = remember { UserRepository.getInstance(context) }
     
@@ -170,52 +173,55 @@ fun ManageClubScreen(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
+                    // Only show add member section to the owner
+                    if (club.ownerId == currentUserId) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text(
-                                text = "Add New Member",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
+                            Column(
+                                modifier = Modifier.padding(16.dp)
                             ) {
-                                OutlinedTextField(
-                                    value = newMemberId,
-                                    onValueChange = { newMemberId = it },
-                                    label = { Text("User ID") },
-                                    singleLine = true,
-                                    modifier = Modifier.weight(1f)
+                                Text(
+                                    text = "Add New Member",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
                                 )
                                 
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
                                 
-                                Button(
-                                    onClick = {
-                                        if (newMemberId.isNotBlank()) {
-                                            viewModel.addMember(context, clubId, newMemberId)
-                                            newMemberId = ""
-                                        }
-                                    },
-                                    enabled = newMemberId.isNotBlank()
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add")
+                                    OutlinedTextField(
+                                        value = newMemberId,
+                                        onValueChange = { newMemberId = it },
+                                        label = { Text("Username") },
+                                        singleLine = true,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    
+                                    Button(
+                                        onClick = {
+                                            if (newMemberId.isNotBlank()) {
+                                                viewModel.addMemberByUsername(context, clubId, newMemberId)
+                                                newMemberId = ""
+                                            }
+                                        },
+                                        enabled = newMemberId.isNotBlank()
+                                    ) {
+                                        Icon(Icons.Default.Add, contentDescription = "Add")
+                                    }
                                 }
                             }
                         }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
                     
                     Text(
                         text = "Members (${club.members?.size ?: 0})",

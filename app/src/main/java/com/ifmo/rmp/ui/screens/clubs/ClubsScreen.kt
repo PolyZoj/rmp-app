@@ -64,9 +64,58 @@ fun ClubsScreen(
         if (id != 0) id else R.drawable.e_profile // Fallback to profile icon if clubs icon is missing
     }
     
+    // State for the add member dialog
+    var showAddMemberDialog by remember { mutableStateOf(false) }
+    var dialogClubId by remember { mutableStateOf("") }
+    var usernameInput by remember { mutableStateOf("") }
+    
     // Load clubs list when screen is first displayed
     LaunchedEffect(Unit) {
         viewModel.getClubsList(context)
+    }
+
+    // Add member dialog
+    if (showAddMemberDialog) {
+        AlertDialog(
+            onDismissRequest = { 
+                showAddMemberDialog = false
+                usernameInput = ""
+            },
+            title = { Text("Add Member by Username") },
+            text = {
+                OutlinedTextField(
+                    value = usernameInput,
+                    onValueChange = { usernameInput = it },
+                    label = { Text("Username") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (usernameInput.isNotBlank()) {
+                            viewModel.addMemberByUsername(context, dialogClubId, usernameInput)
+                            showAddMemberDialog = false
+                            usernameInput = ""
+                        }
+                    },
+                    enabled = usernameInput.isNotBlank()
+                ) {
+                    Text("Add")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { 
+                        showAddMemberDialog = false 
+                        usernameInput = ""
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Column(
@@ -161,7 +210,9 @@ fun ClubsScreen(
                             }
                         },
                         onJoin = {
-                            viewModel.addMember(context, club.id ?: "", currentUserId)
+                            // Show dialog to enter username
+                            dialogClubId = club.id ?: ""
+                            showAddMemberDialog = true
                         }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -405,7 +456,7 @@ fun ClubItemWithJoinButton(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
-        } else {
+        } else if (club.ownerId == currentUserId) {
             Button(
                 onClick = onJoin,
                 colors = ButtonDefaults.buttonColors(
@@ -414,7 +465,7 @@ fun ClubItemWithJoinButton(
                 modifier = Modifier.height(36.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
-                Text("Join", fontSize = 14.sp)
+                Text("Add Member", fontSize = 14.sp)
             }
         }
     }
