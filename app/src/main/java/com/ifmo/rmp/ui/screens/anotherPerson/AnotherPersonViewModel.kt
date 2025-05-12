@@ -60,26 +60,35 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
 
     fun loadUser(userId: String) {
         viewModelScope.launch {
-            val result = userRepository.getUserData(userId)
-            result
-                .onSuccess { userData ->
-                    _user.value = userData
-                    _friendButtonState.value = when (userData.status) {
-                        "YourFriend" -> FriendButtonState.RemoveFriend
-                        "InviteSent" -> FriendButtonState.InviteSent
-                        "NotYourFriend" -> FriendButtonState.AddFriend
-                        else -> FriendButtonState.AddFriend
+            try {
+                if (userId.isBlank()) {
+                    _errorMessage.value = "Invalid user ID"
+                    return@launch
+                }
+                
+                val result = userRepository.getUserData(userId)
+                result
+                    .onSuccess { userData ->
+                        _user.value = userData
+                        _friendButtonState.value = when (userData.status) {
+                            "YourFriend" -> FriendButtonState.RemoveFriend
+                            "InviteSent" -> FriendButtonState.InviteSent
+                            "NotYourFriend" -> FriendButtonState.AddFriend
+                            else -> FriendButtonState.AddFriend
+                        }
+                        _stepGoal.value = userData.daily_step_goal
+                        _waterGoal.value = userData.water_intake_goal
+                        _workoutGoal.value = userData.workouts_goal
+                        _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
+                        _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
+                        _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
                     }
-                    _stepGoal.value = userData.daily_step_goal
-                    _waterGoal.value = userData.water_intake_goal
-                    _workoutGoal.value = userData.workouts_goal
-                    _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
-                    _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
-                    _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
-                }
-                .onFailure { error ->
-                    _errorMessage.value = "Failed to load user: ${error.message}"
-                }
+                    .onFailure { error ->
+                        _errorMessage.value = "Failed to load user: ${error.message}"
+                    }
+            } catch (e: Exception) {
+                _errorMessage.value = "Error occurred: ${e.message ?: "Unknown error"}"
+            }
         }
     }
 

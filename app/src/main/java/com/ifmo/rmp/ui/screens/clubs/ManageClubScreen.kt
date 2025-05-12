@@ -2,6 +2,7 @@ package com.ifmo.rmp.ui.screens.clubs
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,6 +45,7 @@ import com.ifmo.rmp.data.model.ClubInfoResponse
 import com.ifmo.rmp.data.model.UserDtoResponse
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.EmojiIcon
+import com.ifmo.rmp.ui.navigation.Routes
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -264,6 +266,12 @@ fun ManageClubScreen(
                                         isLoading = !memberUsers.containsKey(memberId),
                                         onRemove = {
                                             viewModel.removeMember(context, clubId, memberId)
+                                        },
+                                        isCurrentUserOwner = club.ownerId == currentUserId,
+                                        isCurrentUser = memberId == currentUserId,
+                                        onUserClick = { userId ->
+                                            // Navigate to user profile
+                                            navController.navigate(Routes.anotherPerson(userId))
                                         }
                                     )
                                     Divider()
@@ -332,7 +340,10 @@ fun MemberItem(
     userData: UserDtoResponse?,
     isOwner: Boolean,
     isLoading: Boolean,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    isCurrentUserOwner: Boolean = false,
+    isCurrentUser: Boolean = false,
+    onUserClick: (String) -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -354,8 +365,13 @@ fun MemberItem(
                 )
             }
         } else if (userData != null) {
-            // Display user information
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Display user information with click action
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clickable { onUserClick(memberId) }
+                    .weight(1f)
+            ) {
                 // User Avatar
                 Box(
                     modifier = Modifier
@@ -374,10 +390,29 @@ fun MemberItem(
                 Spacer(modifier = Modifier.width(12.dp))
                 
                 Column {
-                    Text(
-                        text = "${userData.first_name} ${userData.last_name}",
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${userData.first_name} ${userData.last_name}",
+                            fontWeight = FontWeight.Medium
+                        )
+                        
+                        // Add a small "View Profile" icon/text to indicate this is clickable
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "View",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                        )
+                    }
                     
                     Text(
                         text = "@${userData.username}",
@@ -396,19 +431,30 @@ fun MemberItem(
                 }
             }
             
-            if (!isOwner) {
+            // Show delete button only if:
+            // 1. Current user is the owner and viewing a non-owner member
+            // 2. Current user is viewing their own member item (to leave the club)
+            val showDeleteButton = (isCurrentUserOwner && !isOwner) || (isCurrentUser && !isOwner)
+            
+            if (showDeleteButton) {
                 IconButton(
                     onClick = onRemove
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove member",
+                        contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
                         tint = Color.Red.copy(alpha = 0.7f)
                     )
                 }
             }
         } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // User data not loaded yet, but show their ID
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clickable { onUserClick(memberId) }
+                    .weight(1f)
+            ) {
                 Box(
                     modifier = Modifier
                         .size(32.dp)
@@ -426,10 +472,29 @@ fun MemberItem(
                 Spacer(modifier = Modifier.width(12.dp))
                 
                 Column {
-                    Text(
-                        text = "User ID: $memberId",
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "User ID: $memberId",
+                            fontWeight = FontWeight.Medium
+                        )
+                        
+                        // Add a small "View Profile" icon/text to indicate this is clickable
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "View",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                        )
+                    }
                     
                     Text(
                         text = "Unable to load user details",
@@ -447,14 +512,16 @@ fun MemberItem(
                 }
             }
             
-            // Only show remove button for non-owners
-            if (!isOwner) {
+            // Same logic for showing delete button
+            val showDeleteButton = (isCurrentUserOwner && !isOwner) || (isCurrentUser && !isOwner)
+            
+            if (showDeleteButton) {
                 IconButton(
                     onClick = onRemove
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove member",
+                        contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
                         tint = Color.Red.copy(alpha = 0.7f)
                     )
                 }
