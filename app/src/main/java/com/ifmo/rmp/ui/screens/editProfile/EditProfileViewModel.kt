@@ -1,5 +1,7 @@
 package com.ifmo.rmp.ui.screens.editProfile
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.UserUpdateRequest
@@ -13,6 +15,8 @@ class EditProfileViewModel(
     private val userRepository: UserRepository,
 ) : ViewModel() {
 
+    private val _showSuccessMessage = mutableStateOf(false)
+    val showSuccessMessage: State<Boolean> = _showSuccessMessage
     private val _uiState = MutableStateFlow(EditProfileUiState())
     val uiState: StateFlow<EditProfileUiState> = _uiState
 
@@ -68,6 +72,11 @@ class EditProfileViewModel(
                 _uiState.update { it.copy(errorMessage = e.localizedMessage ?: "Unknown error") }
             }
         }
+        _showSuccessMessage.value = true
+    }
+
+    fun resetSuccessMessage() {
+        _showSuccessMessage.value = false
     }
 }
 

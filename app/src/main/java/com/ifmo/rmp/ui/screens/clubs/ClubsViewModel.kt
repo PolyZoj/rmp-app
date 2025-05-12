@@ -17,7 +17,7 @@ class ClubsViewModel : ViewModel() {
     val uiState: StateFlow<ClubsUiState> = _uiState
 
     private var clubRepository: ClubRepository? = null
-    
+
     private fun getClubRepository(context: Context): ClubRepository {
         if (clubRepository == null) {
             clubRepository = ClubRepository.getInstance(context)
@@ -43,10 +43,10 @@ class ClubsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val repository = getClubRepository(context)
                 val result = repository.getClubInfo(clubId)
-                
+
                 result.fold(
                     onSuccess = { clubInfo ->
                         _uiState.value = _uiState.value.copy(
@@ -67,15 +67,15 @@ class ClubsViewModel : ViewModel() {
             }
         }
     }
-    
+
     fun getClubsList(context: Context, limit: Int = 10, offset: Int = 0) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val repository = getClubRepository(context)
                 val result = repository.getClubsList(limit, offset)
-                
+
                 result.fold(
                     onSuccess = { response ->
                         _uiState.value = _uiState.value.copy(
@@ -96,23 +96,26 @@ class ClubsViewModel : ViewModel() {
             }
         }
     }
-    
+
     fun createClub(context: Context) {
         val name = _uiState.value.clubName
         val description = _uiState.value.clubDescription
 
         if (name.isBlank() || description.isBlank()) {
-            _uiState.value = _uiState.value.copy(errorMessage = "Club name and description are required")
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Club name and description are required",
+                isSuccess = false
+            )
             return
         }
 
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val repository = getClubRepository(context)
                 val result = repository.createClub(name, description)
-                
+
                 result.fold(
                     onSuccess = { response ->
                         _uiState.value = _uiState.value.copy(
@@ -123,26 +126,31 @@ class ClubsViewModel : ViewModel() {
                         )
                     },
                     onFailure = { exception ->
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            isSuccess = false
+                        )
                         handleError(exception)
                     }
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Unexpected error: ${e.message}"
+                    isSuccess = false,
+                    errorMessage = "Error: ${e.message ?: "Failed to create club"}"
                 )
             }
         }
     }
-    
+
     fun addMember(context: Context, clubId: String, userId: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val repository = getClubRepository(context)
                 val result = repository.addMember(clubId, userId)
-                
+
                 result.fold(
                     onSuccess = { response ->
                         _uiState.value = _uiState.value.copy(
@@ -151,7 +159,7 @@ class ClubsViewModel : ViewModel() {
                             isSuccess = true,
                             errorMessage = ""
                         )
-                        
+
                         // Refresh club info after adding member
                         getClubInfo(context, clubId)
                     },
@@ -167,15 +175,15 @@ class ClubsViewModel : ViewModel() {
             }
         }
     }
-    
+
     fun removeMember(context: Context, clubId: String, userId: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val repository = getClubRepository(context)
                 val result = repository.removeMember(clubId, userId)
-                
+
                 result.fold(
                     onSuccess = { response ->
                         _uiState.value = _uiState.value.copy(
@@ -184,7 +192,7 @@ class ClubsViewModel : ViewModel() {
                             isSuccess = true,
                             errorMessage = ""
                         )
-                        
+
                         // Refresh club info after removing member
                         getClubInfo(context, clubId)
                     },
@@ -200,14 +208,14 @@ class ClubsViewModel : ViewModel() {
             }
         }
     }
-    
+
     fun clearLastMemberOperation() {
         _uiState.value = _uiState.value.copy(
             lastMemberOperation = null
         )
     }
-    
-    private fun handleError(exception: Throwable) {
+
+    fun handleError(exception: Throwable) {
         when (exception) {
             is HttpException -> {
                 val errorMessage = when (exception.code()) {
@@ -229,7 +237,7 @@ class ClubsViewModel : ViewModel() {
             }
         }
     }
-    
+
     data class ClubsUiState(
         val clubName: String = "",
         val clubDescription: String = "",

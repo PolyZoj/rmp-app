@@ -1,7 +1,6 @@
 package com.ifmo.rmp.ui.screens.profile
 
 import android.content.Context
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,7 +51,7 @@ fun ProfileScreen(
     val xp by viewModel.xp.collectAsState()
     val clubName by viewModel.clubName.collectAsState()
 
-    val snackBarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     var searchQuery by remember { mutableStateOf("") }
@@ -72,7 +71,7 @@ fun ProfileScreen(
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             coroutineScope.launch {
-                snackBarHostState.showSnackbar(it)
+                snackbarHostState.showSnackbar(it)
                 viewModel.clearError()
             }
         }
@@ -80,16 +79,14 @@ fun ProfileScreen(
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(snackBarHostState)
+            SnackbarHost(snackbarHostState)
         }
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color.White)
                 .padding(horizontal = 12.dp)
-                .padding(top = 24.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
