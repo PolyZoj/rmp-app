@@ -39,6 +39,7 @@ class ActivitiesViewModel(
     val workoutGoal: StateFlow<Int> = _workoutGoal
 
     private val _calorieGoal = MutableStateFlow(5000) // Фиксированная цель, уточнить
+    val calorieGoal: StateFlow<Int> = _calorieGoal
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -59,7 +60,7 @@ class ActivitiesViewModel(
                 _stepGoal.value = userData.daily_step_goal
                 _waterGoal.value = userData.water_intake_goal
                 _workoutGoal.value = userData.workouts_goal
-                // _calorieGoal остается 5000, так как нет поля в UserDtoResponse
+                _calorieGoal.value = userData.calorie_goal
             }.onFailure { error ->
                 _errorMessage.value = "Failed to load user data: ${error.message}"
             }

@@ -42,6 +42,7 @@ fun ActivitiesScreen(navController: NavController) {
     val stepGoal by viewModel.stepGoal.collectAsState()
     val waterGoal by viewModel.waterGoal.collectAsState()
     val workoutGoal by viewModel.workoutGoal.collectAsState()
+    val calorieGoal by viewModel.calorieGoal.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -110,7 +111,7 @@ fun ActivitiesScreen(navController: NavController) {
                     )
                     BigInfoBlock(
                         title = "Calories burned",
-                        value = if (isLoading) "Loading..." else "$calories / 5000"
+                        value = if (isLoading) "Loading..." else "$calories / $calorieGoal"
                     )
                 }
             }
