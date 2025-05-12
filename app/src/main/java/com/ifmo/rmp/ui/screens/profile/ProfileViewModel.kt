@@ -70,6 +70,8 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
             val result = userRepository.getUserData(userId)
             val achievements = challengesRepository.getAchievementsById(userId)
 
+
+            Log.d("GOIDA", achievements.toString())
             result.onSuccess {
                 Log.d("ProfileViewModel", "Пользователь загружен: $it")
                 _user.value = it
@@ -86,7 +88,7 @@ class ProfileViewModel(private val userRepository: UserRepository, private val c
             }
 
             achievements.onSuccess {
-                _challengesList.value = it
+                _challengesList.value = it.achievements
             }
 
             _isLoading.value = false

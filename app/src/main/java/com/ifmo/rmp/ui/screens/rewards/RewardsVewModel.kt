@@ -1,5 +1,7 @@
 package com.ifmo.rmp.ui.screens.rewards
 
+import android.nfc.Tag
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.Achievement
@@ -19,7 +21,7 @@ class RewardsVewModel(private val challengesRepository: ChallengesRepository) : 
             val achievements = challengesRepository.getAchievementsById(userId)
 
             achievements.onSuccess {
-                _challengesList.value = it
+                _challengesList.value = it.achievements
             }
 
         }

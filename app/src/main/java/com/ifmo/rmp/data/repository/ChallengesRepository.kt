@@ -4,6 +4,7 @@ import android.content.Context
 import com.ifmo.rmp.data.api.ChallengesApiService
 import com.ifmo.rmp.data.api.NetworkModule
 import com.ifmo.rmp.data.model.Achievement
+import com.ifmo.rmp.data.model.Achievements
 
 class ChallengesRepository(private val challengesApiService: ChallengesApiService) {
 
@@ -20,7 +21,7 @@ class ChallengesRepository(private val challengesApiService: ChallengesApiServic
         }
     }
 
-    suspend fun getAchievementsById(id: String): Result<ArrayList<Achievement>> {
+    suspend fun getAchievementsById(id: String): Result<Achievements> {
         return try {
             val response = challengesApiService.getChallengesById(id)
             Result.success(response)
@@ -29,7 +30,7 @@ class ChallengesRepository(private val challengesApiService: ChallengesApiServic
         }
     }
 
-    suspend fun getAchievementsByIdByDay(id: String, day: String): Result<ArrayList<Achievement>> {
+    suspend fun getAchievementsByIdByDay(id: String, day: String): Result<Achievements> {
         return try {
             val response = challengesApiService.getChallengesByIdByDay(id, day)
             Result.success(response)
@@ -38,7 +39,7 @@ class ChallengesRepository(private val challengesApiService: ChallengesApiServic
         }
     }
 
-    suspend fun getAchievementsByIdByToday(id: String): Result<ArrayList<Achievement>> {
+    suspend fun getAchievementsByIdByToday(id: String): Result<Achievements> {
         return try {
             val response = challengesApiService.getChallengesByIdByToday(id)
             Result.success(response)

@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ifmo.rmp.R
-import com.ifmo.rmp.data.model.AchievementStatus
 import com.ifmo.rmp.data.model.getDrawableResId
 import com.ifmo.rmp.data.repository.ChallengesRepository
 import com.ifmo.rmp.data.repository.UserRepository
@@ -168,13 +167,11 @@ fun MainPageScreen(navController: NavController) {
                 ) {
 
                     this@LazyColumn.items(achievements) { achievement ->
-                        if (achievement.status==AchievementStatus.COMPLETED){
                             EmojiAndTextWithDescriptionLine(
                                 iconResId = getDrawableResId(achievement.icon),
                                 title = achievement.title,
                                 subtitle = achievement.description
                             )
-                        }
                     }
                 }
             }

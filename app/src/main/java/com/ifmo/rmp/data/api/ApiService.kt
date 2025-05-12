@@ -20,8 +20,7 @@ import com.ifmo.rmp.data.model.RegistrationResponse
 import com.ifmo.rmp.data.model.UserDtoResponse
 import com.ifmo.rmp.data.model.UserUpdateRequest
 import com.ifmo.rmp.data.model.Achievement
-import com.ifmo.rmp.data.model.AchievementType
-import com.ifmo.rmp.data.model.AchievementStatus
+import com.ifmo.rmp.data.model.Achievements
 
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -93,12 +92,12 @@ interface StatsApiService {
 interface ChallengesApiService {
 
     @GET("/api/v1/challenges/achievements/{id}")
-    suspend fun getChallengesById(@Path("id") id: String): ArrayList<Achievement>
+    suspend fun getChallengesById(@Path("id") id: String): Achievements
 
     @GET("/api/v1/challenges/achievements/{id}/{day}")
-    suspend fun getChallengesByIdByDay(@Path("id") id: String, @Path("day") day: String): ArrayList<Achievement>
+    suspend fun getChallengesByIdByDay(@Path("id") id: String, @Path("day") day: String): Achievements
 
     @GET("/api/v1/challenges/achievements/{id}/today")
-    suspend fun getChallengesByIdByToday(@Path("id") id: String): ArrayList<Achievement>
+    suspend fun getChallengesByIdByToday(@Path("id") id: String): Achievements
 
 }

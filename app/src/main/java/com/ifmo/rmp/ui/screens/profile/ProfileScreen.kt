@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ifmo.rmp.R
-import com.ifmo.rmp.data.model.AchievementStatus
 import com.ifmo.rmp.data.model.getDrawableResId
 import com.ifmo.rmp.data.repository.ChallengesRepository
 import com.ifmo.rmp.data.repository.UserRepository
@@ -179,8 +178,8 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
 
-                        this@LazyColumn.items(achievements.take(5)) { achievement ->
-                            if (achievement.status == AchievementStatus.COMPLETED) {
+                        this@LazyColumn.items(achievements.take(10)) { achievement ->
+                            if (achievement.status == "COMPLETED") {
                                 EmojiAndTextWithDescriptionLine(
                                     iconResId = getDrawableResId(achievement.icon),
                                     title = achievement.title,

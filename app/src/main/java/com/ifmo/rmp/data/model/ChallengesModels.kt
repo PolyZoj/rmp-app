@@ -3,31 +3,21 @@ package com.ifmo.rmp.data.model
 import com.ifmo.rmp.R
 import java.time.LocalDate
 
-enum class AchievementStatus {
-    IN_PROGRESS,
-    COMPLETED
-}
-
-enum class AchievementType {
-    level,
-    xp,
-    steps_count,
-    calorie_count,
-    water_count,
-    workouts_count
-}
-
 data class Achievement(
     val id: String? = null,
     val userId: String,
     val icon: String,
     val description: String,
     val title: String,
-    val status: AchievementStatus,
+    val status: String,
     val goal: Double,
-    val type: AchievementType,
-    val start_date: LocalDate,
-    val end_date: LocalDate
+    val type: String,
+    val start_date: String,
+    val end_date: String
+)
+
+data class Achievements(
+    val achievements: List<Achievement>
 )
 
 fun getDrawableResId(iconName: String): Int {

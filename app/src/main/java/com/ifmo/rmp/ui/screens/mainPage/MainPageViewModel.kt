@@ -78,7 +78,7 @@ class MainPageViewModel(
             }
 
             achievements.onSuccess {
-                _challengesList.value = it
+                _challengesList.value = it.achievements
             }
         }
     }

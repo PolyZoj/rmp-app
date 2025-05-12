@@ -62,12 +62,12 @@ fun RewardsScreen() {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            this@LazyColumn.items(achievements.take(5)) { achievement ->
+            this@LazyColumn.items(achievements.take(10)) { achievement ->
                 RewardsLine(
                     iconResId = getDrawableResId(achievement.icon),
                     title = achievement.title,
                     subtitle = achievement.description,
-                    status = achievement.status.toString()
+                    status = achievement.status
                 )
             }
         }
