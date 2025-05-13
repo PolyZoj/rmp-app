@@ -67,7 +67,7 @@ fun RewardsScreen() {
                     iconResId = getDrawableResId(achievement.icon),
                     title = achievement.title,
                     subtitle = achievement.description,
-                    status = achievement.status
+                    status = if (achievement.status == "IN_PROGRESS") "In Progress" else "Completed"
                 )
             }
         }

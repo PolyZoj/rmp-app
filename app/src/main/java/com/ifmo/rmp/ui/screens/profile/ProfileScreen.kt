@@ -60,7 +60,13 @@ fun ProfileScreen(
 
     LaunchedEffect(sharedPreferences) {
         viewModel.loadUser(userId)
+    }
+
+    LaunchedEffect(sharedPreferences) {
         viewModel.loadFriends()
+    }
+
+    LaunchedEffect(sharedPreferences) {
         viewModel.loadStats(context, userId)
     }
 
