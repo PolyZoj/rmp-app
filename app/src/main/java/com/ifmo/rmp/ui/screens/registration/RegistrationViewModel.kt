@@ -146,7 +146,6 @@ class RegistrationViewModel : ViewModel() {
     fun register(context: Context) {
         val state = _uiState.value
 
-        // Проверка на заполненность всех полей
         if (state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank() ||
             state.username.isBlank() || state.firstName.isBlank() || state.lastName.isBlank() ||
             state.dateOfBirth.isBlank() || state.weight.isBlank() || state.height.isBlank() ||
@@ -156,33 +155,28 @@ class RegistrationViewModel : ViewModel() {
             return
         }
 
-        // Проверка формата email
         val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
         if (!emailRegex.matches(state.email)) {
             _uiState.value = _uiState.value.copy(errorMessage = "Invalid email format")
             return
         }
 
-        // Проверка формата даты
         val dateRegex = "^\\d{4}-\\d{2}-\\d{2}$".toRegex()
         if (!dateRegex.matches(state.dateOfBirth)) {
             _uiState.value = _uiState.value.copy(errorMessage = "Invalid date format. Use YYYY-MM-DD")
             return
         }
 
-        // Проверка длины пароля
         if (state.password.length < 6) {
             _uiState.value = _uiState.value.copy(errorMessage = "Password must be at least 6 characters")
             return
         }
 
-        // Проверка совпадения паролей
         if (state.password != state.confirmPassword) {
             _uiState.value = _uiState.value.copy(errorMessage = "Passwords do not match")
             return
         }
 
-        // Валидация числовых полей
         try {
             val weight = state.weight.toInt()
             val height = state.height.toInt()
@@ -191,13 +185,11 @@ class RegistrationViewModel : ViewModel() {
             val calorieGoal = state.calorieGoal.toInt()
             val workoutsGoal = state.workoutsGoal.toInt()
 
-            // Проверка на неотрицательность
             if (weight < 0 || height < 0 || stepGoal < 0 || waterIntake < 0 || calorieGoal < 0 || workoutsGoal < 0) {
                 _uiState.value = _uiState.value.copy(errorMessage = "Numeric fields cannot be negative")
                 return
             }
 
-            // Проверка минимального роста
             if (height < 130) {
                 _uiState.value = _uiState.value.copy(errorMessage = "Height must be at least 130 cm")
                 return
