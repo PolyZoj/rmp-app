@@ -42,9 +42,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ifmo.rmp.R
 import com.ifmo.rmp.data.model.ClubInfoResponse
+import com.ifmo.rmp.data.model.StatsResponse
 import com.ifmo.rmp.data.model.UserDtoResponse
+import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.EmojiIcon
+import com.ifmo.rmp.ui.components.InfoBlock
 import com.ifmo.rmp.ui.navigation.Routes
 import kotlinx.coroutines.launch
 
@@ -63,8 +66,10 @@ fun ManageClubScreen(
     val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
     
     val userRepository = remember { UserRepository.getInstance(context) }
+    val statsRepository = remember { StatsRepository.getInstance(context) }
     
     val memberUsers = remember { mutableStateMapOf<String, UserDtoResponse?>() }
+    val memberStats = remember { mutableStateMapOf<String, StatsResponse?>() }
     val coroutineScope = rememberCoroutineScope()
     
     LaunchedEffect(clubId) {
@@ -80,6 +85,16 @@ fun ManageClubScreen(
                     val result = userRepository.getUserData(memberId)
                     result.onSuccess { userData ->
                         memberUsers[memberId] = userData
+                    }
+                }
+            }
+            
+            // Load stats for each member
+            if (!memberStats.containsKey(memberId)) {
+                coroutineScope.launch {
+                    val result = statsRepository.getStats(memberId)
+                    result.onSuccess { statsData ->
+                        memberStats[memberId] = statsData
                     }
                 }
             }
@@ -259,9 +274,11 @@ fun ManageClubScreen(
                             ) {
                                 items(club.members) { memberId ->
                                     val memberData = memberUsers[memberId]
+                                    val memberStat = memberStats[memberId]
                                     MemberItem(
                                         memberId = memberId,
                                         userData = memberData,
+                                        stats = memberStat,
                                         isOwner = club.ownerId == memberId,
                                         isLoading = !memberUsers.containsKey(memberId),
                                         onRemove = {
@@ -338,6 +355,7 @@ fun ManageClubScreen(
 fun MemberItem(
     memberId: String,
     userData: UserDtoResponse?,
+    stats: StatsResponse? = null,
     isOwner: Boolean,
     isLoading: Boolean,
     onRemove: () -> Unit,
@@ -345,186 +363,336 @@ fun MemberItem(
     isCurrentUser: Boolean = false,
     onUserClick: (String) -> Unit = {}
 ) {
-    Row(
+    val context = LocalContext.current
+    var userStats by remember { mutableStateOf(stats) }
+    var isLoadingStats by remember { mutableStateOf(stats == null) }
+    
+    LaunchedEffect(memberId, stats) {
+        if (stats == null) {
+            isLoadingStats = true
+            val statsRepository = StatsRepository.getInstance(context)
+            val result = statsRepository.getStats(memberId)
+            result.onSuccess { statsData ->
+                userStats = statsData
+            }
+            isLoadingStats = false
+        } else {
+            userStats = stats
+            isLoadingStats = false
+        }
+    }
+    
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp, horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(vertical = 12.dp, horizontal = 16.dp)
     ) {
-        if (isLoading) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Loading user information...",
-                    color = Color.Gray
-                )
-            }
-        } else if (userData != null) {
-            // Display user information with click action
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clickable { onUserClick(memberId) }
-                    .weight(1f)
-            ) {
-                // User Avatar
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray),
-                    contentAlignment = Alignment.Center
-                ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            if (isLoading) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = userData.first_name.take(1).uppercase(),
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
+                        text = "Loading user information...",
+                        color = Color.Gray
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(12.dp))
-                
-                Column {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+            } else if (userData != null) {
+                // Display user information with click action
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clickable { onUserClick(memberId) }
+                        .weight(1f)
+                ) {
+                    // User Avatar
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "${userData.first_name} ${userData.last_name}",
-                            fontWeight = FontWeight.Medium
-                        )
-                        
-                        // Add a small "View Profile" icon/text to indicate this is clickable
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "View",
-                            fontSize = 10.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                        )
-                    }
-                    
-                    Text(
-                        text = "@${userData.username}",
-                        color = Color.Gray,
-                        fontSize = 12.sp
-                    )
-                    
-                    if (isOwner) {
-                        Text(
-                            text = "Owner",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 12.sp,
+                            text = userData.first_name.take(1).uppercase(),
+                            color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
                     }
-                }
-            }
-            
-            // Show delete button only if:
-            // 1. Current user is the owner and viewing a non-owner member
-            // 2. Current user is viewing their own member item (to leave the club)
-            val showDeleteButton = (isCurrentUserOwner && !isOwner) || (isCurrentUser && !isOwner)
-            
-            if (showDeleteButton) {
-                IconButton(
-                    onClick = onRemove
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
-                        tint = Color.Red.copy(alpha = 0.7f)
-                    )
-                }
-            }
-        } else {
-            // User data not loaded yet, but show their ID
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clickable { onUserClick(memberId) }
-                    .weight(1f)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = memberId.take(1).uppercase(),
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                
-                Spacer(modifier = Modifier.width(12.dp))
-                
-                Column {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "User ID: $memberId",
-                            fontWeight = FontWeight.Medium
-                        )
+                    
+                    Spacer(modifier = Modifier.width(12.dp))
+                    
+                    Column {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${userData.first_name} ${userData.last_name}",
+                                fontWeight = FontWeight.Medium
+                            )
+                            
+                            // Add a small "View Profile" icon/text to indicate this is clickable
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "View",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                        shape = RoundedCornerShape(4.dp)
+                                    )
+                                    .padding(horizontal = 4.dp, vertical = 1.dp)
+                            )
+                        }
                         
-                        // Add a small "View Profile" icon/text to indicate this is clickable
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "View",
-                            fontSize = 10.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                        )
-                    }
-                    
-                    Text(
-                        text = "Unable to load user details",
-                        color = Color.Red,
-                        fontSize = 12.sp
-                    )
-                    
-                    if (isOwner) {
-                        Text(
-                            text = "Owner",
-                            color = MaterialTheme.colorScheme.primary,
+                            text = "@${userData.username}",
+                            color = Color.Gray,
                             fontSize = 12.sp
                         )
+                        
+                        if (isOwner) {
+                            Text(
+                                text = "Owner",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                
+                // Show delete button only if:
+                // 1. Current user is the owner and viewing a non-owner member
+                // 2. Current user is viewing their own member item (to leave the club)
+                val showDeleteButton = (isCurrentUserOwner && !isOwner) || (isCurrentUser && !isOwner)
+                
+                if (showDeleteButton) {
+                    IconButton(
+                        onClick = onRemove
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
+                            tint = Color.Red.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            } else {
+                // User data not loaded yet, but show their ID
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clickable { onUserClick(memberId) }
+                        .weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = memberId.take(1).uppercase(),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(12.dp))
+                    
+                    Column {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "User ID: $memberId",
+                                fontWeight = FontWeight.Medium
+                            )
+                            
+                            // Add a small "View Profile" icon/text to indicate this is clickable
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "View",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                        shape = RoundedCornerShape(4.dp)
+                                    )
+                                    .padding(horizontal = 4.dp, vertical = 1.dp)
+                            )
+                        }
+                        
+                        Text(
+                            text = "Unable to load user details",
+                            color = Color.Red,
+                            fontSize = 12.sp
+                        )
+                        
+                        if (isOwner) {
+                            Text(
+                                text = "Owner",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+                
+                // Same logic for showing delete button
+                val showDeleteButton = (isCurrentUserOwner && !isOwner) || (isCurrentUser && !isOwner)
+                
+                if (showDeleteButton) {
+                    IconButton(
+                        onClick = onRemove
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
+                            tint = Color.Red.copy(alpha = 0.7f)
+                        )
                     }
                 }
             }
+        }
+        
+        // Display user stats in InfoBlocks
+        if (!isLoading && userData != null) {
+            Spacer(modifier = Modifier.height(8.dp))
             
-            // Same logic for showing delete button
-            val showDeleteButton = (isCurrentUserOwner && !isOwner) || (isCurrentUser && !isOwner)
-            
-            if (showDeleteButton) {
-                IconButton(
-                    onClick = onRemove
+            if (isLoadingStats) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
-                        tint = Color.Red.copy(alpha = 0.7f)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Loading stats...", fontSize = 12.sp, color = Color.Gray)
+                }
+            } else if (userStats != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    // Level - no progress bar
+                    LevelStatItem(
+                        value = userStats!!.level.toString()
+                    )
+                    
+                    // Steps
+                    CompactStatItem(
+                        label = "Steps",
+                        value = userStats!!.steps_count.toString(),
+                        percentage = (userStats!!.steps_count * 100 / 10000).coerceIn(0, 100)
+                    )
+                    
+                    // Water
+                    CompactStatItem(
+                        label = "Water",
+                        value = userStats!!.water_count.toString(),
+                        percentage = (userStats!!.water_count * 100 / 10).coerceIn(0, 100)
+                    )
+                    
+                    // Workouts
+                    CompactStatItem(
+                        label = "Workout",
+                        value = userStats!!.workouts_count.toString(),
+                        percentage = (userStats!!.workouts_count * 100 / 2).coerceIn(0, 100)
                     )
                 }
+            } else {
+                Text(
+                    text = "Stats not available",
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LevelStatItem(value: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 2.dp)
+    ) {
+        Text(
+            text = "Lvl",
+            fontSize = 10.sp,
+            color = Color.Gray
+        )
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
+        // Adding a spacer with the same height as the progress bar
+        // to keep alignment with other stats
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+}
+
+@Composable
+private fun CompactStatItem(
+    label: String,
+    value: String,
+    percentage: Int
+) {
+    val percentageColor = if (percentage >= 50) Color(0xFF228D00) else Color(0xFFFF9800)
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(horizontal = 2.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = Color.Gray
+        )
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
+        
+        // Progress bar with fixed width
+        Box(
+            modifier = Modifier
+                .width(36.dp)
+                .height(4.dp)
+                .background(Color.LightGray, RoundedCornerShape(2.dp))
+        ) {
+            // Only show the filled part if there's progress
+            if (percentage > 0) {
+                Box(
+                    modifier = Modifier
+                        .width((36.dp * percentage / 100f))
+                        .height(4.dp)
+                        .background(percentageColor, RoundedCornerShape(2.dp))
+                )
             }
         }
     }
