@@ -215,36 +215,60 @@ class ClubsViewModel : ViewModel() {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
-                val repository = getClubRepository(context)
-                val result = repository.addMember(clubId, userId)
-
-                result.fold(
-                    onSuccess = { response ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            lastMemberOperation = response,
-                            isSuccess = true,
-                            errorMessage = ""
-                        )
-
-                        // Get the current user ID to check if we are joining
-                        val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-                        val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
-                        
-                        // If the current user is joining, update their current club
-                        if (userId == currentUserId) {
-                            // Force load the club as current club
-                            getClubInfo(context, clubId, forceLoad = true)
+                // First check if the user is already in another club
+                val userRepository = UserRepository.getInstance(context)
+                val userDataResult = userRepository.getUserData(userId)
+                
+                userDataResult.fold(
+                    onSuccess = { userData ->
+                        // Check if user is already in a club (club_id is not null and not 0)
+                        if (userData.club_id != null && userData.club_id != 0) {
+                            // User is already in another club
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                errorMessage = "User ${userData.username} is already in another club"
+                            )
                         } else {
-                            // Refresh club info after adding another member
-                            getClubInfo(context, clubId)
+                            // User is not in a club, proceed with adding
+                            val repository = getClubRepository(context)
+                            val result = repository.addMember(clubId, userId)
+
+                            result.fold(
+                                onSuccess = { response ->
+                                    _uiState.value = _uiState.value.copy(
+                                        isLoading = false,
+                                        lastMemberOperation = response,
+                                        isSuccess = true,
+                                        errorMessage = ""
+                                    )
+
+                                    // Get the current user ID to check if we are joining
+                                    val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                                    val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+                                    
+                                    // If the current user is joining, update their current club
+                                    if (userId == currentUserId) {
+                                        // Force load the club as current club
+                                        getClubInfo(context, clubId, forceLoad = true)
+                                    } else {
+                                        // Refresh club info after adding another member
+                                        getClubInfo(context, clubId)
+                                    }
+                                    
+                                    // Also refresh the clubs list to update join status
+                                    getClubsList(context)
+                                },
+                                onFailure = { exception ->
+                                    handleError(exception)
+                                }
+                            )
                         }
-                        
-                        // Also refresh the clubs list to update join status
-                        getClubsList(context)
                     },
                     onFailure = { exception ->
-                        handleError(exception)
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = "Failed to get user data: ${exception.message ?: "Unknown error"}"
+                        )
                     }
                 )
             } catch (e: Exception) {
@@ -267,15 +291,36 @@ class ClubsViewModel : ViewModel() {
                 userIdResult.fold(
                     onSuccess = { response ->
                         val userId = response.user_id
-                        addMember(context, clubId, userId)
+                        
+                        // Get user data to check if they are already in a club
+                        val userDataResult = userRepository.getUserData(userId)
+                        
+                        userDataResult.fold(
+                            onSuccess = { userData ->
+                                // Check if user is already in a club (club_id is not null and not 0)
+                                if (userData.club_id != null && userData.club_id != 0) {
+                                    // User is already in another club
+                                    _uiState.value = _uiState.value.copy(
+                                        isLoading = false,
+                                        errorMessage = "User ${userData.username} is already in another club"
+                                    )
+                                } else {
+                                    // User is not in a club, proceed with adding
+                                    addMember(context, clubId, userId)
+                                }
+                            },
+                            onFailure = { exception ->
+                                _uiState.value = _uiState.value.copy(
+                                    isLoading = false,
+                                    errorMessage = "Failed to get user data: ${exception.message ?: "Unknown error"}"
+                                )
+                            }
+                        )
                     },
                     onFailure = { exception ->
-                        // Ignore errors and attempt to add with the username directly
-                        // This handles the case where username doesn't exist but we want to proceed anyway
-//                        addMember(context, clubId, username)
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            errorMessage = "Network error: ${exception.message ?: "Unknown error"}"
+                            errorMessage = "User not found: ${exception.message ?: "Unknown error"}"
                         )
                     }
                 )
