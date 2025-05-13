@@ -40,7 +40,8 @@ fun ProfileScreen(
     val achievements by viewModel.challengesList.collectAsState()
     val friends by viewModel.friends.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val isStatsLoading by viewModel.isStatsLoading.collectAsState()
+    val isSearchLoading by viewModel.isSearchLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
     val steps by viewModel.steps.collectAsState()
@@ -58,15 +59,9 @@ fun ProfileScreen(
 
     var searchQuery by remember { mutableStateOf("") }
 
-    LaunchedEffect(sharedPreferences) {
+    LaunchedEffect(Unit) {
         viewModel.loadUser(userId)
-    }
-
-    LaunchedEffect(sharedPreferences) {
         viewModel.loadFriends()
-    }
-
-    LaunchedEffect(sharedPreferences) {
         viewModel.loadStats(context, userId)
     }
 
@@ -154,21 +149,21 @@ fun ProfileScreen(
                 ) {
                     InfoBlock(
                         title = "Total Steps",
-                        value = if (isLoading) "Loading..." else "$steps",
+                        value = if (isStatsLoading) "Loading..." else "$steps",
                         percentage = stepPercentage,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(1.dp))
                     InfoBlock(
                         title = "Water Intake",
-                        value = if (isLoading) "Loading..." else "$waterIntake",
+                        value = if (isStatsLoading) "Loading..." else "$waterIntake",
                         percentage = waterPercentage,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(1.dp))
                     InfoBlock(
                         title = "Workouts",
-                        value = if (isLoading) "Loading..." else "$workouts",
+                        value = if (isStatsLoading) "Loading..." else "$workouts",
                         percentage = workoutPercentage,
                         modifier = Modifier.weight(1f)
                     )
@@ -264,25 +259,31 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(bottom = 42.dp)
-                    ) {
-                        items(displayedFriends) { friend ->
-                            val avatarResId = remember(friend.avatar_url) {
-                                val resourceName = friend.avatar_url ?: "e_profile"
-                                val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
-                                if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
-                            }
-
-                            PersonField(
-                                name = friend.username,
-                                iconResId = avatarResId,
-                                onClick = {
-                                    navController.navigate(Routes.anotherPerson(friend.user_id))
+                    if (isSearchLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    } else {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(bottom = 42.dp)
+                        ) {
+                            items(displayedFriends) { friend ->
+                                val avatarResId = remember(friend.avatar_url) {
+                                    val resourceName = friend.avatar_url ?: "e_profile"
+                                    val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                                    if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
                                 }
-                            )
+
+                                PersonField(
+                                    name = friend.username,
+                                    iconResId = avatarResId,
+                                    onClick = {
+                                        navController.navigate(Routes.anotherPerson(friend.user_id))
+                                    }
+                                )
+                            }
                         }
                     }
                 }

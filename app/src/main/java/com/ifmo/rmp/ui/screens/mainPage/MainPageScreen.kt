@@ -176,7 +176,7 @@ fun MainPageScreen(navController: NavController) {
                         Spacer(modifier = Modifier.width(1.dp))
                         InfoBlock(
                             title = "Water Intake",
-                            value = if (isLoading) "Loading..." else "$waterIntake cups",
+                            value = if (isLoading) "Loading..." else "$waterIntake",
                             percentage = waterPercentage,
                             modifier = Modifier.weight(1f)
                         )

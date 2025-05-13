@@ -29,8 +29,11 @@ class ProfileViewModel(
     private val _searchResults = MutableStateFlow<List<FriendStructure>>(emptyList())
     val searchResults: StateFlow<List<FriendStructure>> = _searchResults
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    private val _isStatsLoading = MutableStateFlow(false)
+    val isStatsLoading: StateFlow<Boolean> = _isStatsLoading
+
+    private val _isSearchLoading = MutableStateFlow(false)
+    val isSearchLoading: StateFlow<Boolean> = _isSearchLoading
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -76,7 +79,7 @@ class ProfileViewModel(
 
     fun loadUser(userId: String) {
         viewModelScope.launch {
-            _isLoading.value = true
+            _isStatsLoading.value = true
             val result = userRepository.getUserData(userId)
             val achievements = challengesRepository.getAchievementsById(userId)
 
@@ -96,7 +99,7 @@ class ProfileViewModel(
                 _errorMessage.value = "Failed to load achievements: ${it.message}"
             }
 
-            _isLoading.value = false
+            _isStatsLoading.value = false
         }
     }
 
@@ -113,7 +116,7 @@ class ProfileViewModel(
 
     fun searchFriends(query: String) {
         viewModelScope.launch {
-            _isLoading.value = true
+            _isSearchLoading.value = true
             val result = userRepository.findFriends(query)
             result.onSuccess {
                 _searchResults.value = it.possible_friend
@@ -121,7 +124,7 @@ class ProfileViewModel(
             }.onFailure {
                 _errorMessage.value = "Failed to search friends: ${it.message}"
             }
-            _isLoading.value = false
+            _isSearchLoading.value = false
         }
     }
 
@@ -136,6 +139,8 @@ class ProfileViewModel(
         }
 
         viewModelScope.launch {
+            Log.d("ProfileViewModel", "loadStats called for userId: $userId")
+            _isStatsLoading.value = true
             val statsRepository = StatsRepository.getInstance(context)
             val result = statsRepository.getStats(userId)
 
@@ -157,6 +162,7 @@ class ProfileViewModel(
                 _workoutPercentage.value = 0
                 _errorMessage.value = "Failed to load statistics: ${it.message}"
             }
+            _isStatsLoading.value = false
         }
     }
 
