@@ -40,7 +40,7 @@ class ClubsViewModel : ViewModel() {
         )
     }
 
-    fun getClubInfo(context: Context, clubId: String? = null) {
+    fun getClubInfo(context: Context, clubId: String? = null, forceLoad: Boolean = false) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
@@ -50,7 +50,7 @@ class ClubsViewModel : ViewModel() {
                 val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
                 
                 // If clubId is not provided, get it from the user's profile
-                val finalClubId = if (clubId.isNullOrBlank() && currentUserId.isNotBlank()) {
+                val finalClubId = if (clubId.isNullOrBlank() && currentUserId.isNotBlank() && !forceLoad) {
                     val userRepository = UserRepository.getInstance(context)
                     val userResult = userRepository.getUserData(currentUserId)
                     
@@ -75,15 +75,26 @@ class ClubsViewModel : ViewModel() {
                     result.fold(
                         onSuccess = { clubInfo ->
                             // Mark the club as joined if the user is a member
-                            val isJoined = clubInfo.members.contains(currentUserId)
-                            val updatedClubInfo = clubInfo.copy(isJoined = isJoined)
+                            val isMember = clubInfo.members.contains(currentUserId)
+                            val updatedClubInfo = clubInfo.copy(isJoined = isMember)
                             
-                            _uiState.value = _uiState.value.copy(
-                                isLoading = false,
-                                clubInfo = updatedClubInfo,
-                                errorMessage = ""
-                            )
-                            println("Club info loaded successfully: ${updatedClubInfo.name}, isJoined=$isJoined")
+                            // Only set as current club if user is actually a member or this is a forced load
+                            if (isMember || forceLoad) {
+                                _uiState.value = _uiState.value.copy(
+                                    isLoading = false,
+                                    clubInfo = updatedClubInfo,
+                                    errorMessage = ""
+                                )
+                                println("Club info loaded successfully: ${updatedClubInfo.name}, isMember=$isMember")
+                            } else {
+                                // If user is not a member, update the club list but don't set as current club
+                                getClubsList(context)
+                                _uiState.value = _uiState.value.copy(
+                                    isLoading = false,
+                                    errorMessage = ""
+                                )
+                                println("User is not a member of club ${updatedClubInfo.name}, not setting as current club")
+                            }
                         },
                         onFailure = { exception ->
                             println("Error loading club info: ${exception.message}")
@@ -213,8 +224,19 @@ class ClubsViewModel : ViewModel() {
                             errorMessage = ""
                         )
 
-                        // Refresh club info after adding member
-                        getClubInfo(context, clubId)
+                        // Get the current user ID to check if we are joining
+                        val sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                        val currentUserId = sharedPreferences.getString("user_id", "") ?: ""
+                        
+                        // If the current user is joining, update their current club
+                        if (userId == currentUserId) {
+                            // Force load the club as current club
+                            getClubInfo(context, clubId, forceLoad = true)
+                        } else {
+                            // Refresh club info after adding another member
+                            getClubInfo(context, clubId)
+                        }
+                        
                         // Also refresh the clubs list to update join status
                         getClubsList(context)
                     },
