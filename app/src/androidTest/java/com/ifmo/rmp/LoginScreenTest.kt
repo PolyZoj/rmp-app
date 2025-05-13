@@ -1,6 +1,7 @@
 package com.ifmo.rmp
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -16,7 +17,6 @@ class LoginScreenTest {
 
     @Test
     fun testLoginScreenElements() {
-        // Проверяем наличие основных элементов
         composeTestRule.onNodeWithText("Welcome to PolyZoj community!").assertExists()
         composeTestRule.onNodeWithText("Enter your username").assertExists()
         composeTestRule.onNodeWithText("Enter your password").assertExists()
@@ -27,24 +27,26 @@ class LoginScreenTest {
 
     @Test
     fun testEmptyLogin() {
-        // Нажимаем кнопку без ввода данных
         composeTestRule.onNodeWithText("Log in").performClick()
-
-        // Проверяем сообщение об ошибке
         composeTestRule.onNodeWithText("Fields cannot be empty").assertExists()
     }
 
 
     @Test
     fun testSuccessfulLogin() {
-        // Вводим тестовые данные
         composeTestRule.onNodeWithText("Enter your username").performTextInput("bebra52")
         composeTestRule.onNodeWithText("Enter your password").performTextInput("bebra!")
 
-        // Нажимаем кнопку входа
         composeTestRule.onNodeWithText("Log in").performClick()
 
-        // Проверяем переход на главный экран
-        composeTestRule.onNodeWithText("Welcome,").assertExists()
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithTag("welcome_text").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+
+        composeTestRule.onNodeWithTag("welcome_text").assertExists()
     }
+
+
 }

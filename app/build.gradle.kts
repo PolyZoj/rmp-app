@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.ui.test.junit4.android)
+//    implementation(libs.androidx.ui.test.junit4.android)
     testImplementation(libs.junit)
     testImplementation("junit:junit:4.13.2")
 //    androidTestImplementation(libs.androidx.junit)

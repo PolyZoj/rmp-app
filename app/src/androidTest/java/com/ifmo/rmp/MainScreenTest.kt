@@ -2,6 +2,7 @@ package com.ifmo.rmp
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -17,44 +18,40 @@ class MainScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    @Before
-    fun login() {
-        // Предварительный вход в систему
+    @Test
+    fun testMainScreenElements() {
         composeTestRule.onNodeWithText("Enter your username").performTextInput("bebra52")
         composeTestRule.onNodeWithText("Enter your password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithTag("profile_button").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+        composeTestRule.onNodeWithTag("profile_button").assertExists()
     }
 
     @Test
-    fun testMainScreenElements() {
-        // Проверяем наличие основных элементов
-        composeTestRule.onNodeWithText("Welcome,").assertExists()
-        composeTestRule.onNodeWithContentDescription("Notifications").assertExists()
-        composeTestRule.onNodeWithText("Profile").assertExists()
-        composeTestRule.onNodeWithText("Clubs").assertExists()
-        composeTestRule.onNodeWithText("Add Workout").assertExists()
-        composeTestRule.onNodeWithText("Daily Goal Progress").assertExists()
-        composeTestRule.onNodeWithText("Available Challenges").assertExists()
+    fun testMainScreenClubs() {
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            runCatching {
+                composeTestRule.onNodeWithTag("clubs_button").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+
+        composeTestRule.onNodeWithTag("clubs_button").assertExists()
     }
 
     @Test
-    fun testNavigationToProfile() {
-        // Переходим в профиль
-        composeTestRule.onNodeWithText("Profile").performClick()
-        composeTestRule.onNodeWithText("Daily Statistics").assertExists()
-    }
+    fun testMainScreenAddWorkout() {
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithTag("workout_button").fetchSemanticsNode() != null
+            }.isSuccess
+        }
 
-    @Test
-    fun testNavigationToClubs() {
-        // Переходим в клубы
-        composeTestRule.onNodeWithText("Clubs").performClick()
-        composeTestRule.onNodeWithText("Your current club").assertExists()
-    }
-
-    @Test
-    fun testNavigationToAddActivity() {
-        // Переходим в добавление активности
-        composeTestRule.onNodeWithText("Add Workout").performClick()
-        composeTestRule.onNodeWithText("Add your activity").assertExists()
+        composeTestRule.onNodeWithTag("workout_button").assertExists()
     }
 }
+

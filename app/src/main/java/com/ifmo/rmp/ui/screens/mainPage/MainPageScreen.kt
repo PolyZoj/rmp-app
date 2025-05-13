@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,7 +94,8 @@ fun MainPageScreen(navController: NavController) {
                             text = "Welcome, $userFullName!",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            fontFamily = LatoFont
+                            fontFamily = LatoFont,
+                            modifier = Modifier.testTag("welcome_text")
                         )
                         IconButton(
                             onClick = { viewModel.showNotificationsDialog() }
@@ -114,7 +116,8 @@ fun MainPageScreen(navController: NavController) {
                         BigEmojiButton(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(horizontal = 4.dp),
+                                .padding(horizontal = 4.dp)
+                                .testTag("profile_button"),
                             emojiResId = R.drawable.e_mainprofile,
                             text = "Profile",
                             onClick = {
@@ -130,7 +133,8 @@ fun MainPageScreen(navController: NavController) {
                         BigEmojiButton(
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(horizontal = 4.dp),
+                                .padding(horizontal = 4.dp)
+                                .testTag("clubs_button"),
                             emojiResId = R.drawable.e_mainclubs,
                             text = "Clubs",
                             onClick = {
@@ -150,6 +154,7 @@ fun MainPageScreen(navController: NavController) {
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(horizontal = 4.dp)
+                                .testTag("workout_button")
                         )
                     }
                 }
