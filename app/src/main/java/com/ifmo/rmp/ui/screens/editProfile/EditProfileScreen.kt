@@ -34,7 +34,7 @@ fun EditProfileScreen(
 
     LaunchedEffect(viewModel.showSuccessMessage.value) {
         if (viewModel.showSuccessMessage.value) {
-            snackbarHostState.showSnackbar("✅ User Profile Settings successfully edited")
+            snackbarHostState.showSnackbar("User Profile Settings successfully edited")
             viewModel.resetSuccessMessage()
         }
     }

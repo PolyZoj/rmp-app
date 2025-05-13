@@ -40,8 +40,8 @@ fun AddActivityScreen(onNavigateBack: () -> Unit) {
     val successMessage by viewModel.successMessage.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var steps by remember { mutableStateOf(100) }
-    var water by remember { mutableStateOf(100) }
+    var steps by remember { mutableIntStateOf(100) }
+    var water by remember { mutableIntStateOf(100) }
     var timeInput by remember { mutableStateOf("") }
 
     LaunchedEffect(errorMessage, successMessage) {

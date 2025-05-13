@@ -154,12 +154,12 @@ fun ActivitiesScreen(navController: NavController) {
                 EmojiAndTextWithDescriptionLine(
                     iconResId = R.drawable.e_step,
                     title = "John Doe",
-                    subtitle = "Steps: 8000, Calories: 1200"
+                    subtitle = "Steps: 8000 | Calories: 1200"
                 )
                 EmojiAndTextWithDescriptionLine(
                     iconResId = R.drawable.e_step,
                     title = "Jane Doe",
-                    subtitle = "Steps: 12000, Calories: 790"
+                    subtitle = "Steps: 12000 | Calories: 790"
                 )
             }
         }
