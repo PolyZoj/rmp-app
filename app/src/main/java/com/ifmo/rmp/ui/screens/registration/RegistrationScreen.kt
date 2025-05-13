@@ -2,7 +2,6 @@ package com.ifmo.rmp.ui.screens.registration
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -217,6 +216,20 @@ fun RegistrationScreen(
                 onValueChange = viewModel::onCalorieGoalChange,
                 label = "Calorie Goal",
                 placeholder = "Enter daily calorie goal",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+
+        item {
+            CustomTextField(
+                value = uiState.workoutsGoal,
+                onValueChange = viewModel::onWorkoutsGoalChange,
+                label = "Workouts Goal",
+                placeholder = "Enter daily workout goal",
                 modifier = Modifier.fillMaxWidth()
             )
         }

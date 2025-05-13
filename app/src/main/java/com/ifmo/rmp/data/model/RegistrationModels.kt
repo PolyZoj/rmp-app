@@ -17,7 +17,7 @@ data class RegistrationRequest(
     val water_intake_goal: Int,
     val calorie_goal: Int,
     val sleep_goal: Float = 8.0f,
-    val workouts_goal: Int = 4
+    val workouts_goal: Int
 )
 
 data class RegistrationResponse(
