@@ -200,16 +200,24 @@ fun MainPageScreen(navController: NavController) {
 
                 item {
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 0.dp)
                     ) {
-                        this@LazyColumn.items(achievements) { achievement ->
-                            EmojiAndTextWithDescriptionLine(
-                                iconResId = getDrawableResId(achievement.icon),
-                                title = achievement.title,
-                                subtitle = achievement.description
-                            )
-                        }
+                        achievements
+                            .take(10)
+                            .filter { it.status == "IN_PROGRESS" }
+                            .forEach { achievement ->
+                                EmojiAndTextWithDescriptionLine(
+                                    iconResId = getDrawableResId(achievement.icon),
+                                    title = achievement.title,
+                                    subtitle = achievement.description,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 2.dp)
+                                )
+                            }
                     }
                 }
             }

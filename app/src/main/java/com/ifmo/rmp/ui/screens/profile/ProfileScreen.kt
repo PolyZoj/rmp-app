@@ -186,7 +186,6 @@ fun ProfileScreen(
                 ) {
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(achievements.take(10)) { achievement ->
                             if (achievement.status == "COMPLETED") {
