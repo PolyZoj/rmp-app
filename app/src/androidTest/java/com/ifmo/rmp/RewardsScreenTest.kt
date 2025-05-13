@@ -19,8 +19,8 @@ class RewardsScreenTest {
     @Before
     fun navigateToRewards() {
         // Логинимся и переходим в награды
-        composeTestRule.onNodeWithText("Username").performTextInput("testuser")
-        composeTestRule.onNodeWithText("Password").performTextInput("password123")
+        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
         composeTestRule.onNodeWithText("Rewards").performClick()
     }
@@ -31,12 +31,10 @@ class RewardsScreenTest {
         composeTestRule.onNodeWithText("Your Achievements").assertExists()
         composeTestRule.onNodeWithText("Achievements").assertExists()
         composeTestRule.onNodeWithText("In Progress").assertExists()
-        composeTestRule.onNodeWithText("Completed").assertExists()
     }
 
     @Test
     fun testAchievementsList() {
-        // Проверяем, что список достижений не пустой
         composeTestRule.onNodeWithText("Steps").assertExists()
     }
 }

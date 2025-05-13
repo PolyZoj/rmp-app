@@ -20,8 +20,8 @@ class MainScreenTest {
     @Before
     fun login() {
         // Предварительный вход в систему
-        composeTestRule.onNodeWithText("Username").performTextInput("testuser")
-        composeTestRule.onNodeWithText("Password").performTextInput("password123")
+        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
     }
 
@@ -54,6 +54,7 @@ class MainScreenTest {
     @Test
     fun testNavigationToAddActivity() {
         // Переходим в добавление активности
+        composeTestRule.onNodeWithText("Activities").performClick()
         composeTestRule.onNodeWithText("Add Workout").performClick()
         composeTestRule.onNodeWithText("Add your activity").assertExists()
     }

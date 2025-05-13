@@ -19,8 +19,8 @@ class ProfileScreenTest {
     @Before
     fun navigateToProfile() {
         // Логинимся и переходим в профиль
-        composeTestRule.onNodeWithText("Username").performTextInput("testuser")
-        composeTestRule.onNodeWithText("Password").performTextInput("password123")
+        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
         composeTestRule.onNodeWithText("Profile").performClick()
     }
@@ -40,7 +40,7 @@ class ProfileScreenTest {
     @Test
     fun testNavigationToEditProfile() {
         // Нажимаем на имя пользователя для перехода в редактирование
-        composeTestRule.onNodeWithText("Unknown").performClick()
+        composeTestRule.onNodeWithText("bebra52").performClick()
         composeTestRule.onNodeWithText("User Profile Settings").assertExists()
     }
 
