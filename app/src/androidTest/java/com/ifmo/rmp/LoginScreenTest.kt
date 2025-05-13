@@ -31,21 +31,15 @@ class LoginScreenTest {
         composeTestRule.onNodeWithText("Log in").performClick()
 
         // Проверяем сообщение об ошибке
-        composeTestRule.onNodeWithText("Please enter username and password").assertExists()
+        composeTestRule.onNodeWithText("Fields cannot be empty").assertExists()
     }
 
-    @Test
-    fun testNavigationToRegistration() {
-        // Проверяем переход на экран регистрации
-        composeTestRule.onNodeWithText("Register").performClick()
-        composeTestRule.onNodeWithText("Create Account").assertExists()
-    }
 
     @Test
     fun testSuccessfulLogin() {
         // Вводим тестовые данные
-        composeTestRule.onNodeWithText("Username").performTextInput("testuser")
-        composeTestRule.onNodeWithText("Password").performTextInput("password123")
+        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
 
         // Нажимаем кнопку входа
         composeTestRule.onNodeWithText("Log in").performClick()

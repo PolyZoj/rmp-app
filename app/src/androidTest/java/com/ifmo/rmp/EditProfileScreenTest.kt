@@ -20,11 +20,11 @@ class EditProfileScreenTest {
     @Before
     fun navigateToEditProfile() {
         // Логинимся и переходим в редактирование профиля
-        composeTestRule.onNodeWithText("Username").performTextInput("testuser")
-        composeTestRule.onNodeWithText("Password").performTextInput("password123")
+        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
         composeTestRule.onNodeWithText("Profile").performClick()
-        composeTestRule.onNodeWithText("Unknown").performClick()
+        composeTestRule.onNodeWithText("bebra52").performClick()
     }
 
     @Test
@@ -48,7 +48,7 @@ class EditProfileScreenTest {
         composeTestRule.onNodeWithText("Save").performClick()
 
         // Проверяем сообщение об успешном сохранении
-        composeTestRule.onNodeWithText("User Profile Settings successfully edited").assertExists()
+        composeTestRule.onNodeWithText("✅ User Profile Settings successfully edited").assertExists()
     }
 
     @Test
