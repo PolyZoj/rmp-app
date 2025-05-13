@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.UserDtoResponse
+import com.ifmo.rmp.data.repository.ClubRepository
 import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
 import com.ifmo.rmp.ui.components.FriendButtonState
@@ -57,6 +58,9 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+    
+    private val _clubName = MutableStateFlow("No club")
+    val clubName: StateFlow<String> = _clubName
 
     fun loadUser(userId: String) {
     viewModelScope.launch {
@@ -71,11 +75,15 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
             val result = userRepository.getUserData(userId)
             result.onSuccess { userData ->
                 _user.value = userData
-                _friendButtonState.value = when (userData.status) {
-                    "YourFriend" -> FriendButtonState.RemoveFriend
-                    "InviteSent" -> FriendButtonState.InviteSent
-                    "NotYourFriend" -> FriendButtonState.AddFriend
-                    else -> FriendButtonState.AddFriend
+                if (userData.status != null) {
+                    _friendButtonState.value = when (userData.status) {
+                        "YourFriend" -> FriendButtonState.RemoveFriend
+                        "InviteSent" -> FriendButtonState.InviteSent
+                        "NotYourFriend" -> FriendButtonState.AddFriend
+                        else -> FriendButtonState.AddFriend
+                    }
+                } else {
+                    _friendButtonState.value = FriendButtonState.AddFriend
                 }
                 _stepGoal.value = userData.daily_step_goal
                 _waterGoal.value = userData.water_intake_goal
@@ -170,5 +178,32 @@ class AnotherPersonViewModel(private val userRepository: UserRepository) : ViewM
         _stepPercentage.value = if (_stepGoal.value > 0) ((_steps.value.toFloat() / _stepGoal.value) * 100).toInt() else 0
         _waterPercentage.value = if (_waterGoal.value > 0) ((_waterIntake.value.toFloat() / _waterGoal.value) * 100).toInt() else 0
         _workoutPercentage.value = if (_workoutGoal.value > 0) ((_workouts.value.toFloat() / _workoutGoal.value) * 100).toInt() else 0
+    }
+    
+    fun loadClubName(context: Context, clubId: Int?) {
+        if (clubId == null || clubId == 0) {
+            _clubName.value = "No club"
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val clubRepository = ClubRepository.getInstance(context)
+                val result = clubRepository.getClubInfo(clubId.toString())
+
+                result.fold(
+                    onSuccess = { club ->
+                        _clubName.value = club.name ?: "Unnamed Club"
+                    },
+                    onFailure = {
+                        _clubName.value = "Club #$clubId"
+                        _errorMessage.value = "Failed to load club information: ${it.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _clubName.value = "Club #$clubId"
+                _errorMessage.value = "Failed to load club information: ${e.message}"
+            }
+        }
     }
 }

@@ -57,12 +57,15 @@ class ClubsViewModel : ViewModel() {
                     userResult.fold(
                         onSuccess = { userData ->
                             // Convert club_id from Int to String
-                            userData.club_id?.toString() ?: ""
+                            val userClubId = userData.club_id?.toString() ?: ""
+                            // Treat "0" as empty (no club)
+                            if (userClubId == "0") "" else userClubId
                         },
                         onFailure = { "" }
                     )
                 } else {
-                    clubId ?: ""
+                    // Treat "0" as empty (no club)
+                    if (clubId == "0") "" else clubId ?: ""
                 }
                 
                 println("Getting club info for clubId: $finalClubId")

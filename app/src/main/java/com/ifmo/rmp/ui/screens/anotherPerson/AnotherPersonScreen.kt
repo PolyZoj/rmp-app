@@ -52,6 +52,7 @@ fun AnotherPersonScreen(
     val workoutPercentage by viewModel.workoutPercentage.collectAsState()
     val level by viewModel.level.collectAsState()
     val xp by viewModel.xp.collectAsState()
+    val clubName by viewModel.clubName.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -59,6 +60,15 @@ fun AnotherPersonScreen(
     LaunchedEffect(actualUserId) {
         viewModel.loadUser(actualUserId)
         viewModel.loadStats(context, actualUserId)
+    }
+
+    LaunchedEffect(userState?.club_id) {
+        if (userState?.club_id != null){
+            userState?.club_id?.let {
+                viewModel.loadClubName(context, it)
+            }
+        }
+        
     }
 
     LaunchedEffect(errorMessage) {
@@ -147,7 +157,7 @@ fun AnotherPersonScreen(
                             fontFamily = LatoFont
                         )
                         Text(
-                            text = userState?.club_id?.toString() ?: "No club",
+                            text = clubName,
                             fontSize = 16.sp,
                             fontFamily = LatoFont
                         )
@@ -194,12 +204,28 @@ fun AnotherPersonScreen(
                     FriendButton(
                         state = friendButtonState,
                         onAddFriend = {
-                            userState?.user_id?.let { viewModel.addFriend(it.toInt()) }
-                            onFriendActionClick()
+                            val userId = userState?.user_id
+                            if (userId != null && userId.isNotEmpty()) {
+                                try {
+                                    viewModel.addFriend(userId.toInt())
+                                    onFriendActionClick()
+                                } catch (e: NumberFormatException) {
+                                    // Handle invalid user ID format
+                                    viewModel.clearError()
+                                }
+                            }
                         },
                         onRemoveFriend = {
-                            userState?.user_id?.let { viewModel.removeFriend(it.toInt()) }
-                            onFriendActionClick()
+                            val userId = userState?.user_id
+                            if (userId != null && userId.isNotEmpty()) {
+                                try {
+                                    viewModel.removeFriend(userId.toInt())
+                                    onFriendActionClick()
+                                } catch (e: NumberFormatException) {
+                                    // Handle invalid user ID format
+                                    viewModel.clearError()
+                                }
+                            }
                         }
                     )
                 }

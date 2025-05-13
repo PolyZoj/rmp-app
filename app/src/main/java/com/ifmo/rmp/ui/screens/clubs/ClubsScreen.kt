@@ -137,9 +137,9 @@ fun ClubsScreen(
 
         // Display current club if available
         val currentClub = uiState.clubInfo
-        val hasJoinedClub = currentClub != null && currentClub.members.contains(currentUserId)
+        val hasJoinedClub = currentClub != null && currentClub.members.contains(currentUserId) && currentClub.id != "0"
         
-        if (currentClub != null) {
+        if (currentClub != null && currentClub.id != "0") {
             // Check if user is in the members list
             val isMember = currentClub.members.contains(currentUserId)
             

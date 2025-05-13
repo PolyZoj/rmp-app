@@ -173,7 +173,7 @@ class ProfileViewModel(
     }
 
     fun loadClubName(context: Context, clubId: Int?) {
-        if (clubId == null) {
+        if (clubId == null || clubId == 0) {
             _clubName.value = "No club"
             return
         }

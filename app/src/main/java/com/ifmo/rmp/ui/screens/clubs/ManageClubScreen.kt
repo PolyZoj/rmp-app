@@ -10,14 +10,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +58,14 @@ fun ManageClubScreen(
     clubId: String,
     viewModel: ClubsViewModel = viewModel()
 ) {
+    // Handle clubId "0" the same as blank or null
+    if (clubId == "0") {
+        LaunchedEffect(Unit) {
+            navController.navigateUp()
+        }
+        return
+    }
+    
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     
@@ -112,7 +120,7 @@ fun ManageClubScreen(
                 title = { Text("Manage Club", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -231,7 +239,7 @@ fun ManageClubScreen(
                                         },
                                         enabled = newMemberId.isNotBlank()
                                     ) {
-                                        Icon(Icons.Default.Add, contentDescription = "Add")
+                                        Icon(Icons.Filled.Add, contentDescription = "Add")
                                     }
                                 }
                             }
@@ -290,7 +298,7 @@ fun ManageClubScreen(
                                             navController.navigate(Routes.anotherPerson(userId))
                                         }
                                     )
-                                    Divider()
+                                    HorizontalDivider()
                                 }
                             }
                         }
@@ -480,7 +488,7 @@ fun MemberItem(
                         onClick = onRemove
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            imageVector = Icons.Filled.Delete,
                             contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
                             tint = Color.Red.copy(alpha = 0.7f)
                         )
@@ -559,7 +567,7 @@ fun MemberItem(
                         onClick = onRemove
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            imageVector = Icons.Filled.Delete,
                             contentDescription = if (isCurrentUser) "Leave club" else "Remove member",
                             tint = Color.Red.copy(alpha = 0.7f)
                         )
