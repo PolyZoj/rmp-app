@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.ifmo.rmp.R
 import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.ui.components.BigButton
+import java.util.Locale
 
 @Composable
 fun AddActivityScreen(onNavigateBack: () -> Unit) {
@@ -145,11 +146,11 @@ fun AddActivityScreen(onNavigateBack: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(68.dp)) {
-                listOf("Easy", "Normal", "Hard").forEach { level ->
+            Row(horizontalArrangement = Arrangement.spacedBy(65.dp)) {
+                listOf("Easy", "Medium", "Hard").forEach { level ->
                     val color = when (level) {
                         "Easy" -> Color(0xFF228D00)
-                        "Normal" -> Color(0xFFFF9800)
+                        "Medium" -> Color(0xFFFF9800)
                         "Hard" -> Color(0xFF8B0000)
                         else -> Color.Gray
                     }
@@ -189,7 +190,7 @@ fun AddActivityScreen(onNavigateBack: () -> Unit) {
                 onClick = {
                     val minutes = timeInput.toIntOrNull()
                     if (minutes != null) {
-                        viewModel.addWorkout(context, minutes)
+                        viewModel.addWorkout(context, minutes, selectedLevel.lowercase(Locale.ROOT))
                     } else {
                         viewModel.setErrorMessage("Enter a valid time in minutes")
                     }

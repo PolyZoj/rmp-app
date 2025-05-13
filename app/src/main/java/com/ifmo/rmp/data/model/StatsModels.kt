@@ -20,3 +20,9 @@ data class AddStatsResponse(
     val message: String,
     val params: List<Any>
 )
+
+data class AddWorkoutRequest(
+    val id: String,
+    val type: String,
+    val timeInSeconds: Int
+)
