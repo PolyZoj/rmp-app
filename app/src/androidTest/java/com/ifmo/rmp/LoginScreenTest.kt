@@ -18,8 +18,8 @@ class LoginScreenTest {
     fun testLoginScreenElements() {
         // Проверяем наличие основных элементов
         composeTestRule.onNodeWithText("Welcome to PolyZoj community!").assertExists()
-        composeTestRule.onNodeWithText("Username").assertExists()
-        composeTestRule.onNodeWithText("Password").assertExists()
+        composeTestRule.onNodeWithText("Enter your username").assertExists()
+        composeTestRule.onNodeWithText("Enter your password").assertExists()
         composeTestRule.onNodeWithText("Log in").assertExists()
         composeTestRule.onNodeWithText("Don't have an account?").assertExists()
         composeTestRule.onNodeWithText("Register").assertExists()
@@ -38,8 +38,8 @@ class LoginScreenTest {
     @Test
     fun testSuccessfulLogin() {
         // Вводим тестовые данные
-        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
-        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
+        composeTestRule.onNodeWithText("Enter your username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Enter your password").performTextInput("bebra!")
 
         // Нажимаем кнопку входа
         composeTestRule.onNodeWithText("Log in").performClick()
