@@ -5,6 +5,7 @@ import com.ifmo.rmp.data.api.NetworkModule
 import com.ifmo.rmp.data.api.StatsApiService
 import com.ifmo.rmp.data.model.AddStatsRequest
 import com.ifmo.rmp.data.model.AddStatsResponse
+import com.ifmo.rmp.data.model.AddWorkoutRequest
 import com.ifmo.rmp.data.model.StatsResponse
 
 class StatsRepository(private val statsApiService: StatsApiService) {
@@ -34,6 +35,15 @@ class StatsRepository(private val statsApiService: StatsApiService) {
     suspend fun addStats(request: AddStatsRequest): Result<AddStatsResponse> {
         return try {
             val response = statsApiService.addStats(request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun addWorkout(request: AddWorkoutRequest): Result<AddStatsResponse> {
+        return try {
+            val response = statsApiService.addWorkout(request)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

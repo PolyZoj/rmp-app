@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.model.AddStatsRequest
+import com.ifmo.rmp.data.model.AddWorkoutRequest
 import com.ifmo.rmp.data.repository.StatsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class AddActivityViewModel(
     private val statsRepository: StatsRepository,
@@ -45,7 +47,7 @@ class AddActivityViewModel(
         }
     }
 
-    fun addWorkout(context: Context, minutes: Int) {
+    fun addWorkout(context: Context, minutes: Int, level: String) {
         if (userId.isBlank()) {
             _errorMessage.value = "User ID is missing"
             return
@@ -54,13 +56,23 @@ class AddActivityViewModel(
             _errorMessage.value = "Workout time must be greater than 0 minutes"
             return
         }
+        if (level !in listOf("easy", "medium", "hard")) {
+            _errorMessage.value = "Invalid workout level"
+            return
+        }
 
         viewModelScope.launch {
-            val request = AddStatsRequest(id = userId, type = "workout", add = minutes)
-            val result = statsRepository.addStats(request)
+            val request = AddWorkoutRequest(
+                id = userId,
+                type = level,
+                timeInSeconds = minutes
+            )
+            val result = statsRepository.addWorkout(request)
             result.onSuccess { response ->
                 if (response.message == "success") {
-                    _successMessage.value = "Workout added successfully: $minutes min"
+                    _successMessage.value = "${level.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                    }} workout added successfully: $minutes seconds"
                 } else {
                     _errorMessage.value = "Failed to add workout"
                 }

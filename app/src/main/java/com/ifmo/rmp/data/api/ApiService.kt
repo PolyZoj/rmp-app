@@ -23,6 +23,7 @@ import com.ifmo.rmp.data.model.UserDtoResponse
 import com.ifmo.rmp.data.model.UserUpdateRequest
 import com.ifmo.rmp.data.model.Achievement
 import com.ifmo.rmp.data.model.Achievements
+import com.ifmo.rmp.data.model.AddWorkoutRequest
 import com.ifmo.rmp.data.model.ClubMemberRequest
 import com.ifmo.rmp.data.model.ClubMemberResponse
 import com.ifmo.rmp.data.model.StatsResponse
@@ -101,6 +102,9 @@ interface StatsApiService {
 
     @POST("stats/add")
     suspend fun addStats(@Body request: AddStatsRequest): AddStatsResponse
+
+    @POST("stats/workout")
+    suspend fun addWorkout(@Body request: AddWorkoutRequest): AddStatsResponse
 
 }
 
