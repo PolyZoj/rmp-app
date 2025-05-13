@@ -270,7 +270,6 @@ fun ManageClubScreen(
                             LazyColumn(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .heightIn(max = 280.dp)
                             ) {
                                 items(club.members) { memberId ->
                                     val memberData = memberUsers[memberId]
@@ -678,14 +677,12 @@ private fun CompactStatItem(
             fontWeight = FontWeight.Bold
         )
         
-        // Progress bar with fixed width
         Box(
             modifier = Modifier
                 .width(36.dp)
                 .height(4.dp)
                 .background(Color.LightGray, RoundedCornerShape(2.dp))
         ) {
-            // Only show the filled part if there's progress
             if (percentage > 0) {
                 Box(
                     modifier = Modifier

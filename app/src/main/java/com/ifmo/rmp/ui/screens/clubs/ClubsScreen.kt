@@ -159,11 +159,11 @@ fun ClubsScreen(
                     },
                     onLeaveClick = {
                         // Leave the club if the current user is not the owner
-                        if (currentClub.ownerId != currentUserId) {
+                        // if (currentClub.ownerId != currentUserId) {
                             currentClub.id?.let { clubId ->
                                 viewModel.leaveClub(context, clubId)
                             }
-                        }
+                        // }
                     }
                 )
             } else {
@@ -425,8 +425,7 @@ fun ClubItemDetailed(
                     Text("Manage")
                 }
                 
-                // Only show leave button if the user is not the owner and onLeaveClick is provided
-                if (club.ownerId != currentUserId && onLeaveClick != null) {
+                if (onLeaveClick != null) {
                     Button(
                         onClick = onLeaveClick,
                         modifier = Modifier.weight(1f),
