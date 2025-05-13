@@ -19,8 +19,8 @@ class ProfileScreenTest {
     @Before
     fun navigateToProfile() {
         // Логинимся и переходим в профиль
-        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
-        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
+        composeTestRule.onNodeWithText("Enter your username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Enter your password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
         composeTestRule.onNodeWithText("Profile").performClick()
     }

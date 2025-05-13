@@ -20,8 +20,8 @@ class EditProfileScreenTest {
     @Before
     fun navigateToEditProfile() {
         // Логинимся и переходим в редактирование профиля
-        composeTestRule.onNodeWithText("Username").performTextInput("bebra52")
-        composeTestRule.onNodeWithText("Password").performTextInput("bebra!")
+        composeTestRule.onNodeWithText("Enter your username").performTextInput("bebra52")
+        composeTestRule.onNodeWithText("Enter your password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
         composeTestRule.onNodeWithText("Profile").performClick()
         composeTestRule.onNodeWithText("bebra52").performClick()
