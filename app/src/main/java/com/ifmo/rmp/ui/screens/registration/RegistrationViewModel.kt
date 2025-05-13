@@ -127,6 +127,14 @@ class RegistrationViewModel : ViewModel() {
         )
     }
 
+    fun onWorkoutsGoalChange(newWorkoutsGoal: String) {
+        _uiState.value = _uiState.value.copy(
+            workoutsGoal = newWorkoutsGoal,
+            errorMessage = "",
+            isSuccess = false
+        )
+    }
+
     fun onAvatarSelected(avatarName: String) {
         _uiState.value = _uiState.value.copy(
             selectedAvatar = avatarName,
@@ -141,7 +149,8 @@ class RegistrationViewModel : ViewModel() {
         if (state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank() ||
             state.username.isBlank() || state.firstName.isBlank() || state.lastName.isBlank() ||
             state.dateOfBirth.isBlank() || state.weight.isBlank() || state.height.isBlank() ||
-            state.stepGoal.isBlank() || state.waterIntake.isBlank() || state.calorieGoal.isBlank()) {
+            state.stepGoal.isBlank() || state.waterIntake.isBlank() || state.calorieGoal.isBlank() ||
+            state.workoutsGoal.isBlank()) {
             _uiState.value = _uiState.value.copy(errorMessage = "All fields are required")
             return
         }
@@ -174,6 +183,17 @@ class RegistrationViewModel : ViewModel() {
             val stepGoal = state.stepGoal.toInt()
             val waterIntake = state.waterIntake.toInt()
             val calorieGoal = state.calorieGoal.toInt()
+            val workoutsGoal = state.workoutsGoal.toInt()
+
+            if (weight < 0 || height < 0 || stepGoal < 0 || waterIntake < 0 || calorieGoal < 0 || workoutsGoal < 0) {
+                _uiState.value = _uiState.value.copy(errorMessage = "Numeric fields cannot be negative")
+                return
+            }
+
+            if (height < 130) {
+                _uiState.value = _uiState.value.copy(errorMessage = "Height must be at least 130 cm")
+                return
+            }
 
             viewModelScope.launch {
                 try {
@@ -192,6 +212,7 @@ class RegistrationViewModel : ViewModel() {
                         dailyStepGoal = stepGoal,
                         waterIntakeGoal = waterIntake,
                         calorieGoal = calorieGoal,
+                        workoutGoal = workoutsGoal,
                         avatarName = state.selectedAvatar
                     )
 
@@ -253,6 +274,7 @@ class RegistrationViewModel : ViewModel() {
         val stepGoal: String = "",
         val waterIntake: String = "",
         val calorieGoal: String = "",
+        val workoutsGoal: String = "",
         val selectedAvatar: String = "e_avatar_1",
         val errorMessage: String = "",
         val cursorPosition: Int = 0,

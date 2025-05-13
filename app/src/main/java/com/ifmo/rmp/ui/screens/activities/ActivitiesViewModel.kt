@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -43,6 +45,9 @@ class ActivitiesViewModel(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _friendsActivity = MutableStateFlow<List<FriendActivity>>(emptyList())
+    val friendsActivity: StateFlow<List<FriendActivity>> = _friendsActivity
 
     fun loadUserData(context: Context, userId: String) {
         if (userId.isBlank()) {
@@ -91,7 +96,50 @@ class ActivitiesViewModel(
         }
     }
 
+    fun loadFriendsActivity(context: Context) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val friendsResult = userRepository.getFriendsList()
+            friendsResult.onSuccess { friendsList ->
+                val activities = mutableListOf<FriendActivity>()
+                coroutineScope {
+                    val deferredResults = friendsList.friends.map { friend ->
+                        async {
+                            val statsResult = statsRepository.getStats(friend.user_id)
+                            statsResult.fold(
+                                onSuccess = { stats ->
+                                    FriendActivity(
+                                        userId = friend.user_id,
+                                        username = friend.username,
+                                        avatarUrl = friend.avatar_url ?: "e_profile",
+                                        steps = stats.steps_count,
+                                        calories = stats.calorie_count
+                                    )
+                                },
+                                onFailure = { null }
+                            )
+                        }
+                    }
+                    activities.addAll(deferredResults.mapNotNull { it.await() })
+                }
+                _friendsActivity.value = activities
+            }.onFailure { error ->
+                _errorMessage.value = "Failed to load friends list: ${error.message}"
+                _friendsActivity.value = emptyList()
+            }
+            _isLoading.value = false
+        }
+    }
+
     fun clearError() {
         _errorMessage.value = null
     }
 }
+
+data class FriendActivity(
+    val userId: String,
+    val username: String,
+    val avatarUrl: String,
+    val steps: Int,
+    val calories: Int
+)

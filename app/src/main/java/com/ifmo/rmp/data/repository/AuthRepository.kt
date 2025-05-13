@@ -8,6 +8,7 @@ import com.ifmo.rmp.data.model.LoginRequest
 import com.ifmo.rmp.data.model.LoginResponse
 import com.ifmo.rmp.data.model.RegistrationRequest
 import com.ifmo.rmp.data.model.RegistrationResponse
+import androidx.core.content.edit
 
 class AuthRepository private constructor(
     private val authApiService: AuthApiService,
@@ -32,10 +33,10 @@ class AuthRepository private constructor(
         return try {
             val request = LoginRequest(username = username, password = password)
             val response = authApiService.login(request)
-            sharedPreferences.edit()
-                .putString("user_id", response.id)
-                .putString("token", response.token)
-                .apply()
+            sharedPreferences.edit {
+                putString("user_id", response.id)
+                    .putString("token", response.token)
+            }
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
@@ -54,6 +55,7 @@ class AuthRepository private constructor(
         dailyStepGoal: Int,
         waterIntakeGoal: Int,
         calorieGoal: Int,
+        workoutGoal: Int,
         avatarName: String
     ): Result<RegistrationResponse> {
         return try {
@@ -74,7 +76,7 @@ class AuthRepository private constructor(
                 water_intake_goal = waterIntakeGoal,
                 calorie_goal = calorieGoal,
                 sleep_goal = 8.0f,
-                workouts_goal = 4
+                workouts_goal = workoutGoal
             )
             val response = authApiService.register(request)
             sharedPreferences.edit()

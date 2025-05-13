@@ -1,7 +1,10 @@
 package com.ifmo.rmp.ui.screens.activities
 
 import android.content.Context
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -45,12 +48,14 @@ fun ActivitiesScreen(navController: NavController) {
     val calorieGoal by viewModel.calorieGoal.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val friendsActivity by viewModel.friendsActivity.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(userId) {
         viewModel.loadUserData(context, userId)
         viewModel.loadStats(context, userId)
+        viewModel.loadFriendsActivity(context)
     }
 
     LaunchedEffect(errorMessage) {
@@ -146,21 +151,41 @@ fun ActivitiesScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.Start)
+                    .height(180.dp)
             ) {
-                EmojiAndTextWithDescriptionLine(
-                    iconResId = R.drawable.e_step,
-                    title = "John Doe",
-                    subtitle = "Steps: 8000, Calories: 1200"
-                )
-                EmojiAndTextWithDescriptionLine(
-                    iconResId = R.drawable.e_step,
-                    title = "Jane Doe",
-                    subtitle = "Steps: 12000, Calories: 790"
-                )
+                if (friendsActivity.isEmpty() && !isLoading) {
+                    Text(
+                        text = "You don't have any friends yet, add some!",
+                        fontSize = 16.sp,
+                        fontFamily = LatoFont,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 4.dp)
+                    ) {
+                        items(friendsActivity) { friend ->
+                            val avatarResId = remember(friend.avatarUrl) {
+                                val resourceName = friend.avatarUrl
+                                val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                                if (id != 0) id else context.resources.getIdentifier("e_profile", "drawable", context.packageName)
+                            }
+                            EmojiAndTextWithDescriptionLine(
+                                iconResId = avatarResId,
+                                title = friend.username,
+                                subtitle = "Steps: ${friend.steps} | Calories: ${friend.calories}",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp)
+                                    .clickable { navController.navigate(Routes.anotherPerson(friend.userId)) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }

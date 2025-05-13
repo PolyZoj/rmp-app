@@ -267,7 +267,7 @@ fun ProfileScreen(
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(bottom = 42.dp)
+                            contentPadding = PaddingValues(bottom = 82.dp)
                         ) {
                             items(displayedFriends) { friend ->
                                 val avatarResId = remember(friend.avatar_url) {
