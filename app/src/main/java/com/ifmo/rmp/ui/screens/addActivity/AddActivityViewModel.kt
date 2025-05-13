@@ -72,7 +72,7 @@ class AddActivityViewModel(
                 if (response.message == "success") {
                     _successMessage.value = "${level.replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                    }} workout added successfully: $minutes seconds"
+                    }} workout added successfully: $minutes minutes"
                 } else {
                     _errorMessage.value = "Failed to add workout"
                 }
