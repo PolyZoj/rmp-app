@@ -1,10 +1,14 @@
 package com.ifmo.rmp.ui.screens.activities
 
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ifmo.rmp.data.model.AddStatsRequest
 import com.ifmo.rmp.data.repository.StatsRepository
 import com.ifmo.rmp.data.repository.UserRepository
+import com.ifmo.rmp.data.service.StepCounterService
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,6 +53,21 @@ class ActivitiesViewModel(
     private val _friendsActivity = MutableStateFlow<List<FriendActivity>>(emptyList())
     val friendsActivity: StateFlow<List<FriendActivity>> = _friendsActivity
 
+    init {
+        // Сбор шагов из StepCounterService
+        viewModelScope.launch {
+            try {
+                StepCounterService.steps.collect { steps ->
+                    Log.d("ActivitiesViewModel", "Collected steps: $steps")
+                    _steps.value = if (steps >= 0) steps else 0
+                }
+            } catch (e: Exception) {
+                Log.e("ActivitiesViewModel", "Failed to collect steps: ${e.message}", e)
+                _errorMessage.value = "Failed to collect steps: ${e.message}"
+            }
+        }
+    }
+
     fun loadUserData(context: Context, userId: String) {
         if (userId.isBlank()) {
             _errorMessage.value = "User ID is missing"
@@ -57,16 +76,26 @@ class ActivitiesViewModel(
 
         viewModelScope.launch {
             _isLoading.value = true
-            val result = userRepository.getUserData(userId)
-            result.onSuccess { userData ->
-                _stepGoal.value = userData.daily_step_goal
-                _waterGoal.value = userData.water_intake_goal
-                _workoutGoal.value = userData.workouts_goal
-                _calorieGoal.value = userData.calorie_goal
-            }.onFailure { error ->
-                _errorMessage.value = "Failed to load user data: ${error.message}"
+            try {
+                // Запуск сервиса шагов
+                context.startService(Intent(context, StepCounterService::class.java))
+                Log.d("ActivitiesViewModel", "StepCounterService started")
+
+                val result = userRepository.getUserData(userId)
+                result.onSuccess { userData ->
+                    _stepGoal.value = userData.daily_step_goal
+                    _waterGoal.value = userData.water_intake_goal
+                    _workoutGoal.value = userData.workouts_goal
+                    _calorieGoal.value = userData.calorie_goal
+                }.onFailure { error ->
+                    _errorMessage.value = "Failed to load user data: ${error.message}"
+                }
+            } catch (e: Exception) {
+                Log.e("ActivitiesViewModel", "Unexpected error loading user data: ${e.message}", e)
+                _errorMessage.value = "Unexpected error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 
@@ -78,56 +107,81 @@ class ActivitiesViewModel(
 
         viewModelScope.launch {
             _isLoading.value = true
-            val result = statsRepository.getStats(userId)
+            try {
+                // Синхронизация шагов с сервером
+                val currentSteps = _steps.value
+                if (currentSteps >= 0) {
+                    statsRepository.addStats(
+                        AddStatsRequest(
+                            id = userId,
+                            type = "steps",
+                            add = currentSteps
+                        )
+                    ).onFailure { error ->
+                        Log.e("ActivitiesViewModel", "Failed to sync steps: ${error.message}", error)
+                        _errorMessage.value = "Failed to sync steps: ${error.message}"
+                    }
+                }
 
-            result.onSuccess { stats ->
-                _steps.value = stats.steps_count
-                _waterIntake.value = stats.water_count
-                _workouts.value = stats.workouts_count
-                _calories.value = stats.calorie_count
-            }.onFailure { error ->
-                _steps.value = 0
-                _waterIntake.value = 0
-                _workouts.value = 0
-                _calories.value = 0
-                _errorMessage.value = "Failed to load statistics: ${error.message}"
+                val result = statsRepository.getStats(userId)
+                result.onSuccess { stats ->
+                    _waterIntake.value = stats.water_count
+                    _workouts.value = stats.workouts_count
+                    _calories.value = stats.calorie_count
+                }.onFailure { error ->
+                    _steps.value = 0
+                    _waterIntake.value = 0
+                    _workouts.value = 0
+                    _calories.value = 0
+                    _errorMessage.value = "Failed to load statistics: ${error.message}"
+                }
+            } catch (e: Exception) {
+                Log.e("ActivitiesViewModel", "Unexpected error loading stats: ${e.message}", e)
+                _errorMessage.value = "Unexpected error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 
     fun loadFriendsActivity(context: Context) {
         viewModelScope.launch {
             _isLoading.value = true
-            val friendsResult = userRepository.getFriendsList()
-            friendsResult.onSuccess { friendsList ->
-                val activities = mutableListOf<FriendActivity>()
-                coroutineScope {
-                    val deferredResults = friendsList.friends.map { friend ->
-                        async {
-                            val statsResult = statsRepository.getStats(friend.user_id)
-                            statsResult.fold(
-                                onSuccess = { stats ->
-                                    FriendActivity(
-                                        userId = friend.user_id,
-                                        username = friend.username,
-                                        avatarUrl = friend.avatar_url ?: "e_profile",
-                                        steps = stats.steps_count,
-                                        calories = stats.calorie_count
-                                    )
-                                },
-                                onFailure = { null }
-                            )
+            try {
+                val friendsResult = userRepository.getFriendsList()
+                friendsResult.onSuccess { friendsList ->
+                    val activities = mutableListOf<FriendActivity>()
+                    coroutineScope {
+                        val deferredResults = friendsList.friends.map { friend ->
+                            async {
+                                val statsResult = statsRepository.getStats(friend.user_id)
+                                statsResult.fold(
+                                    onSuccess = { stats ->
+                                        FriendActivity(
+                                            userId = friend.user_id,
+                                            username = friend.username,
+                                            avatarUrl = friend.avatar_url ?: "e_profile",
+                                            steps = stats.steps_count,
+                                            calories = stats.calorie_count
+                                        )
+                                    },
+                                    onFailure = { null }
+                                )
+                            }
                         }
+                        activities.addAll(deferredResults.mapNotNull { it.await() })
                     }
-                    activities.addAll(deferredResults.mapNotNull { it.await() })
+                    _friendsActivity.value = activities
+                }.onFailure { error ->
+                    _errorMessage.value = "Failed to load friends list: ${error.message}"
+                    _friendsActivity.value = emptyList()
                 }
-                _friendsActivity.value = activities
-            }.onFailure { error ->
-                _errorMessage.value = "Failed to load friends list: ${error.message}"
-                _friendsActivity.value = emptyList()
+            } catch (e: Exception) {
+                Log.e("ActivitiesViewModel", "Unexpected error loading friends: ${e.message}", e)
+                _errorMessage.value = "Unexpected error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 

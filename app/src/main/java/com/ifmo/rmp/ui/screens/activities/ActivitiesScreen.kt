@@ -1,10 +1,15 @@
 package com.ifmo.rmp.ui.screens.activities
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -16,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.ifmo.rmp.R
 import com.ifmo.rmp.data.repository.StatsRepository
@@ -52,10 +58,39 @@ fun ActivitiesScreen(navController: NavController) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    // Проверка и запрос разрешения ACTIVITY_RECOGNITION
+    var hasPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasPermission = isGranted
+        if (!isGranted) {
+            viewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasPermission) {
+            permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+    }
+
     LaunchedEffect(userId) {
-        viewModel.loadUserData(context, userId)
-        viewModel.loadStats(context, userId)
-        viewModel.loadFriendsActivity(context)
+        if (userId.isNotBlank()) {
+            viewModel.loadUserData(context, userId)
+            viewModel.loadStats(context, userId)
+            viewModel.loadFriendsActivity(context)
+        } else {
+            viewModel.clearError()
+        }
     }
 
     LaunchedEffect(errorMessage) {
@@ -93,12 +128,27 @@ fun ActivitiesScreen(navController: NavController) {
                 ) {
                     BigInfoBlock(
                         title = "Steps taken",
-                        value = if (isLoading) "Loading..." else "$steps / $stepGoal"
+                        value = when {
+                            isLoading -> "Loading..."
+                            steps == -1 -> "Sensor unavailable"
+                            !hasPermission -> "Permission denied"
+                            else -> "$steps / $stepGoal"
+                        }
                     )
                     BigInfoBlock(
                         title = "Water intake",
                         value = if (isLoading) "Loading..." else "$waterIntake / $waterGoal"
                     )
+                }
+
+                if (!hasPermission) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION) },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Grant Step Tracking Permission")
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
