@@ -14,7 +14,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,7 +39,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -49,11 +47,23 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.navigation.compose)
+//    implementation(libs.androidx.ui.test.junit4.android)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
+    testImplementation("junit:junit:4.13.2")
+//    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.lifecycle.viewmodel.compose.v270)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.androidx.navigation.compose)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
