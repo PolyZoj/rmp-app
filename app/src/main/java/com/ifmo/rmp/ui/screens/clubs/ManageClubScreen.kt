@@ -117,10 +117,23 @@ fun ManageClubScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Club", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                title = { 
+                    Text(
+                        text = "Manage Club",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    // Empty action to balance the navigation icon
+                    IconButton(onClick = { /* do nothing */ }) {
+                        Box(modifier = Modifier.size(24.dp))
                     }
                 }
             )
@@ -419,20 +432,17 @@ fun MemberItem(
                         .clickable { onUserClick(memberId) }
                         .weight(1f)
                 ) {
-                    // User Avatar
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = userData.first_name.take(1).uppercase(),
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
+                    // User Avatar - using EmojiIcon instead of basic Box
+                    val avatarResId = remember(userData.avatar_url) {
+                        val resourceName = userData.avatar_url ?: "e_profile"
+                        val id = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                        if (id != 0) id else R.drawable.e_profile
                     }
+                    
+                    EmojiIcon(
+                        iconResId = avatarResId,
+                        size = 40
+                    )
                     
                     Spacer(modifier = Modifier.width(12.dp))
                     
@@ -502,19 +512,11 @@ fun MemberItem(
                         .clickable { onUserClick(memberId) }
                         .weight(1f)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = memberId.take(1).uppercase(),
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    // Replace Box with EmojiIcon for consistency
+                    EmojiIcon(
+                        iconResId = R.drawable.e_profile,
+                        size = 32
+                    )
                     
                     Spacer(modifier = Modifier.width(12.dp))
                     
