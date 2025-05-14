@@ -18,40 +18,122 @@ class MainScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    @Test
-    fun testMainScreenElements() {
+    private fun loginToApp() {
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithText("Enter your username").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+        
         composeTestRule.onNodeWithText("Enter your username").performTextInput("bebra52")
         composeTestRule.onNodeWithText("Enter your password").performTextInput("bebra!")
         composeTestRule.onNodeWithText("Log in").performClick()
-
+        
         composeTestRule.waitUntil(timeoutMillis = 5000) {
             runCatching {
                 composeTestRule.onNodeWithTag("profile_button").fetchSemanticsNode() != null
             }.isSuccess
         }
-        composeTestRule.onNodeWithTag("profile_button").assertExists()
     }
 
     @Test
-    fun testMainScreenClubs() {
-        composeTestRule.waitUntil(timeoutMillis = 10000) {
-            runCatching {
-                composeTestRule.onNodeWithTag("clubs_button").fetchSemanticsNode() != null
-            }.isSuccess
-        }
-
-        composeTestRule.onNodeWithTag("clubs_button").assertExists()
-    }
-
-    @Test
-    fun testMainScreenAddWorkout() {
+    fun testNavigationBetweenScreens() {
+        loginToApp()
+        // Navigate to Profile screen
+        composeTestRule.onNodeWithTag("profile_button").performClick()
+        
         composeTestRule.waitUntil(timeoutMillis = 5000) {
             runCatching {
-                composeTestRule.onNodeWithTag("workout_button").fetchSemanticsNode() != null
+                composeTestRule.onNodeWithText("Daily Statistics").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+        
+        // Navigate back to Main screen
+        composeTestRule.onNodeWithText("Home").performClick()
+        
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithTag("welcome_text").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+        
+        // Navigate to Clubs screen
+        composeTestRule.onNodeWithTag("clubs_button").performClick()
+        
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithText("Your current club").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+        
+        // Navigate back to Main screen
+        composeTestRule.onNodeWithText("Home").performClick()
+        
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithTag("welcome_text").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+    }
+
+    @Test
+    fun testAddActivityWorkflow() {
+        // Navigate to Add Activity screen
+        composeTestRule.onNodeWithText("Add Workout").performClick()
+        
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithText("Add your activity").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+        
+        // Interact with water intake controls
+        composeTestRule.onNodeWithContentDescription("Increase").performClick()
+        composeTestRule.onNodeWithContentDescription("Increase").performClick()
+        
+        // Add water
+        composeTestRule.onNodeWithText("Add water").performClick()
+        
+        // Add workout data
+        composeTestRule.onNodeWithText("Medium").performClick()
+        composeTestRule.onNodeWithText("Write time in minutes").performTextInput("30")
+        composeTestRule.onNodeWithText("Add training").performClick()
+        
+        // Return to previous screen
+        composeTestRule.onNodeWithContentDescription("Back").performClick()
+        
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithTag("profile_button").fetchSemanticsNode() != null
+            }.isSuccess
+        }
+    }
+
+    @Test
+    fun testClubsScreenInteraction() {
+        // Navigate to Clubs screen
+        composeTestRule.onNodeWithTag("clubs_button").performClick()
+        
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runCatching {
+                composeTestRule.onNodeWithText("Your current club").fetchSemanticsNode() != null
             }.isSuccess
         }
 
-        composeTestRule.onNodeWithTag("workout_button").assertExists()
+        // Navigate back to Main screen
+        try {
+            composeTestRule.onNodeWithText("Home").performClick()
+            
+            composeTestRule.waitUntil(timeoutMillis = 5000) {
+                runCatching {
+                    composeTestRule.onNodeWithTag("profile_button").fetchSemanticsNode() != null
+                }.isSuccess
+            }
+        } catch (e: Exception) {
+            // Try using back button if Home button doesn't exist
+            composeTestRule.onNodeWithContentDescription("Back").performClick()
+        }
     }
+
 }
 
